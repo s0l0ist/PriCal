@@ -1,23 +1,44 @@
-import { StatusBar } from 'expo-status-bar'
-import React from 'react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-
+import * as React from 'react'
+import { View, Text, StyleSheet } from 'react-native'
+import Body from './components/Body'
 import useCachedResources from './hooks/useCachedResources'
-import useColorScheme from './hooks/useColorScheme'
-import Navigation from './navigation'
+import usePermissions from './hooks/usePermissions'
 
 export default function App() {
   const isLoadingComplete = useCachedResources()
-  const colorScheme = useColorScheme()
+  const { hasPermission } = usePermissions()
 
   if (!isLoadingComplete) {
     return null
-  } else {
-    return (
-      <SafeAreaProvider>
-        <Navigation colorScheme={colorScheme} />
-        <StatusBar />
-      </SafeAreaProvider>
-    )
   }
+
+  if (!hasPermission) {
+    console.log('we dont have permission!')
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>PriCal</Text>
+      <View style={styles.separator} />
+      <Body />
+    </View>
+  )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  separator: {
+    backgroundColor: '#eee',
+    marginVertical: 30,
+    height: 1,
+    width: '80%'
+  }
+})
