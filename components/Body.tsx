@@ -9,7 +9,7 @@ import useGrid from '../hooks/useGrid'
 
 export default function Body() {
   const { listCalendars, listEvents } = useCalendar()
-  const { createGrid, convertToIndexes } = useGrid()
+  const { convertToGrid } = useGrid()
   const { buildRequest } = useRequest({
     onCompleted: data => console.log('got data', data),
     onError: err => console.log('got err', err)
@@ -20,8 +20,6 @@ export default function Body() {
     method: 'post'
   })
 
-  console.log('loading', loading)
-
   React.useEffect(() => {
     ;(async () => {
       const calendars = await listCalendars()
@@ -30,8 +28,6 @@ export default function Body() {
           x.entityType === Calendar.EntityTypes.EVENT &&
           x.type === Calendar.SourceType.LOCAL
       )
-      // console.log('localCalendar', localCalendar)
-      // Get today's events
       const rightNow = new Date()
       const { start, end } = getTodayRange(rightNow)
       const rawEvents = await listEvents(
@@ -44,13 +40,9 @@ export default function Body() {
         end: new Date(x.endDate)
       }))
 
-      // now, create a grid
+      const grid = convertToGrid(events)
 
-      request(events)
-
-      const grid = createGrid()
-      const indexes = convertToIndexes(events)
-      console.log('indexes', indexes)
+      request(grid)
     })()
   }, [])
 

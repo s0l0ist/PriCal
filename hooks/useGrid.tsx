@@ -56,10 +56,18 @@ export default function useGrid() {
       .reduce((acc, blocks) => [...new Set([...acc, ...blocks])], [])
   }
 
+  const convertToGrid = (events: Event[]) => {
+    const indexes = convertToIndexes(events)
+    const grid = createGrid()
+    indexes.forEach(idx => {
+      setGridPoint(idx, 1, grid)
+    })
+    return grid
+  }
+
   return React.useMemo(
     () => ({
-      createGrid,
-      convertToIndexes
+      convertToGrid
     }),
     []
   )
