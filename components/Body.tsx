@@ -9,7 +9,7 @@ import useGrid from '../hooks/useGrid'
 
 export default function Body() {
   const { listCalendars, listEvents } = useCalendar()
-  const { convertToGrid } = useGrid()
+  const { convertToGrid, encryptGrid } = useGrid()
   const { buildRequest } = useRequest({
     onCompleted: data => console.log('got data', data),
     onError: err => console.log('got err', err)
@@ -40,9 +40,11 @@ export default function Body() {
         end: new Date(x.endDate)
       }))
 
+      console.log('events', events)
       const grid = convertToGrid(events)
 
-      request(grid)
+      const clientRequestSerialized = await encryptGrid(grid)
+      // request(grid)
     })()
   }, [])
 
