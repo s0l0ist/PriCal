@@ -11,7 +11,7 @@ function withLog<T extends (...args: any[]) => any>(
   // Return a new function that tracks how long the original took
   return (...args: Parameters<T>): ReturnTypeAsync<T> => {
     const startTime = new Date().getTime()
-    const results = func.call(func, args)
+    const results = func.apply(func, args)
     const duration = new Date().getTime() - startTime
     console.log(`Calling '${funcName}' took ${duration}ms`)
     return results

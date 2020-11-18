@@ -45,12 +45,13 @@ export default function useCalendar() {
   }
 
   return React.useMemo(
-    () => ({
-      listCalendars,
-      getDefaultCalendarSource,
-      createCalendar,
-      listEvents
-    }),
+    () =>
+      ({
+        listCalendars,
+        getDefaultCalendarSource,
+        createCalendar,
+        listEvents
+      } as const),
     []
   )
 }

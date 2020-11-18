@@ -56,10 +56,11 @@ export default function usePermissions() {
   }, [])
 
   return React.useMemo(
-    () => ({
-      permissionStatuses,
-      hasPermission
-    }),
-    [permissionStatuses, hasPermission] as const
+    () =>
+      ({
+        permissionStatuses,
+        hasPermission
+      } as const),
+    [permissionStatuses, hasPermission]
   )
 }

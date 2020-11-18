@@ -23,7 +23,7 @@ export default function withPermissions(checks: PermissionsArray) {
           )}]`
         )
       }
-      return await func.call(func, args)
+      return await func.apply(func, args)
     }
   }
 }

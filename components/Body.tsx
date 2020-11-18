@@ -6,17 +6,19 @@ import { getTodayRange } from '../utils/date'
 import * as Calendar from 'expo-calendar'
 import useRequest from '../hooks/useRequest'
 import useGrid from '../hooks/useGrid'
+import usePsi from '../hooks/usePsi'
 
 export default function Body() {
   const { listCalendars, listEvents } = useCalendar()
-  const { convertToGrid, encryptGrid } = useGrid()
+  const { convertToGrid } = useGrid()
+  const { encryptGrid } = usePsi()
   const { buildRequest } = useRequest({
     onCompleted: data => console.log('got data', data),
     onError: err => console.log('got err', err)
   })
 
   const [request, { loading }] = buildRequest({
-    url: 'http://localhost:8081',
+    url: 'http://localhost:8081/clientRequest',
     method: 'post'
   })
 
@@ -43,8 +45,12 @@ export default function Body() {
       console.log('events', events)
       const grid = convertToGrid(events)
 
-      const clientRequestSerialized = await encryptGrid(grid)
-      // request(grid)
+      console.log('grid', grid)
+      const [requestId, clientRequest] = await encryptGrid(grid)
+      request({
+        requestId,
+        clientRequest: clientRequest.serializeBinary()
+      })
     })()
   }, [])
 

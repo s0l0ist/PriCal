@@ -45,5 +45,5 @@ export default function useRequest(props?: RequestProps) {
 
   return {
     buildRequest
-  }
+  } as const
 }
