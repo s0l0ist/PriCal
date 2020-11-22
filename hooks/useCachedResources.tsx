@@ -29,5 +29,5 @@ export default function useCachedResources() {
     loadResourcesAndDataAsync()
   }, [])
 
-  return isLoadingComplete
+  return React.useMemo(() => [isLoadingComplete], [isLoadingComplete])
 }

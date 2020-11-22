@@ -3,17 +3,26 @@ import { View, Text, StyleSheet } from 'react-native'
 import Body from './components/Body'
 import useCachedResources from './hooks/useCachedResources'
 import usePermissions from './hooks/usePermissions'
+import useStorage from './hooks/useStorage'
 
 export default function App() {
-  const isLoadingComplete = useCachedResources()
-  const { hasPermission } = usePermissions()
+  const [hasLoaded] = useCachedResources()
+  const [hasPermission, { permissionStatuses }] = usePermissions()
+  const [hasSecureStorage] = useStorage()
 
-  if (!isLoadingComplete) {
+  if (!hasLoaded) {
     return null
   }
 
-  if (!hasPermission) {
-    console.log('we dont have permission!')
+  if (!hasPermission && permissionStatuses.length) {
+    console.info(
+      'we dont have permission!',
+      permissionStatuses.filter(x => !x.Response.granted).map(x => x.Permission)
+    )
+  }
+
+  if (!hasSecureStorage) {
+    console.info('Device does not support SecureStorage!')
   }
 
   return (

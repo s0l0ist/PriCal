@@ -46,3 +46,8 @@ export enum DateTypeEnum {
   Month,
   Year
 }
+
+export type Event = {
+  start: Date
+  end: Date
+}

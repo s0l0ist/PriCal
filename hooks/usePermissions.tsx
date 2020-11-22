@@ -1,31 +1,53 @@
-import * as Calendar from 'expo-calendar'
 import * as React from 'react'
+import * as Permissions from 'expo-permissions'
 import { PermissionResponse, PermissionsArray } from '../types'
 
 /**
  * Requests for REMINDER permission if not already granted
  */
 const requestReminderPermission = async (): Promise<PermissionResponse> => {
-  const reminderPermissions = await Calendar.getRemindersPermissionsAsync()
-  if (reminderPermissions.canAskAgain && !reminderPermissions.granted) {
-    const reminderPermissionsResponse = await Calendar.requestRemindersPermissionsAsync()
-    return { Response: reminderPermissionsResponse, Permission: 'REMINDERS' }
+  const permission = await Permissions.getAsync(Permissions.REMINDERS)
+  if (permission.canAskAgain && !permission.granted) {
+    const permissionResponse = await Permissions.askAsync(Permissions.REMINDERS)
+    return { Response: permissionResponse, Permission: 'REMINDERS' }
   }
-  return { Response: reminderPermissions, Permission: 'REMINDERS' }
+  return { Response: permission, Permission: 'REMINDERS' }
 }
 
 /**
  * Requests for CALENDAR permission if not already granted
  */
 const requestCalendarPermission = async (): Promise<PermissionResponse> => {
-  const calendarPermissions = await Calendar.getCalendarPermissionsAsync()
-  if (calendarPermissions.canAskAgain && !calendarPermissions.granted) {
-    const calendarPermissionsResponse = await Calendar.requestCalendarPermissionsAsync()
-    return { Response: calendarPermissionsResponse, Permission: 'CALENDAR' }
+  const permission = await Permissions.getAsync(Permissions.CALENDAR)
+  if (permission.canAskAgain && !permission.granted) {
+    const permissionResponse = await Permissions.askAsync(Permissions.CALENDAR)
+    return { Response: permissionResponse, Permission: 'CALENDAR' }
   }
-  return { Response: calendarPermissions, Permission: 'CALENDAR' }
+  return { Response: permission, Permission: 'CALENDAR' }
 }
 
+/**
+ * Requests for NOTIFICATIONS permission if not alreday granted
+ */
+
+const requestNotificationPermission = async (): Promise<PermissionResponse> => {
+  const permission = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+  if (permission.canAskAgain && !permission.granted) {
+    const permissionResponse = await Permissions.askAsync(
+      Permissions.NOTIFICATIONS
+    )
+    return { Response: permissionResponse, Permission: 'NOTIFICATIONS' }
+  }
+  return { Response: permission, Permission: 'NOTIFICATIONS' }
+}
+
+/**
+ * Checks if all required permissions have been set.
+ *
+ * If any of them are unsuccessful, `hasPermission` is false
+ * and you should inspect `permissionStatuses` to see
+ * which have failed.
+ */
 export default function usePermissions() {
   const [permissionStatuses, setPermissionStatuses] = React.useState<
     Array<PermissionResponse>
@@ -41,7 +63,8 @@ export default function usePermissions() {
     () =>
       getPermissionStatuses([
         requestReminderPermission,
-        requestCalendarPermission
+        requestCalendarPermission,
+        requestNotificationPermission
       ]),
     []
   )
@@ -57,10 +80,12 @@ export default function usePermissions() {
 
   return React.useMemo(
     () =>
-      ({
-        permissionStatuses,
-        hasPermission
-      } as const),
+      [
+        hasPermission,
+        {
+          permissionStatuses
+        }
+      ] as const,
     [permissionStatuses, hasPermission]
   )
 }

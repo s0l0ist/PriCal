@@ -2,7 +2,7 @@ import { ReturnTypeAsync } from '../types'
 
 /**
  * Creates a HOC which times the execution of the provided function
- * @param func
+ * @param func Function to measure time
  */
 function withLog<T extends (...args: any[]) => any>(
   func: T

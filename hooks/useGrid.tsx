@@ -1,20 +1,8 @@
-import 'react-native-get-random-values'
 import * as React from 'react'
-import { getTodayRange } from '../utils/date'
+import { getTodayRange } from '../utils/Date'
 import useRandom from './useRandom'
-
-const oneMillisecond = 1
-const oneSecond = oneMillisecond * 1000
-const oneMinute = oneSecond * 60
-const oneHour = oneMinute * 60
-const oneDay = oneHour * 24
-const timeSliceMs = oneMinute * 15
-const maxGridElements = oneDay / timeSliceMs
-
-type Event = {
-  start: Date
-  end: Date
-}
+import { Event } from '../types'
+import { timeSliceMs, maxGridElements } from '../constants/Grid'
 
 export default function useGrid() {
   const { getRandomString } = useRandom()

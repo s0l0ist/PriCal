@@ -2,7 +2,7 @@ import * as React from 'react'
 import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
 import useCalendar from '../hooks/useCalendar'
 import { MonoText } from './MonoText'
-import { getTodayRange } from '../utils/date'
+import { getTodayRange } from '../utils/Date'
 import * as Calendar from 'expo-calendar'
 import useRequest from '../hooks/useRequest'
 import useGrid from '../hooks/useGrid'
@@ -11,48 +11,66 @@ import usePsi from '../hooks/usePsi'
 export default function Body() {
   const { listCalendars, listEvents } = useCalendar()
   const { convertToGrid } = useGrid()
-  const { encryptGrid } = usePsi()
-  const { buildRequest } = useRequest({
-    onCompleted: data => console.log('got data', data),
-    onError: err => console.log('got err', err)
-  })
+  const [, { createClientRequest }] = usePsi()
+  const { buildRequest } = useRequest()
 
-  const [request, { loading }] = buildRequest({
+  // Create our client requestor. This
+  const [sendClientRequest, { loading }] = buildRequest({
     url: 'http://localhost:8081/clientRequest',
     method: 'post'
   })
 
-  React.useEffect(() => {
-    ;(async () => {
-      const calendars = await listCalendars()
-      const localCalendar = calendars.filter(
-        x =>
-          x.entityType === Calendar.EntityTypes.EVENT &&
-          x.type === Calendar.SourceType.LOCAL
-      )
-      const rightNow = new Date()
-      const { start, end } = getTodayRange(rightNow)
-      const rawEvents = await listEvents(
-        localCalendar.map(x => x.id),
-        start,
-        end
-      )
-      const events = rawEvents.map(x => ({
-        start: new Date(x.startDate),
-        end: new Date(x.endDate)
-      }))
+  /**
+   * Gathers the user's default calendar and list of events for today.
+   */
+  async function createRequest() {
+    console.log('Creating Client Request!')
+    const calendars = await listCalendars()
+    const localCalendar = calendars.filter(
+      x =>
+        x.entityType === Calendar.EntityTypes.EVENT &&
+        x.type === Calendar.SourceType.LOCAL
+    )
+    const rightNow = new Date()
+    const { start, end } = getTodayRange(rightNow)
+    const rawEvents = await listEvents(
+      localCalendar.map(x => x.id),
+      start,
+      end
+    )
+    const events = rawEvents.map(x => ({
+      start: new Date(x.startDate),
+      end: new Date(x.endDate)
+    }))
 
-      console.log('events', events)
-      const grid = convertToGrid(events)
+    const grid = convertToGrid(events)
 
-      console.log('grid', grid)
-      const [requestId, clientRequest] = await encryptGrid(grid)
-      request({
+    const [requestId, clientRequest] = await createClientRequest(grid)
+
+    console.log('Sending Client Request')
+
+    // Send the client request to the broker
+    sendClientRequest(
+      {
         requestId,
-        clientRequest: clientRequest.serializeBinary()
-      })
-    })()
-  }, [])
+        clientRequest: clientRequest.toObject()
+      },
+      {
+        onCompleted: handleResponse,
+        onError: handleError
+      }
+    )
+
+    console.log('Sent Client Request')
+  }
+
+  async function handleResponse(response: any) {
+    console.log('got response', response)
+  }
+
+  async function handleError(error: Error) {
+    console.error('got error', error)
+  }
 
   return (
     <View>
@@ -74,19 +92,15 @@ export default function Body() {
       </View>
 
       <View style={styles.helpContainer}>
-        <TouchableOpacity onPress={onPress} style={styles.helpLink}>
+        <TouchableOpacity onPress={createRequest} style={styles.helpLink}>
           <Text style={styles.helpLinkText}>
-            Tap here if your app doesn't automatically update after making
-            changes
+            Tap here to create a client request, send it and compute the
+            intersection
           </Text>
         </TouchableOpacity>
       </View>
     </View>
   )
-}
-
-function onPress() {
-  console.log('Pressed!')
 }
 
 const styles = StyleSheet.create({

@@ -3,7 +3,7 @@ import * as React from 'react'
 import { Platform } from 'react-native'
 
 export default function useCalendar() {
-  const listCalendars = async () => {
+  const listCalendars = async (): Promise<Calendar.Calendar[]> => {
     return await Calendar.getCalendarsAsync()
   }
 
