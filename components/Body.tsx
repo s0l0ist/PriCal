@@ -1,8 +1,6 @@
 import * as React from 'react'
 import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
-import useCalendar from '../hooks/useCalendar'
 import { MonoText } from './MonoText'
-import { getTodayRange } from '../utils/Date'
 import useSchedule from '../hooks/useSchedule'
 
 export default function Body() {
@@ -21,7 +19,6 @@ export default function Body() {
 
       <View style={styles.getStartedContainer}>
         <Text style={styles.getStartedText}>Intersection:</Text>
-
         <View
           style={[styles.codeHighlightContainer, styles.homeScreenFilename]}
         >
