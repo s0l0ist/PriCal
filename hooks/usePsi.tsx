@@ -86,7 +86,8 @@ export default function usePsi() {
       const serverSetup = server.createSetupMessage(
         0.001,
         request.getEncryptedElementsList().length,
-        grid
+        grid,
+        psi!.dataStructure.GCS
       )
 
       setServerResponseAndSetup({

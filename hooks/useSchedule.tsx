@@ -1,7 +1,5 @@
 import * as React from 'react'
-import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
 import useCalendar from './useCalendar'
-import { MonoText } from '../components/MonoText'
 import { getTodayRange } from '../utils/Date'
 import useRequest from './useRequest'
 import useGrid from './useGrid'
