@@ -22,6 +22,12 @@ export default function useStorage() {
     })
   }
 
+  const deleteItem = async (key: string): Promise<void> => {
+    await SecureStore.deleteItemAsync(key, {
+      keychainService: KEYCHAIN_SERVICE
+    })
+  }
+
   const storeMap = async (key: string, value: Map<any, any>): Promise<void> => {
     const serialized = JSON.stringify([...value.entries()])
     return storeItem(key, serialized)
@@ -33,12 +39,6 @@ export default function useStorage() {
       return new Map()
     }
     return new Map(JSON.parse(serialized))
-  }
-
-  const deleteItem = async (key: string): Promise<void> => {
-    return SecureStore.deleteItemAsync(key, {
-      keychainService: KEYCHAIN_SERVICE
-    })
   }
 
   // Always check to see if the device supports SecureStorage.
@@ -56,9 +56,11 @@ export default function useStorage() {
         {
           storeMap,
           loadMap,
+          storeItem,
+          getItem,
           deleteItem
         }
       ] as const,
-    [storeMap, loadMap, deleteItem, hasSecureStorage]
+    [hasSecureStorage, storeMap, loadMap, storeItem, getItem, deleteItem]
   )
 }

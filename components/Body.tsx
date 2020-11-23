@@ -3,101 +3,30 @@ import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
 import useCalendar from '../hooks/useCalendar'
 import { MonoText } from './MonoText'
 import { getTodayRange } from '../utils/Date'
-import * as Calendar from 'expo-calendar'
-import useRequest from '../hooks/useRequest'
-import useGrid from '../hooks/useGrid'
-import usePsi from '../hooks/usePsi'
+import useSchedule from '../hooks/useSchedule'
 
 export default function Body() {
-  const { listCalendars, listEvents } = useCalendar()
-  const { convertToGrid } = useGrid()
-  const [, { createClientRequest }] = usePsi()
-  const { buildRequest } = useRequest()
-
-  // Create our client requestor. This
-  const [sendClientRequest, { loading }] = buildRequest({
-    url: 'http://localhost:8081/clientRequest',
-    method: 'post'
-  })
-
-  /**
-   * Gathers the user's default calendar and list of events for today.
-   */
-  async function createRequest() {
-    console.log('Creating Client Request!')
-    const calendars = await listCalendars()
-    const localCalendar = calendars.filter(
-      x =>
-        x.entityType === Calendar.EntityTypes.EVENT &&
-        x.type === Calendar.SourceType.LOCAL
-    )
-    const rightNow = new Date()
-    const { start, end } = getTodayRange(rightNow)
-    const rawEvents = await listEvents(
-      localCalendar.map(x => x.id),
-      start,
-      end
-    )
-    const events = rawEvents.map(x => ({
-      start: new Date(x.startDate),
-      end: new Date(x.endDate)
-    }))
-
-    const grid = convertToGrid(events)
-
-    const [requestId, clientRequest] = await createClientRequest(grid)
-
-    console.log('Sending Client Request')
-
-    // Send the client request to the broker
-    sendClientRequest(
-      {
-        requestId,
-        clientRequest: clientRequest.toObject()
-      },
-      {
-        onCompleted: handleResponse,
-        onError: handleError
-      }
-    )
-
-    console.log('Sent Client Request')
-  }
-
-  async function handleResponse(response: any) {
-    console.log('got response', response)
-  }
-
-  async function handleError(error: Error) {
-    console.error('got error', error)
-  }
+  const [intersection, { createRequest }] = useSchedule()
 
   return (
     <View>
-      <View style={styles.getStartedContainer}>
-        <Text style={styles.getStartedText}>
-          Open up the code for this screen:
-        </Text>
-
-        <View
-          style={[styles.codeHighlightContainer, styles.homeScreenFilename]}
-        >
-          <MonoText>{'sup'}</MonoText>
-        </View>
-
-        <Text style={styles.getStartedText}>
-          Change any of the text, save the file, and your app will automatically
-          update.
-        </Text>
-      </View>
-
       <View style={styles.helpContainer}>
         <TouchableOpacity onPress={createRequest} style={styles.helpLink}>
-          <Text style={styles.helpLinkText}>
+          <Text style={styles.getStartedText}>
             Tap here to create a client request, send it and compute the
             intersection
           </Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.getStartedContainer}>
+        <Text style={styles.getStartedText}>Intersection:</Text>
+
+        <View
+          style={[styles.codeHighlightContainer, styles.homeScreenFilename]}
+        >
+          <MonoText>{intersection.join(', ')}</MonoText>
+        </View>
       </View>
     </View>
   )

@@ -51,3 +51,7 @@ export type Event = {
   start: Date
   end: Date
 }
+
+export type Subscription = {
+  remove: () => void
+}

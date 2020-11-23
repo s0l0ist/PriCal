@@ -7,23 +7,16 @@ import useStorage from './hooks/useStorage'
 
 export default function App() {
   const [hasLoaded] = useCachedResources()
-  const [hasPermission, { permissionStatuses }] = usePermissions()
+  const [hasPermissions, { permissionStatuses }] = usePermissions()
   const [hasSecureStorage] = useStorage()
 
   if (!hasLoaded) {
     return null
   }
 
-  if (!hasPermission && permissionStatuses.length) {
-    console.info(
-      'we dont have permission!',
-      permissionStatuses.filter(x => !x.Response.granted).map(x => x.Permission)
-    )
-  }
-
-  if (!hasSecureStorage) {
-    console.info('Device does not support SecureStorage!')
-  }
+  console.log(
+    `hasLoaded: ${hasLoaded}, hasPermissions: ${hasPermissions}, hasSecureStorage: ${hasSecureStorage}`
+  )
 
   return (
     <View style={styles.container}>

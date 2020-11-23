@@ -21,7 +21,7 @@ export default function useGrid() {
   }
 
   /**
-   * Gets a list of indexes into a time-grid from a list of events
+   * Returns a time-grid from a list of events
    *
    * @param events A list of calendar events
    */
@@ -43,7 +43,6 @@ export default function useGrid() {
       events.forEach(event => {
         if (isInsideEventRange(timeIncrement, event)) {
           grid[i] = `${timeIncrement.toISOString()} | [true]`
-          console.log('we have a block:', grid[i])
         }
       })
     }
