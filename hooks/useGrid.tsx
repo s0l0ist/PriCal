@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { getTodayRange } from '../utils/Date'
+import { getDateRange } from '../utils/Date'
 import useRandom from './useRandom'
 import { Event } from '../types'
-import { timeSliceMs, maxGridElements } from '../constants/Grid'
+import { timeSliceMs, gridElementsPerDay, oneDay } from '../constants/Grid'
 
 export default function useGrid() {
   const { getRandomString } = useRandom()
@@ -25,18 +25,15 @@ export default function useGrid() {
    *
    * @param events A list of calendar events
    */
-  const convertToGrid = (events: Event[]): string[] => {
+  const convertToGrid = (events: Event[], start: Date, end: Date): string[] => {
     // create the full grid
-    const grid: string[] = Array.from({ length: maxGridElements })
-
-    // FIXME: Using today as the start index
-    // but we will need to change this to be dynamic
-    const rightNow = new Date()
-    const today = getTodayRange(rightNow)
+    const differenceMs = end.getTime() - start.getTime()
+    const days = Math.ceil(differenceMs / oneDay)
+    const grid: string[] = Array.from({ length: gridElementsPerDay * days })
 
     // For each time slice, check and set our availability
     for (let i = 0; i < grid.length; i++) {
-      const timeIncrement = new Date(today.start.getTime() + i * timeSliceMs)
+      const timeIncrement = new Date(start.getTime() + i * timeSliceMs)
 
       grid[i] = `${timeIncrement.toISOString()} | ${getRandomString(4)}`
 

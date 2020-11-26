@@ -41,6 +41,11 @@ const requestNotificationPermission = async (): Promise<PermissionResponse> => {
   return { Response: permission, Permission: 'NOTIFICATIONS' }
 }
 
+type PermissionState = {
+  permissionStatuses: PermissionResponse[]
+  hasPermission: boolean
+}
+
 /**
  * Checks if all required permissions have been set.
  *
@@ -49,10 +54,10 @@ const requestNotificationPermission = async (): Promise<PermissionResponse> => {
  * which have failed.
  */
 export default function usePermissions() {
-  const [permissionStatuses, setPermissionStatuses] = React.useState<
-    Array<PermissionResponse>
-  >([])
-  const [hasPermission, setHasPermission] = React.useState<boolean>(false)
+  const [state, setState] = React.useState<PermissionState>({
+    permissionStatuses: [],
+    hasPermission: false
+  })
 
   const getPermissionStatuses = (
     permissionRequests: PermissionsArray
@@ -72,20 +77,14 @@ export default function usePermissions() {
   // Request any permissions prior to any user interaction
   React.useEffect(() => {
     ;(async () => {
-      const statuses = await getAllPermissionStatuses()
-      setPermissionStatuses(statuses)
-      setHasPermission(statuses.every(x => x.Response.granted))
+      const permissionStatuses = await getAllPermissionStatuses()
+      const hasPermission = permissionStatuses.every(x => x.Response.granted)
+      setState({
+        permissionStatuses,
+        hasPermission
+      })
     })()
   }, [])
 
-  return React.useMemo(
-    () =>
-      [
-        hasPermission,
-        {
-          permissionStatuses
-        }
-      ] as const,
-    [permissionStatuses, hasPermission]
-  )
+  return React.useMemo(() => [state] as const, [state])
 }

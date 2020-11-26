@@ -5,4 +5,4 @@ export const oneHour = oneMinute * 60
 export const oneDay = oneHour * 24
 export const oneWeek = oneDay * 7
 export const timeSliceMs = oneMinute * 15
-export const maxGridElements = oneDay / timeSliceMs
+export const gridElementsPerDay = oneDay / timeSliceMs

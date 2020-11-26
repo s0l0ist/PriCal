@@ -16,7 +16,7 @@ export default function useRequest() {
    * @param fetchProps Options for the request
    * @param fetchHandlerProps Optional Handlers to call
    */
-  function buildRequest<R>(
+  const buildRequest = React.useCallback(function buildRequest<R>(
     fetchProps: FetchProps,
     fetchHandlerProps: FetchHandlerProps<R>
   ) {
@@ -26,7 +26,7 @@ export default function useRequest() {
      * Dispatches a network request
      * @param payload The payload to be send in the request body
      */
-    async function request<A>(payload: A) {
+    const request = React.useCallback(async function request<A>(payload: A) {
       const handleError = fetchHandlerProps.onError
       const handleCompleted = fetchHandlerProps.onCompleted
 
@@ -44,21 +44,26 @@ export default function useRequest() {
       } finally {
         setLoading(false)
       }
-    }
+    }, [fetchHandlerProps])
 
-    return [
-      request,
-      {
-        loading
-      }
-    ] as const
-  }
+    return React.useMemo(
+      () =>
+        [
+          request,
+          {
+            loading
+          }
+        ] as const,
+      [request]
+    )
+  },
+  [])
 
   return React.useMemo(
     () =>
       ({
         buildRequest
       } as const),
-    []
+    [buildRequest]
   )
 }

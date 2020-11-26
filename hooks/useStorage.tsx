@@ -2,57 +2,74 @@ import * as SecureStore from 'expo-secure-store'
 import * as React from 'react'
 import { KEYCHAIN_SERVICE } from '../constants/Storage'
 
+type StorageState = {
+  hasSecureStorage: boolean
+}
 export default function useStorage() {
-  const [hasSecureStorage, setHasSecureStorage] = React.useState<boolean>(false)
+  const [state, setState] = React.useState<StorageState>({
+    hasSecureStorage: false
+  })
 
   const isStorageAvailable = async (): Promise<boolean> => {
     return await SecureStore.isAvailableAsync()
   }
 
-  const storeItem = async (key: string, value: string): Promise<void> => {
-    return SecureStore.setItemAsync(key, value, {
-      keychainService: KEYCHAIN_SERVICE,
-      keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY
-    })
-  }
+  const storeItem = React.useCallback(
+    async (key: string, value: string): Promise<void> => {
+      return SecureStore.setItemAsync(key, value, {
+        keychainService: KEYCHAIN_SERVICE,
+        keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY
+      })
+    },
+    []
+  )
 
-  const getItem = async (key: string): Promise<string | null> => {
+  const getItem = React.useCallback(async (key: string): Promise<
+    string | null
+  > => {
     return SecureStore.getItemAsync(key, {
       keychainService: KEYCHAIN_SERVICE
     })
-  }
+  }, [])
 
-  const deleteItem = async (key: string): Promise<void> => {
+  const deleteItem = React.useCallback(async (key: string): Promise<void> => {
     await SecureStore.deleteItemAsync(key, {
       keychainService: KEYCHAIN_SERVICE
     })
-  }
+  }, [])
 
-  const storeMap = async (key: string, value: Map<any, any>): Promise<void> => {
-    const serialized = JSON.stringify([...value.entries()])
-    return storeItem(key, serialized)
-  }
+  const storeMap = React.useCallback(
+    async (key: string, value: Map<any, any>): Promise<void> => {
+      const serialized = JSON.stringify([...value.entries()])
+      return storeItem(key, serialized)
+    },
+    []
+  )
 
-  const loadMap = async (key: string): Promise<Map<any, any>> => {
+  const loadMap = React.useCallback(async (key: string): Promise<
+    Map<any, any>
+  > => {
     const serialized = await getItem(key)
     if (!serialized) {
       return new Map()
     }
     return new Map(JSON.parse(serialized))
-  }
+  }, [])
 
   // Always check to see if the device supports SecureStorage.
   React.useEffect(() => {
     ;(async () => {
-      const isAvailable = await isStorageAvailable()
-      setHasSecureStorage(isAvailable)
+      const hasSecureStorage = await isStorageAvailable()
+      setState({
+        hasSecureStorage
+      })
     })()
   }, [])
 
   return React.useMemo(
     () =>
       [
-        hasSecureStorage,
+        state,
         {
           storeMap,
           loadMap,
@@ -61,6 +78,6 @@ export default function useStorage() {
           deleteItem
         }
       ] as const,
-    [hasSecureStorage, storeMap, loadMap, storeItem, getItem, deleteItem]
+    [state]
   )
 }

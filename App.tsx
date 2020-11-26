@@ -7,15 +7,15 @@ import useStorage from './hooks/useStorage'
 
 export default function App() {
   const [hasLoaded] = useCachedResources()
-  const [hasPermissions, { permissionStatuses }] = usePermissions()
-  const [hasSecureStorage] = useStorage()
+  const [{ hasPermission }] = usePermissions()
+  const [{ hasSecureStorage }] = useStorage()
 
   if (!hasLoaded) {
     return null
   }
 
   console.log(
-    `hasLoaded: ${hasLoaded}, hasPermissions: ${hasPermissions}, hasSecureStorage: ${hasSecureStorage}`
+    `hasLoaded: ${hasLoaded}, hasPermission: ${hasPermission}, hasSecureStorage: ${hasSecureStorage}`
   )
 
   return (

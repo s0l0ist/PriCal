@@ -1,6 +1,6 @@
 import * as React from 'react'
 import useCalendar from './useCalendar'
-import { getTodayRange } from '../utils/Date'
+import { getDateRange } from '../utils/Date'
 import useRequest from './useRequest'
 import useGrid from './useGrid'
 import usePsi from './usePsi'
@@ -16,21 +16,27 @@ type ResponsePayload = {
   serverSetup: number[]
 }
 
-export default function useSchedule() {
-  const [_, localCalendars, { listEvents }] = useCalendar()
-  const [fetchRequestPayload, setFetchRequestPayload] = React.useState<
-    RequestPayload
-  >()
-  const [fetchResponsePayload, setFetchResponsePayload] = React.useState<
-    ResponsePayload
-  >()
+type ScheduleState = {
+  fetchRequestPayload: RequestPayload | undefined
+  fetchResponsePayload: ResponsePayload | undefined
+}
 
+export default function useSchedule() {
+  const [state, setState] = React.useState<ScheduleState>({
+    fetchRequestPayload: undefined,
+    fetchResponsePayload: undefined
+  })
+
+  const [{ localCalendars, events }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
   const [
-    currentContext,
-    clientRequest,
-    serverResponseAndSetup,
-    intersection,
+    {
+      currentContext,
+      clientRequest,
+      serverResponse,
+      serverSetup,
+      intersection
+    },
     {
       createClientRequest,
       processRequest,
@@ -49,7 +55,11 @@ export default function useSchedule() {
       method: 'post'
     },
     {
-      onCompleted: setFetchRequestPayload,
+      onCompleted: payload =>
+        setState(prev => ({
+          ...prev,
+          fetchRequestPayload: payload
+        })),
       onError: handleError
     }
   )
@@ -61,7 +71,11 @@ export default function useSchedule() {
       method: 'post'
     },
     {
-      onCompleted: setFetchResponsePayload,
+      onCompleted: payload =>
+        setState(prev => ({
+          ...prev,
+          fetchResponsePayload: payload
+        })),
       onError: handleError
     }
   )
@@ -70,19 +84,14 @@ export default function useSchedule() {
    * Gathers the user's default calendar and list of events for today.
    */
   const createRequest = async () => {
-    const rightNow = new Date()
-    const { start, end } = getTodayRange(rightNow)
-    const rawEvents = await listEvents(
-      localCalendars.map(x => x.id),
-      start,
-      end
-    )
-    const events = rawEvents.map(x => ({
+    const fomattedEvents = events.map(x => ({
       start: new Date(x.startDate),
       end: new Date(x.endDate)
     }))
 
-    const grid = convertToGrid(events)
+    const rightNow = new Date()
+    const { start, end } = getDateRange(7, rightNow)
+    const grid = convertToGrid(fomattedEvents, start, end)
     createClientRequest(grid)
   }
 
@@ -103,17 +112,16 @@ export default function useSchedule() {
   }, [clientRequest])
 
   /**
-   * Effect for receiving and processing the client request payload
+   * Effect for receiving and processing the client request payload. Get 90 days of events
    */
   React.useEffect(() => {
-    if (fetchRequestPayload) {
+    if (state.fetchRequestPayload) {
       ;(async () => {
         const clientRequest = deserializeRequest(
-          Uint8Array.from(fetchRequestPayload.request)
+          Uint8Array.from(state.fetchRequestPayload!.request)
         )
-
         const rightNow = new Date()
-        const { start, end } = getTodayRange(rightNow)
+        const { start, end } = getDateRange(7, rightNow)
         const rawEvents = await listEvents(
           localCalendars.map(x => x.id),
           start,
@@ -124,43 +132,42 @@ export default function useSchedule() {
           end: new Date(x.endDate)
         }))
 
-        const grid = convertToGrid(events)
-
+        const grid = convertToGrid(events, start, end)
         processRequest(clientRequest, grid)
       })()
     }
-  }, [fetchRequestPayload])
+  }, [state.fetchRequestPayload])
 
   /**
    * Effect for sending the server response
    */
   React.useEffect(() => {
-    if (currentContext && serverResponseAndSetup) {
+    if (currentContext && serverResponse && serverSetup) {
       sendProcessResponse<ResponsePayload>({
         contextId: currentContext.contextId,
-        response: [...serverResponseAndSetup.response.serializeBinary()],
-        serverSetup: [...serverResponseAndSetup.setup.serializeBinary()]
+        response: [...serverResponse.serializeBinary()],
+        serverSetup: [...serverSetup.serializeBinary()]
       })
     }
-  }, [serverResponseAndSetup])
+  }, [serverResponse, serverSetup])
 
   /**
    * Effect for receiving and processing the server response payload (intersection)
    */
   React.useEffect(() => {
-    if (fetchResponsePayload) {
+    if (state.fetchResponsePayload) {
       ;(async () => {
-        const { contextId } = fetchRequestPayload!
+        const { contextId } = state.fetchRequestPayload!
         const serverResponse = deserializeResponse(
-          Uint8Array.from(fetchResponsePayload.response)
+          Uint8Array.from(state.fetchResponsePayload!.response)
         )
         const serverSetup = deserializeServerSetup(
-          Uint8Array.from(fetchResponsePayload.serverSetup)
+          Uint8Array.from(state.fetchResponsePayload!.serverSetup)
         )
         computeIntersection(contextId, serverResponse, serverSetup)
       })()
     }
-  }, [fetchResponsePayload])
+  }, [state.fetchResponsePayload])
 
   async function handleError(error: Error) {
     console.error('got error', error)
