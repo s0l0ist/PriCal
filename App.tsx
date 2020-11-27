@@ -14,10 +14,6 @@ export default function App() {
     return null
   }
 
-  console.log(
-    `hasLoaded: ${hasLoaded}, hasPermission: ${hasPermission}, hasSecureStorage: ${hasSecureStorage}`
-  )
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>PriCal</Text>

@@ -90,7 +90,7 @@ export default function useSchedule() {
     }))
 
     const rightNow = new Date()
-    const { start, end } = getDateRange(7, rightNow)
+    const { start, end } = getDateRange(1, rightNow)
     const grid = convertToGrid(fomattedEvents, start, end)
     createClientRequest(grid)
   }
@@ -121,7 +121,7 @@ export default function useSchedule() {
           Uint8Array.from(state.fetchRequestPayload!.request)
         )
         const rightNow = new Date()
-        const { start, end } = getDateRange(7, rightNow)
+        const { start, end } = getDateRange(1, rightNow)
         const rawEvents = await listEvents(
           localCalendars.map(x => x.id),
           start,

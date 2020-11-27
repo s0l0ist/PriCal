@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { getDateRange } from '../utils/Date'
 import useRandom from './useRandom'
 import { Event } from '../types'
 import { timeSliceMs, gridElementsPerDay, oneDay } from '../constants/Grid'

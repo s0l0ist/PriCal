@@ -55,7 +55,7 @@ export default function useCalendar() {
       )
 
       const rightNow = new Date()
-      const { start, end } = getDateRange(90, rightNow)
+      const { start, end } = getDateRange(1, rightNow)
       const events = await listEvents(
         localCalendars.map(x => x.id),
         start,

@@ -1,20 +1,21 @@
 import * as Notifications from 'expo-notifications'
 import * as React from 'react'
 import { EXPO_NOTIFICATION_TOKEN } from '../constants/Storage'
-import { Subscription } from '../types'
 import useStorage from './useStorage'
 
 export default function useNotification() {
   const [, { storeItem, getItem }] = useStorage()
 
   const [expoPushToken, setExpoNotificationToken] = React.useState<string>('')
-  const [notification, setNotification] = React.useState<
-    Notifications.Notification
-  >()
+  const [
+    notification,
+    setNotification
+  ] = React.useState<Notifications.Notification>()
 
-  const [notificationResponse, setNotificationResponse] = React.useState<
-    Notifications.NotificationResponse
-  >()
+  const [
+    notificationResponse,
+    setNotificationResponse
+  ] = React.useState<Notifications.NotificationResponse>()
 
   const notificationReceivedHandler = React.useCallback(
     (notification: Notifications.Notification): void => {

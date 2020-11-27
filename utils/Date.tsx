@@ -12,7 +12,7 @@ export const addWeeks = (date: Date, count: number) => addDays(date, count * 7)
 export const getDateRange = (days: number, date: Date) => {
   const temp = new Date(date) // Create copy
   const start = new Date(temp.setHours(0, 0, 0, 0))
-  const daysOut = new Date(temp.setDate(temp.getDate() + days))
+  const daysOut = new Date(temp.setDate(temp.getDate() + (days - 1)))
   const end = new Date(daysOut.setHours(23, 59, 59, 999))
   return { start, end }
 }
