@@ -17,12 +17,14 @@ type ResponsePayload = {
 }
 
 type ScheduleState = {
+  processing: boolean
   fetchRequestPayload: RequestPayload | undefined
   fetchResponsePayload: ResponsePayload | undefined
 }
 
 export default function useSchedule() {
   const [state, setState] = React.useState<ScheduleState>({
+    processing: false,
     fetchRequestPayload: undefined,
     fetchResponsePayload: undefined
   })
@@ -74,6 +76,7 @@ export default function useSchedule() {
       onCompleted: payload =>
         setState(prev => ({
           ...prev,
+          processing: false,
           fetchResponsePayload: payload
         })),
       onError: handleError
@@ -108,6 +111,10 @@ export default function useSchedule() {
         contextId: currentContext.contextId,
         request: [...clientRequest!.serializeBinary()]
       })
+      setState(prev => ({
+        ...prev,
+        processing: true
+      }))
     }
   }, [clientRequest])
 
@@ -171,10 +178,14 @@ export default function useSchedule() {
 
   async function handleError(error: Error) {
     console.error('got error', error)
+    setState(prev => ({
+      ...prev,
+      processing: false
+    }))
   }
 
-  return React.useMemo(() => [intersection, { createRequest }] as const, [
-    intersection,
-    createRequest
-  ])
+  return React.useMemo(
+    () => [intersection, state.processing, { createRequest }] as const,
+    [intersection, state.processing, createRequest]
+  )
 }

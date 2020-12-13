@@ -4,16 +4,14 @@ import { MonoText } from './MonoText'
 import useSchedule from '../hooks/useSchedule'
 
 export default function Body() {
-  const [intersection, { createRequest }] = useSchedule()
+  const [intersection, processing, { createRequest }] = useSchedule()
 
+  const textString = `Tap here to create a client request, send it and compute the intersection: ${processing}`
   return (
     <View>
       <View style={styles.helpContainer}>
         <TouchableOpacity onPress={createRequest} style={styles.helpLink}>
-          <Text style={styles.getStartedText}>
-            Tap here to create a client request, send it and compute the
-            intersection
-          </Text>
+          <Text style={styles.getStartedText}>{textString}</Text>
         </TouchableOpacity>
       </View>
 
@@ -22,7 +20,7 @@ export default function Body() {
         <View
           style={[styles.codeHighlightContainer, styles.homeScreenFilename]}
         >
-          <MonoText>{intersection.join(', ')}</MonoText>
+          <MonoText>[{intersection.join(', ')}]</MonoText>
         </View>
       </View>
     </View>

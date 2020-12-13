@@ -25,23 +25,34 @@ export default function useGrid() {
    * @param events A list of calendar events
    */
   const convertToGrid = (events: Event[], start: Date, end: Date): string[] => {
-    // create the full grid
-    const differenceMs = end.getTime() - start.getTime()
+    // Determine the granularity of the grid
+    const startTime = start.getTime()
+    const endTime = end.getTime()
+    const differenceMs = endTime - startTime
     const days = Math.ceil(differenceMs / oneDay)
-    const grid: string[] = Array.from({ length: gridElementsPerDay * days })
+    // Next, create a grid of time slices
+    const dateGrid: Date[] = Array.from(
+      { length: gridElementsPerDay * days },
+      (_, i: number) => new Date(startTime + i * timeSliceMs)
+    )
 
-    // For each time slice, check and set our availability
-    for (let i = 0; i < grid.length; i++) {
-      const timeIncrement = new Date(start.getTime() + i * timeSliceMs)
+    // For each time slice, check to see if any events overlap O(N*M)
+    // This is our availability map.
+    const grid = dateGrid.map(timeIncrement => {
+      // Determine if any event overlaps with a time slice
+      const eventOverlap = events.some(event =>
+        isInsideEventRange(timeIncrement, event)
+      )
 
-      grid[i] = `${timeIncrement.toISOString()} | ${getRandomString(4)}`
+      // TODO: Flip the conditional. We're using the inverse for easier debugging
+      // If theres an overlap, we mark it!
+      if (eventOverlap) {
+        return `${timeIncrement.toISOString()} | [true]`
+      }
+      // else, we append a random string
+      return `${timeIncrement.toISOString()} | ${getRandomString(4)}`
+    })
 
-      events.forEach(event => {
-        if (isInsideEventRange(timeIncrement, event)) {
-          grid[i] = `${timeIncrement.toISOString()} | [true]`
-        }
-      })
-    }
     return grid
   }
 
