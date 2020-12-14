@@ -1,8 +1,9 @@
-export const oneMillisecond = 1
-export const oneSecond = oneMillisecond * 1000
-export const oneMinute = oneSecond * 60
-export const oneHour = oneMinute * 60
-export const oneDay = oneHour * 24
-export const oneWeek = oneDay * 7
-export const timeSliceMs = oneMinute * 15
-export const gridElementsPerDay = oneDay / timeSliceMs
+export const ONE_MILLISECOND = 1
+export const ONE_SECOND = ONE_MILLISECOND * 1000
+export const ONE_MINUTE = ONE_SECOND * 60
+export const ONE_HOUR = ONE_MINUTE * 60
+export const ONE_DAY = ONE_HOUR * 24
+export const ONE_WEEK = ONE_DAY * 7
+export const TIME_SLICE_MS = ONE_MINUTE * 15
+export const GRID_ELEMENTS_PER_DAY = ONE_DAY / TIME_SLICE_MS
+export const SCHEDULE_DAYS = 1

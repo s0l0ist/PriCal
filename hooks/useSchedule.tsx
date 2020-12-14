@@ -4,6 +4,7 @@ import { getDateRange } from '../utils/Date'
 import useRequest from './useRequest'
 import useGrid from './useGrid'
 import usePsi from './usePsi'
+import { SCHEDULE_DAYS } from '../constants/Grid'
 
 type RequestPayload = {
   contextId: string
@@ -29,7 +30,7 @@ export default function useSchedule() {
     fetchResponsePayload: undefined
   })
 
-  const [{ localCalendars, events }, { listEvents }] = useCalendar()
+  const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
   const [
     {
@@ -87,13 +88,15 @@ export default function useSchedule() {
    * Gathers the user's default calendar and list of events for today.
    */
   const createRequest = async () => {
+    const rightNow = new Date()
+    const { start, end } = getDateRange(SCHEDULE_DAYS, rightNow)
+    const calendarIds = localCalendars.map(x => x.id)
+    const events = await listEvents(calendarIds, start, end)
     const fomattedEvents = events.map(x => ({
       start: new Date(x.startDate),
       end: new Date(x.endDate)
     }))
 
-    const rightNow = new Date()
-    const { start, end } = getDateRange(1, rightNow)
     const grid = convertToGrid(fomattedEvents, start, end)
     createClientRequest(grid)
   }
@@ -119,7 +122,7 @@ export default function useSchedule() {
   }, [clientRequest])
 
   /**
-   * Effect for receiving and processing the client request payload. Get 90 days of events
+   * Effect for receiving and processing the client request payload
    */
   React.useEffect(() => {
     if (state.fetchRequestPayload) {
@@ -128,7 +131,7 @@ export default function useSchedule() {
           Uint8Array.from(state.fetchRequestPayload!.request)
         )
         const rightNow = new Date()
-        const { start, end } = getDateRange(1, rightNow)
+        const { start, end } = getDateRange(SCHEDULE_DAYS, rightNow)
         const rawEvents = await listEvents(
           localCalendars.map(x => x.id),
           start,

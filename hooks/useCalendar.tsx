@@ -1,18 +1,15 @@
 import * as Calendar from 'expo-calendar'
 import * as React from 'react'
-import { getDateRange } from '../utils/Date'
 
 type CalendarState = {
   calendars: Calendar.Calendar[]
   localCalendars: Calendar.Calendar[]
-  events: Calendar.Event[]
 }
 
 export default function useCalendar() {
   const [state, setState] = React.useState<CalendarState>({
     calendars: [],
-    localCalendars: [],
-    events: []
+    localCalendars: []
   })
 
   /**
@@ -40,7 +37,7 @@ export default function useCalendar() {
   )
 
   /**
-   * Effect to set our state. We fetch 90 days worth of events.
+   * Effect to set our state.
    */
   React.useEffect(() => {
     ;(async () => {
@@ -53,18 +50,9 @@ export default function useCalendar() {
             x.type === Calendar.SourceType.CALDAV ||
             x.type === Calendar.SourceType.MOBILEME)
       )
-
-      const rightNow = new Date()
-      const { start, end } = getDateRange(1, rightNow)
-      const events = await listEvents(
-        localCalendars.map(x => x.id),
-        start,
-        end
-      )
       setState({
         calendars,
-        localCalendars,
-        events
+        localCalendars
       })
     })()
   }, [])

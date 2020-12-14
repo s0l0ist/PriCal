@@ -9,6 +9,13 @@ export const addHours = (date: Date, count: number) =>
 export const addDays = (date: Date, count: number) => addHours(date, count * 24)
 export const addWeeks = (date: Date, count: number) => addDays(date, count * 7)
 
+/**
+ * Gets both start and end dates for the given range. The start date will begin
+ * at 12:00am and the end will be 11:59pm.
+ *
+ * @param days Number of days for the range
+ * @param date The start date to reference
+ */
 export const getDateRange = (days: number, date: Date) => {
   const temp = new Date(date) // Create copy
   const start = new Date(temp.setHours(0, 0, 0, 0))

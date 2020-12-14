@@ -1,7 +1,11 @@
 import * as React from 'react'
 import useRandom from './useRandom'
 import { Event } from '../types'
-import { timeSliceMs, gridElementsPerDay, oneDay } from '../constants/Grid'
+import {
+  TIME_SLICE_MS,
+  GRID_ELEMENTS_PER_DAY,
+  ONE_DAY
+} from '../constants/Grid'
 
 export default function useGrid() {
   const { getRandomString } = useRandom()
@@ -29,11 +33,11 @@ export default function useGrid() {
     const startTime = start.getTime()
     const endTime = end.getTime()
     const differenceMs = endTime - startTime
-    const days = Math.ceil(differenceMs / oneDay)
+    const days = Math.ceil(differenceMs / ONE_DAY)
     // Next, create a grid of time slices
     const dateGrid: Date[] = Array.from(
-      { length: gridElementsPerDay * days },
-      (_, i: number) => new Date(startTime + i * timeSliceMs)
+      { length: GRID_ELEMENTS_PER_DAY * days },
+      (_, i: number) => new Date(startTime + i * TIME_SLICE_MS)
     )
 
     // For each time slice, check to see if any events overlap O(N*M)
