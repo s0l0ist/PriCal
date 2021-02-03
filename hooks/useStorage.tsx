@@ -11,7 +11,7 @@ export default function useStorage() {
   })
 
   const isStorageAvailable = async (): Promise<boolean> => {
-    return await SecureStore.isAvailableAsync()
+    return SecureStore.isAvailableAsync()
   }
 
   const storeItem = React.useCallback(
@@ -33,7 +33,7 @@ export default function useStorage() {
   }, [])
 
   const deleteItem = React.useCallback(async (key: string): Promise<void> => {
-    await SecureStore.deleteItemAsync(key, {
+    return SecureStore.deleteItemAsync(key, {
       keychainService: KEYCHAIN_SERVICE
     })
   }, [])
