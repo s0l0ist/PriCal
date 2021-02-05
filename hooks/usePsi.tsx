@@ -18,11 +18,6 @@ type Context = {
 
 type ContextMap = Map<string, string>
 
-type ServerResponseAndSetup = {
-  response: Response
-  setup: ServerSetup
-}
-
 type PsiState = {
   psi: PSILibrary | undefined
   currentContext: Context | undefined

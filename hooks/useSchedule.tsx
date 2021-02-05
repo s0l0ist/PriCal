@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as Base64 from 'base64-js'
 import useCalendar from './useCalendar'
 import { getDateRange } from '../utils/Date'
 import useRequest from './useRequest'
@@ -8,13 +9,13 @@ import { SCHEDULE_DAYS } from '../constants/Grid'
 
 type RequestPayload = {
   contextId: string
-  request: number[]
+  request: string
 }
 
 type ResponsePayload = {
   contextId: string
-  response: number[]
-  serverSetup: number[]
+  response: string
+  serverSetup: string
 }
 
 type ScheduleState = {
@@ -54,7 +55,9 @@ export default function useSchedule() {
   // Builds a client request dispatcher
   const [sendClientRequest] = buildRequest<RequestPayload>(
     {
-      url: 'http://localhost:8081/clientRequest',
+      url:
+        'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
+      // url: 'http://localhost:8081/clientRequest',
       method: 'post'
     },
     {
@@ -112,7 +115,7 @@ export default function useSchedule() {
       // is idempotent
       sendClientRequest<RequestPayload>({
         contextId: currentContext.contextId,
-        request: [...clientRequest!.serializeBinary()]
+        request: Base64.fromByteArray(clientRequest!.serializeBinary())
       })
       setState(prev => ({
         ...prev,
@@ -128,7 +131,7 @@ export default function useSchedule() {
     if (state.fetchRequestPayload) {
       ;(async () => {
         const clientRequest = deserializeRequest(
-          Uint8Array.from(state.fetchRequestPayload!.request)
+          Base64.toByteArray(state.fetchRequestPayload!.request)
         )
         const rightNow = new Date()
         const { start, end } = getDateRange(SCHEDULE_DAYS, rightNow)
@@ -155,8 +158,8 @@ export default function useSchedule() {
     if (currentContext && serverResponse && serverSetup) {
       sendProcessResponse<ResponsePayload>({
         contextId: currentContext.contextId,
-        response: [...serverResponse.serializeBinary()],
-        serverSetup: [...serverSetup.serializeBinary()]
+        response: Base64.fromByteArray(serverResponse.serializeBinary()),
+        serverSetup: Base64.fromByteArray(serverSetup.serializeBinary())
       })
     }
   }, [serverResponse, serverSetup])
@@ -169,10 +172,10 @@ export default function useSchedule() {
       ;(async () => {
         const { contextId } = state.fetchRequestPayload!
         const serverResponse = deserializeResponse(
-          Uint8Array.from(state.fetchResponsePayload!.response)
+          Base64.toByteArray(state.fetchResponsePayload!.response)
         )
         const serverSetup = deserializeServerSetup(
-          Uint8Array.from(state.fetchResponsePayload!.serverSetup)
+          Base64.toByteArray(state.fetchResponsePayload!.serverSetup)
         )
         computeIntersection(contextId, serverResponse, serverSetup)
       })()
