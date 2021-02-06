@@ -7,28 +7,61 @@ import useGrid from './useGrid'
 import usePsi from './usePsi'
 import { SCHEDULE_DAYS } from '../constants/Grid'
 
+// Create a type alias
+type Base64 = string
+
+// Types for sending a request payload (and the response)
 type RequestPayload = {
-  contextId: string
-  request: string
+  contextId: string // This is used as an on-device identifier to lookup key used to create the request)
+  request: Base64
+}
+type RequestPayloadResponse = {
+  requestId: string
+}
+// Types for fetching a request payload (and the response)
+type FetchRequestPayload = {
+  requestId: string
+}
+type FetchRequestPayloadResponse = {
+  requestId: string
+  request: Base64
 }
 
+// Types for sending a setup and response payload (and the response)
 type ResponsePayload = {
+  requestId: string // we need to send the response corresponding to the original requestId
+  response: Base64
+  serverSetup: Base64
+}
+type ResponsePayloadResponse = {
+  responseId: string // Not used. For reference only.
+}
+// Types for fetching a setup and response payload (and the response)
+type FetchResponsePayload = {
+  requestId: string
+}
+type FetchResponsePayloadResponse = {
+  requestId: string
   contextId: string
-  response: string
-  serverSetup: string
+  response: Base64
+  serverSetup: Base64
 }
 
 type ScheduleState = {
   processing: boolean
-  fetchRequestPayload: RequestPayload | undefined
-  fetchResponsePayload: ResponsePayload | undefined
+  requestPayloadResponse: RequestPayloadResponse | undefined
+  fetchRequestPayloadResponse: FetchRequestPayloadResponse | undefined
+  responsePayloadResponse: ResponsePayloadResponse | undefined
+  fetchResponsePayloadResponse: FetchResponsePayloadResponse | undefined
 }
 
 export default function useSchedule() {
   const [state, setState] = React.useState<ScheduleState>({
     processing: false,
-    fetchRequestPayload: undefined,
-    fetchResponsePayload: undefined
+    requestPayloadResponse: undefined,
+    fetchRequestPayloadResponse: undefined,
+    responsePayloadResponse: undefined,
+    fetchResponsePayloadResponse: undefined
   })
 
   const [{ localCalendars }, { listEvents }] = useCalendar()
@@ -53,25 +86,40 @@ export default function useSchedule() {
   const { buildRequest } = useRequest()
 
   // Builds a client request dispatcher
-  const [sendClientRequest] = buildRequest<RequestPayload>(
+  const [sendClientRequest] = buildRequest<RequestPayloadResponse>(
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
-      // url: 'http://localhost:8081/clientRequest',
       method: 'post'
     },
     {
       onCompleted: payload =>
         setState(prev => ({
           ...prev,
-          fetchRequestPayload: payload
+          requestPayloadResponse: payload
+        })),
+      onError: handleError
+    }
+  )
+  // Builds a client request fetcher
+  const [fetchClientRequest] = buildRequest<FetchRequestPayloadResponse>(
+    {
+      url:
+        'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
+      method: 'get'
+    },
+    {
+      onCompleted: payload =>
+        setState(prev => ({
+          ...prev,
+          fetchRequestPayloadResponse: payload
         })),
       onError: handleError
     }
   )
 
   // Builds a process response dispatcher
-  const [sendProcessResponse] = buildRequest<ResponsePayload>(
+  const [sendProcessResponse] = buildRequest<ResponsePayloadResponse>(
     {
       url: 'http://localhost:8081/processResponse',
       method: 'post'
@@ -81,7 +129,23 @@ export default function useSchedule() {
         setState(prev => ({
           ...prev,
           processing: false,
-          fetchResponsePayload: payload
+          responsePayloadResponse: payload
+        })),
+      onError: handleError
+    }
+  )
+  // Builds a process response dispatcher
+  const [fetchServerResponse] = buildRequest<FetchResponsePayloadResponse>(
+    {
+      url: 'http://localhost:8081/processResponse',
+      method: 'get'
+    },
+    {
+      onCompleted: payload =>
+        setState(prev => ({
+          ...prev,
+          processing: false,
+          fetchResponsePayloadResponse: payload
         })),
       onError: handleError
     }
@@ -105,14 +169,10 @@ export default function useSchedule() {
   }
 
   /**
-   * Effect for sending the client request
+   * Effect for sending the client request to the server
    */
   React.useEffect(() => {
     if (currentContext && clientRequest) {
-      // Send the client request to the broker
-      // TODO: replace the return type here with void or refactor. This is only necessary
-      // for a demo where a single phone simulates the interaction. In reality, this endpoint
-      // is idempotent
       sendClientRequest<RequestPayload>({
         contextId: currentContext.contextId,
         request: Base64.fromByteArray(clientRequest!.serializeBinary())
@@ -125,13 +185,35 @@ export default function useSchedule() {
   }, [clientRequest])
 
   /**
-   * Effect for receiving and processing the client request payload
+   * Effect for fetching the client request payload from the server
    */
   React.useEffect(() => {
-    if (state.fetchRequestPayload) {
+    if (state.requestPayloadResponse) {
       ;(async () => {
+        console.log(
+          'Feching request payload',
+          state.requestPayloadResponse!.requestId
+        )
+        fetchClientRequest<FetchRequestPayload>({
+          requestId: state.requestPayloadResponse!.requestId
+        })
+        setState(prev => ({
+          ...prev,
+          processing: true
+        }))
+      })()
+    }
+  }, [state.requestPayloadResponse])
+
+  /**
+   * Effect for creating server response payload
+   */
+  React.useEffect(() => {
+    if (state.fetchRequestPayloadResponse) {
+      ;(async () => {
+        console.log('creating server response')
         const clientRequest = deserializeRequest(
-          Base64.toByteArray(state.fetchRequestPayload!.request)
+          Base64.toByteArray(state.fetchRequestPayloadResponse!.request)
         )
         const rightNow = new Date()
         const { start, end } = getDateRange(SCHEDULE_DAYS, rightNow)
@@ -149,38 +231,60 @@ export default function useSchedule() {
         processRequest(clientRequest, grid)
       })()
     }
-  }, [state.fetchRequestPayload])
+  }, [state.fetchRequestPayloadResponse])
 
   /**
-   * Effect for sending the server response
+   * Effect for sending the server response to the server
    */
   React.useEffect(() => {
-    if (currentContext && serverResponse && serverSetup) {
+    if (state.fetchRequestPayloadResponse && serverResponse && serverSetup) {
+      console.log('sending server response...')
       sendProcessResponse<ResponsePayload>({
-        contextId: currentContext.contextId,
+        requestId: state.fetchRequestPayloadResponse!.requestId,
         response: Base64.fromByteArray(serverResponse.serializeBinary()),
         serverSetup: Base64.fromByteArray(serverSetup.serializeBinary())
       })
+      setState(prev => ({
+        ...prev,
+        processing: true
+      }))
     }
   }, [serverResponse, serverSetup])
+
+  /**
+   * Effect for fetching the server response payload from the server
+   */
+  React.useEffect(() => {
+    if (state.responsePayloadResponse) {
+      ;(async () => {
+        fetchServerResponse<FetchResponsePayload>({
+          requestId: state.responsePayloadResponse!.responseId
+        })
+        setState(prev => ({
+          ...prev,
+          processing: true
+        }))
+      })()
+    }
+  }, [state.responsePayloadResponse])
 
   /**
    * Effect for receiving and processing the server response payload (intersection)
    */
   React.useEffect(() => {
-    if (state.fetchResponsePayload) {
+    if (state.fetchResponsePayloadResponse) {
       ;(async () => {
-        const { contextId } = state.fetchRequestPayload!
+        const { contextId } = state.fetchResponsePayloadResponse!
         const serverResponse = deserializeResponse(
-          Base64.toByteArray(state.fetchResponsePayload!.response)
+          Base64.toByteArray(state.fetchResponsePayloadResponse!.response)
         )
         const serverSetup = deserializeServerSetup(
-          Base64.toByteArray(state.fetchResponsePayload!.serverSetup)
+          Base64.toByteArray(state.fetchResponsePayloadResponse!.serverSetup)
         )
         computeIntersection(contextId, serverResponse, serverSetup)
       })()
     }
-  }, [state.fetchResponsePayload])
+  }, [state.fetchResponsePayloadResponse])
 
   async function handleError(error: Error) {
     console.error('got error', error)

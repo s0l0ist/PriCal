@@ -15,6 +15,16 @@ type RequestState = {
   receivedError: boolean
 }
 
+function objToQueryString(payload: any) {
+  const keyValuePairs = []
+  for (const key in payload) {
+    keyValuePairs.push(
+      encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])
+    )
+  }
+  return keyValuePairs.join('&')
+}
+
 export default function useRequest() {
   /**
    * Builds a request to be called later
@@ -45,11 +55,23 @@ export default function useRequest() {
             requesting: true,
             receivedError: false
           })
-          const response = await fetch(fetchProps.url, {
+
+          let url = fetchProps.url
+          const options = {
             method: fetchProps.method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          })
+            body: ''
+          }
+
+          if (fetchProps.method === 'post') {
+            options.body = JSON.stringify(payload)
+          }
+
+          if (fetchProps.method === 'get') {
+            url = `${fetchProps.url}?${objToQueryString(payload)}`
+          }
+
+          const response = await fetch(url, options)
           handleCompleted(await response.json())
         } catch (e) {
           setState(prev => ({

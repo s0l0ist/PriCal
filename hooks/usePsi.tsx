@@ -88,7 +88,7 @@ export default function usePsi() {
    * encrypted server response and server setup generated from a time-grid
    *
    * @param request The client request
-   * @param grid: The time-grid to generate the setup
+   * @param grid The time-grid to generate the setup
    */
   const processRequest = React.useCallback(
     (request: Request, grid: string[]) => {
