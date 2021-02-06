@@ -31,7 +31,7 @@ type FetchRequestPayloadResponse = {
 type ResponsePayload = {
   requestId: string // we need to send the response corresponding to the original requestId
   response: Base64
-  serverSetup: Base64
+  setup: Base64
 }
 type ResponsePayloadResponse = {
   responseId: string // Not used. For reference only.
@@ -44,7 +44,7 @@ type FetchResponsePayloadResponse = {
   requestId: string
   contextId: string
   response: Base64
-  serverSetup: Base64
+  setup: Base64
 }
 
 type ScheduleState = {
@@ -121,7 +121,8 @@ export default function useSchedule() {
   // Builds a process response dispatcher
   const [sendProcessResponse] = buildRequest<ResponsePayloadResponse>(
     {
-      url: 'http://localhost:8081/processResponse',
+      url:
+        'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/serverResponse',
       method: 'post'
     },
     {
@@ -137,7 +138,8 @@ export default function useSchedule() {
   // Builds a process response dispatcher
   const [fetchServerResponse] = buildRequest<FetchResponsePayloadResponse>(
     {
-      url: 'http://localhost:8081/processResponse',
+      url:
+        'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/serverResponse',
       method: 'get'
     },
     {
@@ -238,11 +240,14 @@ export default function useSchedule() {
    */
   React.useEffect(() => {
     if (state.fetchRequestPayloadResponse && serverResponse && serverSetup) {
-      console.log('sending server response...')
+      console.log(
+        'sending server response...',
+        state.fetchRequestPayloadResponse!.requestId
+      )
       sendProcessResponse<ResponsePayload>({
         requestId: state.fetchRequestPayloadResponse!.requestId,
         response: Base64.fromByteArray(serverResponse.serializeBinary()),
-        serverSetup: Base64.fromByteArray(serverSetup.serializeBinary())
+        setup: Base64.fromByteArray(serverSetup.serializeBinary())
       })
       setState(prev => ({
         ...prev,
@@ -257,6 +262,10 @@ export default function useSchedule() {
   React.useEffect(() => {
     if (state.responsePayloadResponse) {
       ;(async () => {
+        console.log(
+          'fetching server response...',
+          state.fetchRequestPayloadResponse!.requestId
+        )
         fetchServerResponse<FetchResponsePayload>({
           requestId: state.responsePayloadResponse!.responseId
         })
@@ -274,13 +283,13 @@ export default function useSchedule() {
   React.useEffect(() => {
     if (state.fetchResponsePayloadResponse) {
       ;(async () => {
-        const { contextId } = state.fetchResponsePayloadResponse!
-        const serverResponse = deserializeResponse(
-          Base64.toByteArray(state.fetchResponsePayloadResponse!.response)
-        )
-        const serverSetup = deserializeServerSetup(
-          Base64.toByteArray(state.fetchResponsePayloadResponse!.serverSetup)
-        )
+        const {
+          contextId,
+          response,
+          setup
+        } = state.fetchResponsePayloadResponse!
+        const serverResponse = deserializeResponse(Base64.toByteArray(response))
+        const serverSetup = deserializeServerSetup(Base64.toByteArray(setup))
         computeIntersection(contextId, serverResponse, serverSetup)
       })()
     }
