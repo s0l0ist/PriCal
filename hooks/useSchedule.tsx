@@ -215,7 +215,6 @@ export default function useSchedule() {
       })
       setState(prev => ({
         ...prev,
-        requestName: '', // Clear the name so the form doesn't submit multiple times.
         processing: true
       }))
     }

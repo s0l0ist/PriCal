@@ -1,10 +1,40 @@
 import * as React from 'react'
-import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
+import {
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  View
+} from 'react-native'
 import { MonoText } from './MonoText'
 import useSchedule from '../hooks/useSchedule'
-import RequestNameInput from './TextInput'
+
+type BodyState = {
+  requestName: string
+}
 
 export default function Body() {
+  const [state, setState] = React.useState<BodyState>({
+    requestName: ''
+  })
+
+  const onChangeText = async (text: string) => {
+    setState(prev => ({
+      ...prev,
+      requestName: text
+    }))
+  }
+
+  const onPress = async () => {
+    // Set the request name state
+    changeRequestName(state.requestName)
+    createRequest()
+    setState(prev => ({
+      ...prev,
+      requestName: ''
+    }))
+  }
+
   const [
     { intersection, processing, requests },
     { createRequest, changeRequestName }
@@ -14,9 +44,17 @@ export default function Body() {
   return (
     <View>
       <View style={styles.helpContainer}>
-        <RequestNameInput onChangeText={changeRequestName} />
+        <TextInput
+          style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+          onChangeText={text => onChangeText(text)}
+          value={state.requestName}
+        />
 
-        <TouchableOpacity onPress={createRequest} style={styles.helpLink}>
+        <TouchableOpacity
+          disabled={processing}
+          onPress={onPress}
+          style={styles.helpLink}
+        >
           <Text style={styles.getStartedText}>{textString}</Text>
         </TouchableOpacity>
       </View>
