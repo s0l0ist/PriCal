@@ -1,16 +1,17 @@
-import * as React from 'react'
 import * as Base64 from 'base64-js'
-import useCalendar from './useCalendar'
+import * as React from 'react'
+
+import { SCHEDULE_DAYS } from '../constants/Grid'
+import { MAX_KEYS_TO_STORE, REQUEST_MAP } from '../constants/Storage'
 import { getDateRange } from '../utils/Date'
-import useRequest from './useRequest'
+import useCalendar from './useCalendar'
 import useGrid from './useGrid'
 import usePsi from './usePsi'
-import { SCHEDULE_DAYS } from '../constants/Grid'
+import useRequest from './useRequest'
 import useStorage from './useStorage'
-import { MAX_KEYS_TO_STORE, REQUEST_MAP } from '../constants/Storage'
 
 // Create helpful type aliases
-type Base64 = string
+type base64 = string
 type RequestId = string
 
 // The record stored in the database
@@ -27,13 +28,13 @@ interface RequestRecord {
   requestName: string
 
   // The base64-encoded, serialized clientRequest
-  request: Base64
+  request: base64
 
   // The base64-encoded, serialized serverResponse
-  response: Base64
+  response: base64
 
   // The base64-encoded, serialized serverSetup
-  setup: Base64
+  setup: base64
 }
 
 // Types for sending a request payload (and the response)

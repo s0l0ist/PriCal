@@ -1,5 +1,6 @@
-import * as React from 'react'
 import * as Permissions from 'expo-permissions'
+import * as React from 'react'
+
 import { PermissionResponse, PermissionsArray } from '../types'
 
 /**

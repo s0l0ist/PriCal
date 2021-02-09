@@ -6,8 +6,9 @@ import {
   Text,
   View
 } from 'react-native'
-import { MonoText } from './MonoText'
+
 import useSchedule from '../hooks/useSchedule'
+import { MonoText } from './MonoText'
 
 type BodyState = {
   requestName: string

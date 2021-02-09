@@ -1,15 +1,16 @@
-import * as React from 'react'
-import * as Base64 from 'base64-js'
 import PSI from '@openmined/psi.js/combined_wasm_web'
-import { PSILibrary } from '@openmined/psi.js/implementation/psi'
 import {
   Request,
   Response,
   ServerSetup
 } from '@openmined/psi.js/implementation/proto/psi_pb'
+import { PSILibrary } from '@openmined/psi.js/implementation/psi'
+import * as Base64 from 'base64-js'
+import * as React from 'react'
+
+import { CONTEXT_MAP, MAX_KEYS_TO_STORE } from '../constants/Storage'
 import useRandom from './useRandom'
 import useStorage from './useStorage'
-import { CONTEXT_MAP, MAX_KEYS_TO_STORE } from '../constants/Storage'
 
 type Context = {
   contextId: string

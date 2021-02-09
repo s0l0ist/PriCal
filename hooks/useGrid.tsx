@@ -1,11 +1,12 @@
 import * as React from 'react'
-import useRandom from './useRandom'
-import { Event } from '../types'
+
 import {
   TIME_SLICE_MS,
   GRID_ELEMENTS_PER_DAY,
   ONE_DAY
 } from '../constants/Grid'
+import { Event } from '../types'
+import useRandom from './useRandom'
 
 export default function useGrid() {
   const { getRandomString } = useRandom()
