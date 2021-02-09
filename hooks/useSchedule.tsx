@@ -6,49 +6,68 @@ import useRequest from './useRequest'
 import useGrid from './useGrid'
 import usePsi from './usePsi'
 import { SCHEDULE_DAYS } from '../constants/Grid'
+import useStorage from './useStorage'
+import { MAX_KEYS_TO_STORE, REQUEST_MAP } from '../constants/Storage'
 
-// Create a type alias
+// Create helpful type aliases
 type Base64 = string
+type RequestId = string
+
+// The record stored in the database
+interface RequestRecord {
+  // The ID of the request record
+  requestId: RequestId
+
+  // The ID of the context pointing to the private key in SecureStorage.
+  // It is also used to ensure only the originating requestor can fetch the
+  // record from the database.
+  contextId: string
+
+  // Short descriptive name that both parties will see
+  requestName: string
+
+  // The base64-encoded, serialized clientRequest
+  request: Base64
+
+  // The base64-encoded, serialized serverResponse
+  response: Base64
+
+  // The base64-encoded, serialized serverSetup
+  setup: Base64
+}
 
 // Types for sending a request payload (and the response)
-type RequestPayload = {
-  contextId: string // This is used as an on-device identifier to lookup key used to create the request)
-  request: Base64
-}
-type RequestPayloadResponse = {
-  requestId: string
-}
-// Types for fetching a request payload (and the response)
-type FetchRequestPayload = {
-  requestId: string
-}
-type FetchRequestPayloadResponse = {
-  requestId: string
-  request: Base64
-}
+type RequestPayload = Pick<
+  RequestRecord,
+  'contextId' | 'requestName' | 'request'
+>
+type RequestPayloadResponse = Pick<
+  RequestRecord,
+  'requestId' | 'requestName' | 'contextId'
+>
+type FetchRequestPayload = Pick<RequestRecord, 'requestId'>
+type FetchRequestPayloadResponse = Pick<RequestRecord, 'requestId' | 'request'>
+type ResponsePayload = Pick<RequestRecord, 'requestId' | 'response' | 'setup'>
+type ResponsePayloadResponse = Pick<RequestRecord, 'requestId'>
+type FetchResponsePayload = Pick<RequestRecord, 'requestId' | 'contextId'>
+type FetchResponsePayloadResponse = Pick<
+  RequestRecord,
+  'requestId' | 'contextId' | 'requestName' | 'response' | 'setup'
+>
 
-// Types for sending a setup and response payload (and the response)
-type ResponsePayload = {
-  requestId: string // we need to send the response corresponding to the original requestId
-  response: Base64
-  setup: Base64
-}
-type ResponsePayloadResponse = {
-  responseId: string // Not used. For reference only.
-}
-// Types for fetching a setup and response payload (and the response)
-type FetchResponsePayload = {
-  requestId: string
-}
-type FetchResponsePayloadResponse = {
-  requestId: string
-  contextId: string
-  response: Base64
-  setup: Base64
-}
+type RequestMapRecord = Pick<RequestRecord, 'contextId' | 'requestName'>
+// A type alias for storing outbound requests
+type RequestMap = Map<RequestId, RequestMapRecord>
 
+// TODO: We need a way to store API requests and map them to a persistent state
+// so we can fetch the status of all client requests from the server.
+// We need to think about this request with the contextId (and private key)
+// so that we aren't tracking requests that do not have corresponding
+// contextId's on the users phone since we only store the last 10.
 type ScheduleState = {
   processing: boolean
+  requestName: string
+  requests: RequestMap
   requestPayloadResponse: RequestPayloadResponse | undefined
   fetchRequestPayloadResponse: FetchRequestPayloadResponse | undefined
   responsePayloadResponse: ResponsePayloadResponse | undefined
@@ -58,6 +77,8 @@ type ScheduleState = {
 export default function useSchedule() {
   const [state, setState] = React.useState<ScheduleState>({
     processing: false,
+    requestName: '',
+    requests: new Map(),
     requestPayloadResponse: undefined,
     fetchRequestPayloadResponse: undefined,
     responsePayloadResponse: undefined,
@@ -66,6 +87,7 @@ export default function useSchedule() {
 
   const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
+  const [, { storeMap, loadMap }] = useStorage()
   const [
     {
       currentContext,
@@ -171,16 +193,29 @@ export default function useSchedule() {
   }
 
   /**
+   * Update the name of the request
+   */
+  const changeRequestName = (name: string) => {
+    setState(prev => ({
+      ...prev,
+      requestName: name
+    }))
+  }
+
+  /**
    * Effect for sending the client request to the server
    */
   React.useEffect(() => {
-    if (currentContext && clientRequest) {
+    if (currentContext && clientRequest && state.requestName) {
+      console.log('Sending request payload', state.requestName)
       sendClientRequest<RequestPayload>({
         contextId: currentContext.contextId,
+        requestName: state.requestName,
         request: Base64.fromByteArray(clientRequest!.serializeBinary())
       })
       setState(prev => ({
         ...prev,
+        requestName: '', // Clear the name so the form doesn't submit multiple times.
         processing: true
       }))
     }
@@ -192,15 +227,34 @@ export default function useSchedule() {
   React.useEffect(() => {
     if (state.requestPayloadResponse) {
       ;(async () => {
-        console.log(
-          'Feching request payload',
-          state.requestPayloadResponse!.requestId
-        )
+        const {
+          requestId,
+          requestName,
+          contextId
+        } = state.requestPayloadResponse!
+        console.log('Feching request payload', requestId)
+
         fetchClientRequest<FetchRequestPayload>({
-          requestId: state.requestPayloadResponse!.requestId
+          requestId
         })
+
+        // After fetching the request, we store it.
+        // TODO: Store a large amount of requests.
+        // TODO: Ability to delete local (and remote) requests.
+        // Store only the last few requests
+        const fixedRequestMap = new Map(
+          [...state.requests].slice(-(MAX_KEYS_TO_STORE - 1))
+        )
+        // We create a new local record based on the currentContext's ID
+        // The contextId is the most recent one generated from calling `createClientRequest`
+        fixedRequestMap.set(requestId, {
+          requestName,
+          contextId
+        } as RequestMapRecord)
+
         setState(prev => ({
           ...prev,
+          requests: fixedRequestMap,
           processing: true
         }))
       })()
@@ -264,10 +318,20 @@ export default function useSchedule() {
       ;(async () => {
         console.log(
           'fetching server response...',
+          state.responsePayloadResponse
+        )
+        // Need to fetch the contextId from our RequestMap
+        const storedRequest = state.requests.get(
           state.fetchRequestPayloadResponse!.requestId
         )
+        console.log('storedRequest', storedRequest)
+        if (!storedRequest) {
+          throw new Error('Unable to retrieve the stored request from storage')
+        }
+
         fetchServerResponse<FetchResponsePayload>({
-          requestId: state.responsePayloadResponse!.responseId
+          requestId: state.responsePayloadResponse!.requestId,
+          contextId: storedRequest!.contextId
         })
         setState(prev => ({
           ...prev,
@@ -295,6 +359,29 @@ export default function useSchedule() {
     }
   }, [state.fetchResponsePayloadResponse])
 
+  /**
+   * Effect to persist the requests when they are returned back
+   * from the server
+   */
+  React.useEffect(() => {
+    if (state.requests.size) {
+      storeMap(REQUEST_MAP, state.requests)
+    }
+  }, [state.requests])
+
+  /**
+   * Effect to load the requests from SecureStorage
+   */
+  React.useEffect(() => {
+    ;(async () => {
+      const requests = await loadMap(REQUEST_MAP)
+      setState(prev => ({
+        ...prev,
+        requests
+      }))
+    })()
+  }, [])
+
   async function handleError(error: Error) {
     console.error('got error', error)
     setState(prev => ({
@@ -304,7 +391,11 @@ export default function useSchedule() {
   }
 
   return React.useMemo(
-    () => [intersection, state.processing, { createRequest }] as const,
-    [intersection, state.processing, createRequest]
+    () =>
+      [
+        { ...state, intersection },
+        { createRequest, changeRequestName }
+      ] as const,
+    [intersection, state, createRequest, changeRequestName]
   )
 }

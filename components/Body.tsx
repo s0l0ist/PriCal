@@ -2,15 +2,20 @@ import * as React from 'react'
 import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
 import { MonoText } from './MonoText'
 import useSchedule from '../hooks/useSchedule'
-import { Agenda } from 'react-native-calendars'
+import RequestNameInput from './TextInput'
 
 export default function Body() {
-  const [intersection, processing, { createRequest }] = useSchedule()
+  const [
+    { intersection, processing, requests },
+    { createRequest, changeRequestName }
+  ] = useSchedule()
 
   const textString = `Tap here to create a client request, send it and compute the intersection: ${processing}`
   return (
     <View>
       <View style={styles.helpContainer}>
+        <RequestNameInput onChangeText={changeRequestName} />
+
         <TouchableOpacity onPress={createRequest} style={styles.helpLink}>
           <Text style={styles.getStartedText}>{textString}</Text>
         </TouchableOpacity>

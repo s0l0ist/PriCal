@@ -72,7 +72,8 @@ export default function useRequest() {
           }
 
           const response = await fetch(url, options)
-          handleCompleted(await response.json())
+          const json = await response.json()
+          handleCompleted(json)
         } catch (e) {
           setState(prev => ({
             ...prev,
