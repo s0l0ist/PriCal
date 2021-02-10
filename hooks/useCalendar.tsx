@@ -1,6 +1,11 @@
 import * as Calendar from 'expo-calendar'
 import * as React from 'react'
 
+export type PermissionResponse = {
+  Response: Calendar.PermissionResponse
+  Permission: string
+}
+
 type CalendarState = {
   calendars: Calendar.Calendar[]
   localCalendars: Calendar.Calendar[]

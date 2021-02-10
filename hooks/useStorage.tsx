@@ -25,6 +25,14 @@ export default function useStorage() {
     []
   )
 
+  const storeObject = React.useCallback(async function storeObject<T>(
+    key: string,
+    value: T
+  ): Promise<void> {
+    return storeItem(key, JSON.stringify(value))
+  },
+  [])
+
   const getItem = React.useCallback(async (key: string): Promise<
     string | null
   > => {
@@ -33,11 +41,24 @@ export default function useStorage() {
     })
   }, [])
 
+  const getObject = React.useCallback(async function getObject<T>(
+    key: string
+  ): Promise<T | null> {
+    const item = await getItem(key)
+    if (!item) {
+      return null
+    }
+    return JSON.parse(item)
+  },
+  [])
+
   const deleteItem = React.useCallback(async (key: string): Promise<void> => {
     return SecureStore.deleteItemAsync(key, {
       keychainService: KEYCHAIN_SERVICE
     })
   }, [])
+
+  const deleteObject = deleteItem
 
   const storeMap = React.useCallback(
     async (key: string, value: Map<any, any>): Promise<void> => {
@@ -75,8 +96,11 @@ export default function useStorage() {
           storeMap,
           loadMap,
           storeItem,
+          storeObject,
           getItem,
-          deleteItem
+          getObject,
+          deleteItem,
+          deleteObject
         }
       ] as const,
     [state]

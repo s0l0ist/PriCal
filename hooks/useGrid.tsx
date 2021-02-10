@@ -5,8 +5,12 @@ import {
   GRID_ELEMENTS_PER_DAY,
   ONE_DAY
 } from '../constants/Grid'
-import { Event } from '../types'
 import useRandom from './useRandom'
+
+type Event = {
+  start: Date
+  end: Date
+}
 
 export default function useGrid() {
   const { getRandomString } = useRandom()

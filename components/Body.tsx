@@ -28,7 +28,7 @@ export default function Body() {
 
   const onPress = async () => {
     // Set the request name state
-    changeRequestName(state.requestName)
+    setRequestName(state.requestName)
     createRequest()
     setState(prev => ({
       ...prev,
@@ -38,7 +38,7 @@ export default function Body() {
 
   const [
     { intersection, processing, requests },
-    { createRequest, changeRequestName }
+    { createRequest, setRequestName }
   ] = useSchedule()
 
   const textString = `Tap here to create a client request, send it and compute the intersection: ${processing}`
@@ -46,8 +46,13 @@ export default function Body() {
     <View>
       <View style={styles.helpContainer}>
         <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-          onChangeText={text => onChangeText(text)}
+          style={{
+            height: 40,
+            width: '100%',
+            borderColor: 'gray',
+            borderWidth: 1
+          }}
+          onChangeText={onChangeText}
           value={state.requestName}
         />
 

@@ -1,27 +1,32 @@
+import Constants from 'expo-constants'
 import * as Notifications from 'expo-notifications'
 import * as React from 'react'
 
 import { EXPO_NOTIFICATION_TOKEN } from '../constants/Storage'
 import useStorage from './useStorage'
 
+type NotificationState = {
+  expoPushToken: Notifications.ExpoPushToken | undefined
+  notification: Notifications.Notification | undefined
+  notificationResponse: Notifications.NotificationResponse | undefined
+}
+
 export default function useNotification() {
-  const [, { storeItem, getItem }] = useStorage()
+  const [, { storeObject, getObject }] = useStorage()
 
-  const [expoPushToken, setExpoNotificationToken] = React.useState<string>('')
-  const [
-    notification,
-    setNotification
-  ] = React.useState<Notifications.Notification>()
-
-  const [
-    notificationResponse,
-    setNotificationResponse
-  ] = React.useState<Notifications.NotificationResponse>()
+  const [state, setState] = React.useState<NotificationState>({
+    expoPushToken: undefined,
+    notification: undefined,
+    notificationResponse: undefined
+  })
 
   const notificationReceivedHandler = React.useCallback(
-    (notification: Notifications.Notification): void => {
-      console.log('Notification received:', notification)
-      setNotification(notification)
+    (note: Notifications.Notification): void => {
+      console.log('Notification received:', note)
+      setState(prev => ({
+        ...prev,
+        notification: note
+      }))
     },
     []
   )
@@ -29,21 +34,37 @@ export default function useNotification() {
   const notificationReponseReceivedHandler = React.useCallback(
     (response: Notifications.NotificationResponse): void => {
       console.log('Notification response received:', response)
-      setNotificationResponse(response)
+      setState(prev => ({
+        ...prev,
+        notificationResponse: response
+      }))
     },
     []
   )
 
   React.useEffect(() => {
     ;(async () => {
-      // Get the token from storage, if it doesn't exist, get it and store it
-      let token = await getItem(EXPO_NOTIFICATION_TOKEN)
-      if (!token) {
-        const { data } = await Notifications.getExpoPushTokenAsync()
-        token = data
-        await storeItem(EXPO_NOTIFICATION_TOKEN, token)
+      if (Constants.isDevice) {
+        // Get the token from storage, if it doesn't exist, get it and store it
+        let token = await getObject<Notifications.ExpoPushToken>(
+          EXPO_NOTIFICATION_TOKEN
+        )
+        if (!token) {
+          token = await Notifications.getExpoPushTokenAsync()
+          await storeObject<Notifications.ExpoPushToken>(
+            EXPO_NOTIFICATION_TOKEN,
+            token
+          )
+        }
+        setState(prev => ({
+          ...prev,
+          expoPushToken: token!
+        }))
+      } else {
+        console.log(
+          'Running in a simulator, skipping push notification initialization'
+        )
       }
-      setExpoNotificationToken(token)
     })()
 
     // Set our listener handlers
@@ -65,8 +86,5 @@ export default function useNotification() {
     }
   }, [])
 
-  return React.useMemo(() => [notification, notificationResponse] as const, [
-    notification,
-    notificationResponse
-  ])
+  return React.useMemo(() => [state] as const, [state])
 }

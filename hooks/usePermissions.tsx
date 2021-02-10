@@ -1,7 +1,12 @@
+import Constants from 'expo-constants'
 import * as Permissions from 'expo-permissions'
 import * as React from 'react'
 
-import { PermissionResponse, PermissionsArray } from '../types'
+import { PermissionResponse } from './useCalendar'
+
+type PermissionsArray = readonly ((
+  ...args: any[]
+) => Promise<PermissionResponse>)[]
 
 /**
  * Requests for REMINDER permission if not already granted
@@ -30,8 +35,20 @@ const requestCalendarPermission = async (): Promise<PermissionResponse> => {
 /**
  * Requests for NOTIFICATIONS permission if not alreday granted
  */
-
 const requestNotificationPermission = async (): Promise<PermissionResponse> => {
+  // If we're in a simulator, simulate a successful grant
+  if (!Constants.isDevice) {
+    return {
+      Response: {
+        status: Permissions.PermissionStatus.GRANTED,
+        expires: 'never' as Permissions.PermissionExpiration,
+        granted: true,
+        canAskAgain: false
+      } as Permissions.PermissionResponse,
+      Permission: 'NOTIFICATIONS'
+    }
+  }
+
   const permission = await Permissions.getAsync(Permissions.NOTIFICATIONS)
   if (permission.canAskAgain && !permission.granted) {
     const permissionResponse = await Permissions.askAsync(
@@ -43,8 +60,10 @@ const requestNotificationPermission = async (): Promise<PermissionResponse> => {
 }
 
 type PermissionState = {
-  permissionStatuses: PermissionResponse[]
   hasPermission: boolean
+  permissionStatuses: PermissionResponse[]
+  grantedPermissions: PermissionResponse[]
+  missingPermissions: PermissionResponse[]
 }
 
 /**
@@ -56,8 +75,10 @@ type PermissionState = {
  */
 export default function usePermissions() {
   const [state, setState] = React.useState<PermissionState>({
+    hasPermission: false,
     permissionStatuses: [],
-    hasPermission: false
+    grantedPermissions: [],
+    missingPermissions: []
   })
 
   const getPermissionStatuses = (
@@ -80,9 +101,17 @@ export default function usePermissions() {
     ;(async () => {
       const permissionStatuses = await getAllPermissionStatuses()
       const hasPermission = permissionStatuses.every(x => x.Response.granted)
+      const grantedPermissions = permissionStatuses.filter(
+        x => x.Response.granted
+      )
+      const missingPermissions = permissionStatuses.filter(
+        x => !x.Response.granted
+      )
       setState({
+        hasPermission,
         permissionStatuses,
-        hasPermission
+        grantedPermissions,
+        missingPermissions
       })
     })()
   }, [])

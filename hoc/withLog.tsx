@@ -1,4 +1,13 @@
-import { ReturnTypeAsync } from '../types'
+/**
+ * Defines a ReturnType that is the sync or async return type of a function
+ */
+type ReturnTypeAsync<T extends (...args: any) => any> = T extends (
+  ...args: any
+) => Promise<infer R>
+  ? R
+  : T extends (...args: any) => infer R
+  ? R
+  : any
 
 /**
  * Creates a HOC which times the execution of the provided function

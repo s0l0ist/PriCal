@@ -56,15 +56,13 @@ type FetchResponsePayloadResponse = Pick<
   'requestId' | 'contextId' | 'requestName' | 'response' | 'setup'
 >
 
-type RequestMapRecord = Pick<RequestRecord, 'contextId' | 'requestName'>
+export type RequestMapRecord = Pick<
+  RequestRecord,
+  'requestId' | 'contextId' | 'requestName'
+>
 // A type alias for storing outbound requests
-type RequestMap = Map<RequestId, RequestMapRecord>
+export type RequestMap = Map<RequestId, RequestMapRecord>
 
-// TODO: We need a way to store API requests and map them to a persistent state
-// so we can fetch the status of all client requests from the server.
-// We need to think about this request with the contextId (and private key)
-// so that we aren't tracking requests that do not have corresponding
-// contextId's on the users phone since we only store the last 10.
 type ScheduleState = {
   processing: boolean
   requestName: string
@@ -196,7 +194,7 @@ export default function useSchedule() {
   /**
    * Update the name of the request
    */
-  const changeRequestName = (name: string) => {
+  const setRequestName = (name: string) => {
     setState(prev => ({
       ...prev,
       requestName: name
@@ -248,8 +246,9 @@ export default function useSchedule() {
         // We create a new local record based on the currentContext's ID
         // The contextId is the most recent one generated from calling `createClientRequest`
         fixedRequestMap.set(requestId, {
-          requestName,
-          contextId
+          requestId,
+          contextId,
+          requestName
         } as RequestMapRecord)
 
         setState(prev => ({
@@ -394,8 +393,8 @@ export default function useSchedule() {
     () =>
       [
         { ...state, intersection },
-        { createRequest, changeRequestName }
+        { createRequest, setRequestName }
       ] as const,
-    [intersection, state, createRequest, changeRequestName]
+    [intersection, state, createRequest, setRequestName]
   )
 }
