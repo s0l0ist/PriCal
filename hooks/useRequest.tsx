@@ -1,11 +1,11 @@
 import * as React from 'react'
 
-interface FetchHandlerProps<T> {
+type FetchHandlerProps<T> = {
   onCompleted: (data: T) => void
   onError: (err: Error) => void
 }
 
-interface FetchProps {
+type FetchProps = {
   url: string
   method: 'post' | 'get'
 }

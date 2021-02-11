@@ -8,13 +8,13 @@ import {
 } from 'react-native'
 
 import useSchedule from '../hooks/useSchedule'
-import { MonoText } from './MonoText'
+import MonoText from './MonoText'
 
 type BodyState = {
   requestName: string
 }
 
-export default function Body() {
+const Body: React.FC = () => {
   const [state, setState] = React.useState<BodyState>({
     requestName: ''
   })
@@ -106,3 +106,5 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   }
 })
+
+export default Body

@@ -15,7 +15,7 @@ type base64 = string
 type RequestId = string
 
 // The record stored in the database
-interface RequestRecord {
+type RequestRecord = {
   // The ID of the request record
   requestId: RequestId
 
