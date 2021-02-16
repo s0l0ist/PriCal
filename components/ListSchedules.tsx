@@ -38,8 +38,8 @@ const ListSchedules: React.FC = () => {
     // Fetch from storage, extract Ids
     const requestIds = [...(await getRequests()).keys()]
     console.log('refreshing requestIds', requestIds)
-    // If there were no Ids stored (first time user), we can just skip this call
-    // as there's nothing to fetch.
+    // If there were no Ids stored, we can just skip this call
+    // as there's nothing to fetch and nothing to update
     if (!requestIds) {
       return
     }
@@ -80,14 +80,14 @@ const ListSchedules: React.FC = () => {
       compare(a, b, 'requestName'),
     []
   )
-
   const sortedRequests = React.useCallback(
     (requests: ListRequestResponses) =>
       [...requests.values()].filter(x => x.requestId).sort(compareRequestName),
     []
   )
-
-  const requests = sortedRequests(api.response ?? [])
+  const requests = React.useMemo(() => sortedRequests(api.response ?? []), [
+    api.response
+  ])
 
   return (
     <View>
@@ -95,7 +95,7 @@ const ListSchedules: React.FC = () => {
         data={requests}
         renderItem={renderItem}
         keyExtractor={x => x.requestId}
-        onRefresh={() => onRefresh()}
+        onRefresh={onRefresh}
         refreshing={api.processing}
       />
       <TouchableOpacity disabled={api.processing} onPress={onRefresh}>
