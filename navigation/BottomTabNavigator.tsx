@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 
 import CreateScreen from '../screens/CreateScreen'
-import RequestsScreen from '../screens/SchedulesScreen'
+import SchedulesScreen from '../screens/SchedulesScreen'
 
 export type RootStackParamList = {
   Root: undefined
@@ -13,15 +13,45 @@ export type RootStackParamList = {
 
 export type BottomTabParamList = {
   Create: undefined
-  Requests: undefined
+  Schedules: undefined
 }
 
 export type CreateTabParamList = {
   CreateScreen: undefined
 }
 
-export type RequestsTabParamList = {
-  RequestsScreen: undefined
+export type SchedulesTabParamList = {
+  SchedulesScreen: undefined
+}
+
+// Each tab has its own navigation stack, you can read more about this pattern here:
+// https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
+const CreateTabStack = createStackNavigator<CreateTabParamList>()
+
+function CreateTabNavigator(props: any) {
+  return (
+    <CreateTabStack.Navigator>
+      <CreateTabStack.Screen
+        name="CreateScreen"
+        component={CreateScreen}
+        options={{ headerTitle: 'Create a Request' }}
+      />
+    </CreateTabStack.Navigator>
+  )
+}
+
+const SchedulesTabStack = createStackNavigator<SchedulesTabParamList>()
+
+function SchedulesTabNavigator() {
+  return (
+    <SchedulesTabStack.Navigator>
+      <SchedulesTabStack.Screen
+        name="SchedulesScreen"
+        component={SchedulesScreen}
+        options={{ headerTitle: 'Active Schedule Requests' }}
+      />
+    </SchedulesTabStack.Navigator>
+  )
 }
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>()
@@ -37,8 +67,8 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="Requests"
-        component={RequestsTabNavigator}
+        name="Schedules"
+        component={SchedulesTabNavigator}
         options={{
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="ios-list" color={color} />
@@ -56,34 +86,4 @@ function TabBarIcon(props: {
   color: string
 }) {
   return <Ionicons size={30} style={{ marginBottom: -3 }} {...props} />
-}
-
-// Each tab has its own navigation stack, you can read more about this pattern here:
-// https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const CreateTabStack = createStackNavigator<CreateTabParamList>()
-
-function CreateTabNavigator() {
-  return (
-    <CreateTabStack.Navigator>
-      <CreateTabStack.Screen
-        name="CreateScreen"
-        component={CreateScreen}
-        options={{ headerTitle: 'Create a Request' }}
-      />
-    </CreateTabStack.Navigator>
-  )
-}
-
-const RequestsTabStack = createStackNavigator<RequestsTabParamList>()
-
-function RequestsTabNavigator() {
-  return (
-    <RequestsTabStack.Navigator>
-      <RequestsTabStack.Screen
-        name="RequestsScreen"
-        component={RequestsScreen}
-        options={{ headerTitle: 'Active Requests' }}
-      />
-    </RequestsTabStack.Navigator>
-  )
 }

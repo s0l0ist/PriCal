@@ -90,7 +90,7 @@ export default function useRequest() {
       [fetchHandlerProps]
     )
 
-    return React.useMemo(() => [request, state] as const, [request])
+    return React.useMemo(() => [request, state] as const, [request, state])
   },
   [])
 

@@ -8,25 +8,22 @@ import { PSILibrary } from '@openmined/psi.js/implementation/psi'
 import * as Base64 from 'base64-js'
 import * as React from 'react'
 
-import { CONTEXT_MAP, MAX_KEYS_TO_STORE } from '../constants/Storage'
 import useRandom from './useRandom'
-import useStorage from './useStorage'
-
-type Context = {
-  contextId: string
-  privateKey: Uint8Array
-}
-
-type ContextMap = Map<string, string>
 
 type PsiState = {
   psi: PSILibrary | undefined
-  currentContext: Context | undefined
-  contexts: ContextMap
-  clientRequest: Request | undefined
-  serverResponse: Response | undefined
-  serverSetup: ServerSetup | undefined
-  intersection: number[]
+}
+type base64 = string
+
+export type Context = {
+  contextId: string
+  privateKey: base64
+  clientRequest: base64
+}
+
+export type ServerResponse = {
+  serverSetup: base64
+  serverResponse: base64
 }
 
 /**
@@ -46,17 +43,10 @@ type PsiState = {
  */
 export default function usePsi() {
   const [state, setState] = React.useState<PsiState>({
-    psi: undefined,
-    currentContext: undefined,
-    contexts: new Map(),
-    clientRequest: undefined,
-    serverResponse: undefined,
-    serverSetup: undefined,
-    intersection: []
+    psi: undefined
   })
 
   const { getRandomString } = useRandom()
-  const [, { storeMap, loadMap }] = useStorage()
 
   /**
    * [Acting as a Client] Encrypts a grid and returns the serialized client request
@@ -66,20 +56,19 @@ export default function usePsi() {
     (grid: string[]) => {
       const contextId = getRandomString(4)
       const client = state.psi!.client!.createWithNewKey(true)
-      const privateKey = client.getPrivateKeyBytes()
-      const clientRequest = client.createRequest(grid)
-
-      setState(prev => ({
-        ...prev,
-        currentContext: {
-          contextId,
-          privateKey
-        },
-        clientRequest
-      }))
+      const privateKey = Base64.fromByteArray(client.getPrivateKeyBytes())
+      const clientRequest = Base64.fromByteArray(
+        client.createRequest(grid).serializeBinary()
+      )
 
       // Always destroy the client instance to prevent WASM heap buildup
       client.delete()
+
+      return {
+        contextId,
+        privateKey,
+        clientRequest
+      } as Context
     },
     [state.psi]
   )
@@ -91,25 +80,31 @@ export default function usePsi() {
    * @param request The client request
    * @param grid The time-grid to generate the setup
    */
-  const processRequest = React.useCallback(
-    (request: Request, grid: string[]) => {
+  const createServerResponse = React.useCallback(
+    (request: base64, grid: string[]) => {
+      const clientRequest = deserializeRequest(request)
       const server = state.psi!.server!.createWithNewKey(true)
-      const serverResponse = server.processRequest(request)
-      const serverSetup = server.createSetupMessage(
-        0.001,
-        request.getEncryptedElementsList().length,
-        grid,
-        state.psi!.dataStructure.GCS
+      const serverResponse = Base64.fromByteArray(
+        server.processRequest(clientRequest).serializeBinary()
       )
-
-      setState(prev => ({
-        ...prev,
-        serverResponse,
-        serverSetup
-      }))
+      const serverSetup = Base64.fromByteArray(
+        server
+          .createSetupMessage(
+            0.001,
+            clientRequest.getEncryptedElementsList().length,
+            grid,
+            state.psi!.dataStructure.GCS
+          )
+          .serializeBinary()
+      )
 
       // Always destroy the server instance to prevent WASM heap buildup
       server.delete()
+
+      return {
+        serverResponse,
+        serverSetup
+      } as ServerResponse
     },
     [state.psi]
   )
@@ -122,25 +117,16 @@ export default function usePsi() {
    * @param serverSetup
    */
   const computeIntersection = React.useCallback(
-    async (contextId: string, response: Response, serverSetup: ServerSetup) => {
-      const base64Key = state.contexts.get(contextId)
-      if (!base64Key) {
-        console.log('Could not find a corresponding currentContext!')
-        return []
-      }
-
-      const privateKey = Base64.toByteArray(base64Key)
+    (key: base64, response: base64, setup: base64) => {
+      const privateKey = Base64.toByteArray(key)
       const client = state.psi!.client!.createFromKey(privateKey, true)
-
-      const intersection = client.getIntersection(serverSetup, response)
-      const instersectionSorted = intersection.sort()
-
-      setState(prev => ({
-        ...prev,
-        intersection: instersectionSorted
-      }))
+      const serverResponse = deserializeResponse(response)
+      const serverSetup = deserializeServerSetup(setup)
+      const intersection = client.getIntersection(serverSetup, serverResponse)
+      client.delete()
+      return intersection.sort()
     },
-    [state.psi, state.contexts]
+    [state.psi]
   )
 
   /**
@@ -148,8 +134,8 @@ export default function usePsi() {
    * @param binary Serialized Response
    */
   const deserializeResponse = React.useCallback(
-    (binary: Uint8Array): Response => {
-      return state.psi!.response.deserializeBinary(binary)
+    (response: base64): Response => {
+      return state.psi!.response.deserializeBinary(Base64.toByteArray(response))
     },
     [state.psi]
   )
@@ -159,8 +145,8 @@ export default function usePsi() {
    * @param binary Serialized Request
    */
   const deserializeRequest = React.useCallback(
-    (binary: Uint8Array): Request => {
-      return state.psi!.request.deserializeBinary(binary)
+    (request: base64): Request => {
+      return state.psi!.request.deserializeBinary(Base64.toByteArray(request))
     },
     [state.psi]
   )
@@ -170,8 +156,8 @@ export default function usePsi() {
    * @param binary Serialized ServerResponse
    */
   const deserializeServerSetup = React.useCallback(
-    (binary: Uint8Array): ServerSetup => {
-      return state.psi!.serverSetup.deserializeBinary(binary)
+    (setup: base64): ServerSetup => {
+      return state.psi!.serverSetup.deserializeBinary(Base64.toByteArray(setup))
     },
     [state.psi]
   )
@@ -181,56 +167,25 @@ export default function usePsi() {
    */
   React.useEffect(() => {
     ;(async () => {
-      const [contexts, psi] = await Promise.all([loadMap(CONTEXT_MAP), PSI()])
-      setState(prev => ({
-        ...prev,
-        psi,
-        contexts
-      }))
+      if (!state.psi) {
+        console.log('psi loading')
+        const psi = await PSI()
+        setState(prev => ({
+          ...prev,
+          psi
+        }))
+      }
     })()
-  }, [])
+  }, [state.psi])
 
-  /**
-   * Effect which updates our map of contexts when a new one is detected
-   */
-  React.useEffect(() => {
-    if (state.currentContext) {
-      // convert Uint8Array to base64 string
-      const base64Key = Base64.fromByteArray(state.currentContext.privateKey)
-      const fixedContextMap = new Map(
-        [...state.contexts].slice(-(MAX_KEYS_TO_STORE - 1))
-      )
-      fixedContextMap.set(state.currentContext.contextId, base64Key)
-
-      setState(prev => ({
-        ...prev,
-        contexts: fixedContextMap
-      }))
-    }
-  }, [state.currentContext])
-
-  /**
-   * Effect to persist the contexts when they are updated
-   */
-  React.useEffect(() => {
-    if (state.contexts.size) {
-      storeMap(CONTEXT_MAP, state.contexts)
-    }
-  }, [state.contexts])
-
-  return React.useMemo(
-    () =>
-      [
-        state,
-        {
-          createClientRequest,
-          processRequest,
-          computeIntersection,
-          deserializeResponse,
-          deserializeRequest,
-          deserializeServerSetup
-        }
-      ] as const,
-    [state]
-  )
+  return React.useMemo(() => {
+    return {
+      createClientRequest,
+      createServerResponse,
+      computeIntersection,
+      deserializeResponse,
+      deserializeRequest,
+      deserializeServerSetup
+    } as const
+  }, [state.psi])
 }

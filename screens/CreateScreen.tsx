@@ -1,16 +1,27 @@
+import { StackNavigationProp } from '@react-navigation/stack'
 import * as React from 'react'
 import { Text } from 'react-native'
 
-import Body from '../components/Body'
+import CreateRequest from '../components/CreateSchedule'
 import CreateView from '../components/CreateView'
-import useNotification from '../hooks/useNotification'
+// import useNotification from '../hooks/useNotification'
+import useStorage from '../hooks/store/useStorage'
 import usePermissions from '../hooks/usePermissions'
-import useStorage from '../hooks/useStorage'
+import { BottomTabParamList } from '../navigation/BottomTabNavigator'
 
-const CreateScreen: React.FC = () => {
+type CreateScreenNavigationProp = StackNavigationProp<
+  BottomTabParamList,
+  'Schedules'
+>
+
+type CreateScreenProps = {
+  navigation: CreateScreenNavigationProp
+}
+
+const CreateScreen: React.FC<CreateScreenProps> = ({ navigation }) => {
   const [{ hasPermission, missingPermissions }] = usePermissions()
   const [{ hasSecureStorage }] = useStorage()
-  const [{ expoPushToken }] = useNotification()
+  // const [{ expoPushToken }] = useNotification()
 
   if (!hasPermission) {
     return (
@@ -33,7 +44,7 @@ const CreateScreen: React.FC = () => {
 
   return (
     <CreateView>
-      <Body />
+      <CreateRequest onSuccess={() => navigation.navigate('Schedules')} />
     </CreateView>
   )
 }

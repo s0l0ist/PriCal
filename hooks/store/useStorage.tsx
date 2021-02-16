@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store'
 import * as React from 'react'
 
-import { KEYCHAIN_SERVICE } from '../constants/Storage'
+import { KEYCHAIN_SERVICE } from '../../constants/Storage'
 
 type StorageState = {
   hasSecureStorage: boolean
@@ -68,7 +68,7 @@ export default function useStorage() {
     []
   )
 
-  const loadMap = React.useCallback(async (key: string): Promise<
+  const getMap = React.useCallback(async (key: string): Promise<
     Map<any, any>
   > => {
     const serialized = await getItem(key)
@@ -94,7 +94,7 @@ export default function useStorage() {
         state,
         {
           storeMap,
-          loadMap,
+          getMap,
           storeItem,
           storeObject,
           getItem,
