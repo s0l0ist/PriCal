@@ -13,12 +13,12 @@ export type ListRequestResponses = ListRequestResponse[]
 
 type ListRequestsState = {
   processing: boolean
-  response: ListRequestResponses
+  response: ListRequestResponses | undefined
 }
 export default function useListRequests() {
   const [state, setState] = React.useState<ListRequestsState>({
     processing: false,
-    response: []
+    response: undefined
   })
   const { buildRequest } = useRequest()
   const [apiRequest] = buildRequest<ListRequestResponses>(

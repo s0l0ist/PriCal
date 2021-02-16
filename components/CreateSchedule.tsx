@@ -7,18 +7,32 @@ import {
   View
 } from 'react-native'
 
-import useCreateRequest from '../hooks/api/useCreateRequest'
+import useCreateRequest, {
+  CreateRequestResponse
+} from '../hooks/api/useCreateRequest'
+import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
 
 type CreateRequestProps = {
   onSuccess: () => void
 }
 
+type Request = {
+  requestId: string
+  requestName: string
+  contextId: string
+  privateKey: string
+}
+
+type RequestPartial = Pick<Request, 'requestName' | 'contextId' | 'privateKey'>
+
 const CreateRequest: React.FC<CreateRequestProps> = ({ onSuccess }) => {
   const [requestName, setRequestName] = React.useState<string>('')
-
+  const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
+  const [apiResponse, setApiResponse] = React.useState<CreateRequestResponse>()
   const [{ createRequest }] = useSchedule()
   const [api, makeApiRequest] = useCreateRequest()
+  const { addRequest } = useSync()
 
   /**
    * Handler to update the requestName
@@ -34,24 +48,53 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ onSuccess }) => {
   const onCreateRequest = async () => {
     // Create the clientReqeust
     console.log('creating and sending client request', requestName)
-    const payload = await createRequest(requestName)
+    const partialRequest = await createRequest(requestName)
     makeApiRequest({
-      requestName: payload.requestName,
-      contextId: payload.contextId,
-      request: payload.request
+      requestName: partialRequest.requestName,
+      contextId: partialRequest.contextId,
+      request: partialRequest.request
     })
 
-    // Immediatly set the processing flag, and reset the request name
+    // Clear the name to prevent the form from sumbitting and set our partial request
     setRequestName('')
+    setRequestPartial(partialRequest)
   }
 
+  /**
+   * Effect: monitor the API response and set a local state that we control
+   * Specifically, this allows us to clear the api response state for our
+   * other hook below
+   */
   React.useEffect(() => {
     if (api.response) {
-      console.log('Received api.response, navigating to schedules')
-      // Trigger the navigation callback prop
-      onSuccess()
+      setApiResponse(api.response)
     }
   }, [api.response])
+
+  /**
+   * Effect: When we receive a valid response from the server that our request
+   * was correctly generated, we then merge the private data held in the partial
+   * and sync to storage.
+   */
+  React.useEffect(() => {
+    ;(async () => {
+      if (apiResponse && requestPartial) {
+        console.log('Received api.response, storing, navigating to schedules')
+        // Sync to storage
+        await addRequest({
+          requestId: apiResponse.requestId,
+          requestName: apiResponse.requestName,
+          contextId: apiResponse.contextId,
+          privateKey: requestPartial.privateKey
+        })
+        // Clean up our local state after consumption
+        setRequestPartial(undefined)
+        setApiResponse(undefined)
+        // Trigger the navigation callback prop
+        onSuccess()
+      }
+    })()
+  }, [apiResponse, requestPartial])
 
   return (
     <View>

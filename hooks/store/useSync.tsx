@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { REQUEST_IDS } from '../../constants/Storage'
+import { REQUEST_MAP } from '../../constants/Storage'
 import useStorage from './useStorage'
 
 type Request = {
@@ -11,38 +11,100 @@ type Request = {
 }
 
 export default function useSync() {
-  const [, { storeObject, getObject }] = useStorage()
+  const [, { storeMap, getMap }] = useStorage()
 
-  const getRequest = (requestId: string) => {
-    return getObject<Request>(requestId)
+  /**
+   * Get a single request from storage
+   */
+  const getRequest = async (requestId: string) => {
+    const requests = await getMap<Request>(REQUEST_MAP)
+    return requests.get(requestId)
   }
-  const setRequest = (request: Request) => {
-    return storeObject<Request>(request.requestId, request)
+  /**
+   * Get a all requests from storage
+   */
+  const getRequests = () => {
+    return getMap<Request>(REQUEST_MAP)
   }
-  const setRequests = (requests: Request[]) => {
-    const saveList = requests.map(x => setRequest(x))
-    return Promise.all(saveList)
+  /**
+   * Adds a single request overwriting any existing entry
+   */
+  const addRequest = async (request: Request) => {
+    const requests = await getMap<Request>(REQUEST_MAP)
+    requests.set(request.requestId, request)
+    return storeMap<Request>(REQUEST_MAP, requests)
   }
-  const listRequestIds = () => {
-    return getObject<string[]>(REQUEST_IDS)
+  /**
+   * Adds multiple requests to storage overwiting existing entries
+   */
+  const addRequests = async (requests: Request[]) => {
+    const prevRequests = await getMap<Request>(REQUEST_MAP)
+    requests.forEach(x => {
+      prevRequests.set(x.requestId, x)
+    })
+    return storeMap<Request>(REQUEST_MAP, prevRequests)
   }
-  const addRequestId = async (requestId: string) => {
-    const requestIds = await listRequestIds()
-    return storeObject<string[]>(REQUEST_IDS, [
-      ...(requestIds ?? []),
-      requestId
-    ])
+
+  /**
+   * Removes multiple requests from storage by requestId
+   */
+  const removeRequests = async (requestIds: string[]) => {
+    const requests = await getMap<Request>(REQUEST_MAP)
+    requestIds.forEach(id => requests.delete(id))
+    return storeMap<Request>(REQUEST_MAP, requests)
   }
+
+  /**
+   * Removes any existing not in the specified list of requestIds
+   */
+  const filterRequests = async (requestIds: string[]) => {
+    const newRequests = new Map<string, Request>()
+    const prevRequests = await getMap<Request>(REQUEST_MAP)
+    requestIds.forEach(id => {
+      if (prevRequests.has(id)) {
+        newRequests.set(id, prevRequests.get(id)!)
+      }
+    })
+    return storeMap<Request>(REQUEST_MAP, newRequests)
+  }
+
+  /**
+   * Assigns multiple requests to storage overwiting all previous entries
+   */
+  const setRequests = async (requests: Request[]) => {
+    const newRequests = new Map<string, Request>()
+    requests.forEach(x => {
+      newRequests.set(x.requestId, x)
+    })
+    return storeMap<Request>(REQUEST_MAP, newRequests)
+  }
+
+  /**
+   * Clear all requests in storage
+   */
+  const clearRequests = () => setRequests([])
 
   return React.useMemo(
     () =>
       ({
         getRequest,
-        setRequest,
+        getRequests,
+        addRequest,
+        addRequests,
+        removeRequests,
+        filterRequests,
         setRequests,
-        listRequestIds,
-        addRequestId
+        clearRequests
       } as const),
-    [getRequest, setRequest, setRequests, listRequestIds, addRequestId]
+    [
+      getRequest,
+      getRequests,
+      addRequest,
+      addRequests,
+      removeRequests,
+      filterRequests,
+      setRequests,
+      clearRequests
+    ]
   )
 }

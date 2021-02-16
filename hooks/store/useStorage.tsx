@@ -60,23 +60,25 @@ export default function useStorage() {
 
   const deleteObject = deleteItem
 
-  const storeMap = React.useCallback(
-    async (key: string, value: Map<any, any>): Promise<void> => {
-      const serialized = JSON.stringify([...value.entries()])
-      return storeItem(key, serialized)
-    },
-    []
-  )
+  const storeMap = React.useCallback(async function storeMap<T>(
+    key: string,
+    value: Map<string, T>
+  ): Promise<void> {
+    const serialized = JSON.stringify([...value.entries()])
+    return storeItem(key, serialized)
+  },
+  [])
 
-  const getMap = React.useCallback(async (key: string): Promise<
-    Map<any, any>
-  > => {
+  const getMap = React.useCallback(async function getMap<T>(
+    key: string
+  ): Promise<Map<string, T>> {
     const serialized = await getItem(key)
     if (!serialized) {
       return new Map()
     }
     return new Map(JSON.parse(serialized))
-  }, [])
+  },
+  [])
 
   // Always check to see if the device supports SecureStorage.
   React.useEffect(() => {
