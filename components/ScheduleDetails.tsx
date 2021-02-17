@@ -1,15 +1,20 @@
 import { useFocusEffect } from '@react-navigation/native'
 import React from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
 import useSync from '../hooks/store/useSync'
+import { DetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
 
 type ScheduleDetailsProps = {
-  requestId: string
+  route: DetailsScreenRouteProp
 }
 
-const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({ requestId }) => {
+const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
+  route: {
+    params: { requestId, requestName }
+  }
+}) => {
   const [api, getResponseDetails] = useGetPrivateResponse()
   const { getRequest } = useSync()
 
@@ -25,13 +30,14 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({ requestId }) => {
   const onRefresh = React.useCallback(async () => {
     // Fetch from storage, extract Ids
     const request = await getRequest(requestId)
-    // If there were no Ids stored, we can just skip this call
-    // as there's nothing to fetch and nothing to update
+    // This should never happen as we always stay in sync in the previous screen
     if (!request) {
       throw new Error('Unable to fetch stored request')
     }
 
-    // Fetch the private response information
+    // Fetch the private response information. The response will
+    // contain enough information to perform the PSI intersection calulation
+    // iff the request was approved by the other party.
     getResponseDetails({
       requestId: request.requestId,
       contextId: request.contextId
@@ -39,8 +45,7 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({ requestId }) => {
   }, [requestId])
 
   /**
-   * When this view comes into focus, we should refresh
-   * the list of Requests
+   * When this view comes into focus, we fetch the details
    */
   useFocusEffect(
     React.useCallback(() => {
@@ -51,14 +56,27 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({ requestId }) => {
 
   return (
     <View>
-      <TouchableOpacity disabled={api.processing} onPress={onRefresh}>
-        <Text>
-          Tap here to create a client request, send it and compute the
-          intersection
-        </Text>
-      </TouchableOpacity>
+      <Text style={styles.title}>{requestName}</Text>
+      <View>
+        <Text>{`requestId: ${requestId}`}</Text>
+        <Text>{`contextId: ${api.response?.contextId}`}</Text>
+        <Text>{`response: ${api.response?.response}`}</Text>
+        <Text>{`setup: ${api.response?.setup}`}</Text>
+      </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16
+  },
+  title: {
+    fontSize: 32
+  }
+})
 
 export default ScheduleDetails

@@ -2,14 +2,14 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import * as React from 'react'
 import { Text } from 'react-native'
 
-import CreateRequest from '../components/CreateSchedule'
+import CreateSchedule from '../components/CreateSchedule'
 import CreateView from '../components/CreateView'
 // import useNotification from '../hooks/useNotification'
 import useStorage from '../hooks/store/useStorage'
 import usePermissions from '../hooks/usePermissions'
 import { BottomTabParamList } from '../navigation/BottomTabNavigator'
 
-type CreateScreenNavigationProp = StackNavigationProp<
+export type CreateScreenNavigationProp = StackNavigationProp<
   BottomTabParamList,
   'Schedules'
 >
@@ -44,7 +44,7 @@ const CreateScreen: React.FC<CreateScreenProps> = ({ navigation }) => {
 
   return (
     <CreateView>
-      <CreateRequest onSuccess={() => navigation.navigate('Schedules')} />
+      <CreateSchedule navigation={navigation} />
     </CreateView>
   )
 }

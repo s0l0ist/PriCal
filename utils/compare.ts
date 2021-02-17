@@ -1,5 +1,5 @@
 /**
- * A type-safe comparator for types
+ * A type-safe comparator for typed iterables
  */
 export const compare = <T>(a: T, b: T, key: keyof T) => {
   const propA = getProperty(a, key)

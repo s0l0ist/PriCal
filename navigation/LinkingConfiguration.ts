@@ -11,9 +11,10 @@ export default {
               CreateScreen: 'create'
             }
           },
-          SchedulesTab: {
+          Schedules: {
             screens: {
-              SchedulesScreen: 'schedules'
+              SchedulesScreen: 'schedules',
+              ScheduleDetailsScreen: 'details'
             }
           }
         }

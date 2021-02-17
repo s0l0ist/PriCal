@@ -1,13 +1,23 @@
+import { StackNavigationProp } from '@react-navigation/stack'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
-import ListSchedules from '../components/ListSchedules'
+import Schedules from '../components/Schedules'
+import { SchedulesTabParamList } from '../navigation/BottomTabNavigator'
 
-const SchedulesScreen: React.FC = () => {
-  // When this screen comes into view, refresh
+export type SchedulesScreenNavigationProp = StackNavigationProp<
+  SchedulesTabParamList,
+  'DetailsScreen'
+>
+
+type SchedulesScreenProps = {
+  navigation: SchedulesScreenNavigationProp
+}
+
+const SchedulesScreen: React.FC<SchedulesScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <ListSchedules />
+      <Schedules navigation={navigation} />
     </View>
   )
 }

@@ -6,7 +6,8 @@ import {
   StyleSheet,
   Text,
   ListRenderItemInfo,
-  TouchableOpacity
+  TouchableOpacity,
+  Pressable
 } from 'react-native'
 
 import useListRequests, {
@@ -14,18 +15,14 @@ import useListRequests, {
   ListRequestResponses
 } from '../hooks/api/useListRequests'
 import useSync from '../hooks/store/useSync'
+import { SchedulesScreenNavigationProp } from '../screens/SchedulesScreen'
 import { compare } from '../utils/compare'
 
-const Item = ({ title }: { title: string }) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
-  </View>
-)
-const renderItem = (request: ListRenderItemInfo<ListRequestResponse>) => (
-  <Item title={request.item.requestName} />
-)
+type SchedulesProps = {
+  navigation: SchedulesScreenNavigationProp
+}
 
-const ListSchedules: React.FC = () => {
+const Schedules: React.FC<SchedulesProps> = ({ navigation }) => {
   const [api, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
 
@@ -35,9 +32,12 @@ const ListSchedules: React.FC = () => {
    * fewer requests, we need to throw away our stale data
    */
   const onRefresh = React.useCallback(async () => {
+    // If we're already refreshing, ignore the request
+    if (api.processing) {
+      return
+    }
     // Fetch from storage, extract Ids
     const requestIds = [...(await getRequests()).keys()]
-    console.log('refreshing requestIds', requestIds)
     // If there were no Ids stored, we can just skip this call
     // as there's nothing to fetch and nothing to update
     if (!requestIds) {
@@ -62,15 +62,11 @@ const ListSchedules: React.FC = () => {
   }, [api.response])
 
   /**
-   * When this tab comes into focus, we should refresh
-   * the list of Requests
+   * Effect: On component mount, refresh our list
    */
-  useFocusEffect(
-    React.useCallback(() => {
-      // clearRequests() // used for debugging
-      onRefresh()
-    }, [])
-  )
+  React.useEffect(() => {
+    onRefresh()
+  }, [])
 
   /**
    * Compose a comparator for `requestName`
@@ -88,6 +84,42 @@ const ListSchedules: React.FC = () => {
   const requests = React.useMemo(() => sortedRequests(api.response ?? []), [
     api.response
   ])
+
+  const Schedule = React.useCallback(
+    ({
+      requestName,
+      requestId
+    }: {
+      requestName: string
+      requestId: string
+    }) => (
+      <Pressable
+        onPress={() => {
+          /* 1. Navigate to the Details route with params */
+          navigation.navigate('DetailsScreen', {
+            requestId,
+            requestName
+          })
+        }}
+      >
+        <View style={styles.item}>
+          <Text style={styles.title}>{requestName}</Text>
+          <Text>Tap to view</Text>
+        </View>
+      </Pressable>
+    ),
+    []
+  )
+
+  const renderItem = React.useCallback(
+    (request: ListRenderItemInfo<ListRequestResponse>) => (
+      <Schedule
+        requestName={request.item.requestName}
+        requestId={request.item.requestId}
+      />
+    ),
+    []
+  )
 
   return (
     <View>
@@ -120,4 +152,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default ListSchedules
+export default Schedules

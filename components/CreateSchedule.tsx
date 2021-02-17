@@ -12,9 +12,10 @@ import useCreateRequest, {
 } from '../hooks/api/useCreateRequest'
 import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
+import { CreateScreenNavigationProp } from '../screens/CreateScreen'
 
 type CreateRequestProps = {
-  onSuccess: () => void
+  navigation: CreateScreenNavigationProp
 }
 
 type Request = {
@@ -26,7 +27,7 @@ type Request = {
 
 type RequestPartial = Pick<Request, 'requestName' | 'contextId' | 'privateKey'>
 
-const CreateRequest: React.FC<CreateRequestProps> = ({ onSuccess }) => {
+const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
   const [requestName, setRequestName] = React.useState<string>('')
   const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
   const [apiResponse, setApiResponse] = React.useState<CreateRequestResponse>()
@@ -90,8 +91,8 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ onSuccess }) => {
         // Clean up our local state after consumption
         setRequestPartial(undefined)
         setApiResponse(undefined)
-        // Trigger the navigation callback prop
-        onSuccess()
+        // Trigger navigation to the schedules tab
+        navigation.navigate('Schedules')
       }
     })()
   }, [apiResponse, requestPartial])
