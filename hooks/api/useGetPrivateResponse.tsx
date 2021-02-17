@@ -16,11 +16,13 @@ export type GetPrivateResponseResponse = {
 type GetPrivateResponseState = {
   processing: boolean
   response: GetPrivateResponseResponse | undefined
+  error: Error | undefined
 }
 export default function useGetPrivateResponse() {
   const [state, setState] = React.useState<GetPrivateResponseState>({
     processing: false,
-    response: undefined
+    response: undefined,
+    error: undefined
   })
   const { buildRequest } = useRequest()
   const [apiRequest] = buildRequest<GetPrivateResponseResponse>(
@@ -33,14 +35,16 @@ export default function useGetPrivateResponse() {
       onCompleted: payload => {
         setState({
           processing: false,
-          response: payload
+          response: payload,
+          error: undefined
         })
       },
       onError: err => {
-        console.error('Failed to get the server response', err)
+        console.error('Failed to get the server response')
         setState(prev => ({
           ...prev,
-          processing: false
+          processing: false,
+          error: err
         }))
       }
     }

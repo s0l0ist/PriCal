@@ -7,7 +7,7 @@ import { SchedulesTabParamList } from '../navigation/BottomTabNavigator'
 
 export type SchedulesScreenNavigationProp = StackNavigationProp<
   SchedulesTabParamList,
-  'DetailsScreen'
+  'ScheduleDetailsScreen'
 >
 
 type SchedulesScreenProps = {

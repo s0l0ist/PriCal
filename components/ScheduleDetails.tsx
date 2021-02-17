@@ -1,4 +1,3 @@
-import { useFocusEffect } from '@react-navigation/native'
 import React from 'react'
 import { View, StyleSheet, Text } from 'react-native'
 
@@ -22,7 +21,7 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
    * On a manual refresh, we fetch the *private* request details.
    *
    * This means only the device which knows both the requestId
-   * and contextId may fetch a person's encrypted schedule.
+   * and contextId may fetch a person's PSI-encrypted schedule.
    *
    * If there's no server Response or Setup, then we're still waiting
    * for the other party to confirm the request.
@@ -45,14 +44,11 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
   }, [requestId])
 
   /**
-   * When this view comes into focus, we fetch the details
+   * Effect: On component mount, refresh the details our list
    */
-  useFocusEffect(
-    React.useCallback(() => {
-      // clearRequests() // used for debugging
-      onRefresh()
-    }, [])
-  )
+  React.useEffect(() => {
+    onRefresh()
+  }, [])
 
   return (
     <View>

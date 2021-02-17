@@ -13,11 +13,13 @@ export type CreateResponseResponse = {
 type CreateResponseState = {
   processing: boolean
   response: CreateResponseResponse | undefined
+  error: Error | undefined
 }
 export default function useCreateResponse() {
   const [state, setState] = React.useState<CreateResponseState>({
     processing: false,
-    response: undefined
+    response: undefined,
+    error: undefined
   })
   const { buildRequest } = useRequest()
   const [apiRequest] = buildRequest<CreateResponseResponse>(
@@ -30,14 +32,16 @@ export default function useCreateResponse() {
       onCompleted: payload => {
         setState({
           processing: false,
-          response: payload
+          response: payload,
+          error: undefined
         })
       },
       onError: err => {
-        console.error('Failed to create the server response', err)
+        console.error('Failed to create the server response')
         setState(prev => ({
           ...prev,
-          processing: false
+          processing: false,
+          error: err
         }))
       }
     }

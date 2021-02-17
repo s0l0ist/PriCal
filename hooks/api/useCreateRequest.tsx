@@ -15,11 +15,13 @@ export type CreateRequestResponse = {
 type CreateRequestState = {
   processing: boolean
   response: CreateRequestResponse | undefined
+  error: Error | undefined
 }
 export default function useCreateRequest() {
   const [state, setState] = React.useState<CreateRequestState>({
     processing: false,
-    response: undefined
+    response: undefined,
+    error: undefined
   })
   const { buildRequest } = useRequest()
   const [apiRequest] = buildRequest<CreateRequestResponse>(
@@ -32,14 +34,16 @@ export default function useCreateRequest() {
       onCompleted: payload => {
         setState({
           processing: false,
-          response: payload
+          response: payload,
+          error: undefined
         })
       },
       onError: err => {
-        console.error('Failed to create the client request', err)
+        console.error('Failed to create the client request')
         setState(prev => ({
           ...prev,
-          processing: false
+          processing: false,
+          error: err
         }))
       }
     }

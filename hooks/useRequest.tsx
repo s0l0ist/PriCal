@@ -74,17 +74,17 @@ export default function useRequest() {
           const response = await fetch(url, options)
           const json = await response.json()
           handleCompleted(json)
-        } catch (e) {
-          setState(prev => ({
-            ...prev,
-            receivedError: true
-          }))
-          handleError(e)
-        } finally {
           setState(prev => ({
             ...prev,
             requesting: false
           }))
+        } catch (e) {
+          setState(prev => ({
+            ...prev,
+            requesting: false,
+            receivedError: true
+          }))
+          handleError(e)
         }
       },
       [fetchHandlerProps]

@@ -14,11 +14,13 @@ export type ListRequestResponses = ListRequestResponse[]
 type ListRequestsState = {
   processing: boolean
   response: ListRequestResponses | undefined
+  error: Error | undefined
 }
 export default function useListRequests() {
   const [state, setState] = React.useState<ListRequestsState>({
     processing: false,
-    response: undefined
+    response: undefined,
+    error: undefined
   })
   const { buildRequest } = useRequest()
   const [apiRequest] = buildRequest<ListRequestResponses>(
@@ -31,14 +33,16 @@ export default function useListRequests() {
       onCompleted: payload => {
         setState({
           processing: false,
-          response: payload
+          response: payload,
+          error: undefined
         })
       },
       onError: err => {
-        console.error('Failed to list the client requests', err)
+        console.error('Failed to list the client requests')
         setState(prev => ({
           ...prev,
-          processing: false
+          processing: false,
+          error: err
         }))
       }
     }

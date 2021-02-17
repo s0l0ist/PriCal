@@ -12,11 +12,13 @@ export type GetPublicRequestResponse = {
 type GetPublicRequestState = {
   processing: boolean
   response: GetPublicRequestResponse | undefined
+  error: Error | undefined
 }
 export default function useGetPublicRequest() {
   const [state, setState] = React.useState<GetPublicRequestState>({
     processing: false,
-    response: undefined
+    response: undefined,
+    error: undefined
   })
   const { buildRequest } = useRequest()
   const [apiRequest] = buildRequest<GetPublicRequestResponse>(
@@ -29,14 +31,16 @@ export default function useGetPublicRequest() {
       onCompleted: payload => {
         setState({
           processing: false,
-          response: payload
+          response: payload,
+          error: undefined
         })
       },
       onError: err => {
-        console.error('Failed to get the client request', err)
+        console.error('Failed to get the client request')
         setState(prev => ({
           ...prev,
-          processing: false
+          processing: false,
+          error: err
         }))
       }
     }

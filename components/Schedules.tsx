@@ -1,4 +1,3 @@
-import { useFocusEffect } from '@react-navigation/native'
 import React from 'react'
 import {
   View,
@@ -62,12 +61,20 @@ const Schedules: React.FC<SchedulesProps> = ({ navigation }) => {
   }, [api.response])
 
   /**
-   * Effect: On component mount, refresh our list
+   * Effect: On component mount, refresh our schedules
    */
   React.useEffect(() => {
     onRefresh()
   }, [])
 
+  /**
+   * Compose a sort function for requests
+   */
+  const sortedRequests = React.useCallback(
+    (requests: ListRequestResponses) =>
+      [...requests.values()].filter(x => x.requestId).sort(compareRequestName),
+    []
+  )
   /**
    * Compose a comparator for `requestName`
    */
@@ -76,11 +83,7 @@ const Schedules: React.FC<SchedulesProps> = ({ navigation }) => {
       compare(a, b, 'requestName'),
     []
   )
-  const sortedRequests = React.useCallback(
-    (requests: ListRequestResponses) =>
-      [...requests.values()].filter(x => x.requestId).sort(compareRequestName),
-    []
-  )
+
   const requests = React.useMemo(() => sortedRequests(api.response ?? []), [
     api.response
   ])
@@ -95,8 +98,8 @@ const Schedules: React.FC<SchedulesProps> = ({ navigation }) => {
     }) => (
       <Pressable
         onPress={() => {
-          /* 1. Navigate to the Details route with params */
-          navigation.navigate('DetailsScreen', {
+          // Navigate to the details route with params
+          navigation.navigate('ScheduleDetailsScreen', {
             requestId,
             requestName
           })

@@ -1,17 +1,8 @@
-import { StackNavigationProp } from '@react-navigation/stack'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
 import ScheduleDetails from '../components/ScheduleDetails'
-import {
-  DetailsScreenRouteProp,
-  SchedulesTabParamList
-} from '../navigation/BottomTabNavigator'
-
-export type DetailscreenNavigationProp = StackNavigationProp<
-  SchedulesTabParamList,
-  'DetailsScreen'
->
+import { DetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
 
 type SchedulesScreenProps = {
   route: DetailsScreenRouteProp
