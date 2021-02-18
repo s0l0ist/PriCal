@@ -44,15 +44,18 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
   }, [requestId])
 
   /**
-   * Effect: On component mount, refresh the details our list
+   * Effect: Refresh the details our list if props change
+   * This is useful when we open deep links
    */
   React.useEffect(() => {
     onRefresh()
-  }, [])
+  }, [requestId, requestName])
 
   return (
     <View>
-      <Text style={styles.title}>{requestName}</Text>
+      <Text style={styles.title}>
+        {api.response?.requestName ?? requestName}
+      </Text>
       <View>
         <Text>{`requestId: ${requestId}`}</Text>
         <Text>{`contextId: ${api.response?.contextId}`}</Text>
