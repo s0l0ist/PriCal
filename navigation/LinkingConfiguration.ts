@@ -11,7 +11,7 @@ export default {
               CreateScreen: 'create'
             }
           },
-          Schedules: {
+          SchedulesTab: {
             screens: {
               SchedulesScreen: 'schedules',
               ScheduleDetailsScreen: 'schedule'
@@ -21,7 +21,7 @@ export default {
       },
       Approval: {
         screens: {
-          ApprovalScreen: 'approval'
+          ApprovalScreen: 'approval/:requestId'
         }
       },
       NotFound: '*'
