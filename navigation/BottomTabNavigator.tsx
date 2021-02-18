@@ -14,6 +14,7 @@ import SchedulesScreen from '../screens/SchedulesScreen'
 export type RootStackParamList = {
   Root: undefined
   NotFound: undefined
+  Approval: undefined
 }
 
 /**
@@ -22,6 +23,7 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
   Create: undefined
   Schedules: undefined
+  Approvals: undefined
 }
 
 /**
@@ -43,9 +45,9 @@ export type SchedulesTabParamList = {
 }
 
 /**
- * Type for the details screen route
+ * Type for the schedule details screen route
  */
-export type DetailsScreenRouteProp = RouteProp<
+export type ScheduleDetailsScreenRouteProp = RouteProp<
   SchedulesTabParamList,
   'ScheduleDetailsScreen'
 >

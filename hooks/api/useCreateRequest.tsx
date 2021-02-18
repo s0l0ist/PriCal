@@ -52,8 +52,8 @@ export default function useCreateRequest() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (requestIds: CreateRequestProps) => {
-    apiRequest<CreateRequestProps>(requestIds)
+  const makeApiRequest = (payload: CreateRequestProps) => {
+    apiRequest<CreateRequestProps>(payload)
     setState(prev => ({
       ...prev,
       processing: true

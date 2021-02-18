@@ -2,10 +2,10 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
 import ScheduleDetails from '../components/ScheduleDetails'
-import { DetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
+import { ScheduleDetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
 
 type SchedulesScreenProps = {
-  route: DetailsScreenRouteProp
+  route: ScheduleDetailsScreenRouteProp
 }
 
 const ScheduleDetailsScreen: React.FC<SchedulesScreenProps> = ({ route }) => {

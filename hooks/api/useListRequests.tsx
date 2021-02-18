@@ -51,8 +51,8 @@ export default function useListRequests() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (requestIds: ListRequestsProps) => {
-    apiRequest<ListRequestsProps>(requestIds)
+  const makeApiRequest = (payload: ListRequestsProps) => {
+    apiRequest<ListRequestsProps>(payload)
     setState(prev => ({
       ...prev,
       processing: true

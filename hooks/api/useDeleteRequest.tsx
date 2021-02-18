@@ -2,34 +2,34 @@ import * as React from 'react'
 
 import useRequest from '../useRequest'
 
-export type GetPrivateResponseProps = {
-  requestId: string
-  contextId: string
+export type DeleteRequestProps = {
+  requests: {
+    requestId: string
+    contextId: string
+  }[]
 }
-export type GetPrivateResponseResponse = {
-  requestId: string
-  requestName: string
-  contextId: string
-  response: string
-  setup: string
+export type DeleteRequestResponse = {
+  deletedCount: number
 }
-type GetPrivateResponseState = {
+export type DeleteRequestResponses = DeleteRequestResponse[]
+
+type DeleteRequestState = {
   processing: boolean
-  response: GetPrivateResponseResponse | undefined
+  response: DeleteRequestResponses | undefined
   error: Error | undefined
 }
-export default function useGetPrivateResponse() {
-  const [state, setState] = React.useState<GetPrivateResponseState>({
+export default function useDeleteRequest() {
+  const [state, setState] = React.useState<DeleteRequestState>({
     processing: false,
     response: undefined,
     error: undefined
   })
   const { buildRequest } = useRequest()
-  const [apiRequest] = buildRequest<GetPrivateResponseResponse>(
+  const [apiRequest] = buildRequest<DeleteRequestResponses>(
     {
       url:
-        'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/serverResponse',
-      method: 'get'
+        'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
+      method: 'delete'
     },
     {
       onCompleted: payload => {
@@ -40,7 +40,7 @@ export default function useGetPrivateResponse() {
         })
       },
       onError: err => {
-        console.error('Failed to get the server response')
+        console.error('Failed to delete the client requests(s)')
         setState(prev => ({
           ...prev,
           processing: false,
@@ -53,8 +53,8 @@ export default function useGetPrivateResponse() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: GetPrivateResponseProps) => {
-    apiRequest<GetPrivateResponseProps>(payload)
+  const makeApiRequest = (payload: DeleteRequestProps) => {
+    apiRequest<DeleteRequestProps>(payload)
     setState(prev => ({
       ...prev,
       processing: true

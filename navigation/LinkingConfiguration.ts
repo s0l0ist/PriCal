@@ -14,9 +14,14 @@ export default {
           Schedules: {
             screens: {
               SchedulesScreen: 'schedules',
-              ScheduleDetailsScreen: 'details'
+              ScheduleDetailsScreen: 'schedule'
             }
           }
+        }
+      },
+      Approval: {
+        screens: {
+          ApprovalScreen: 'approval'
         }
       },
       NotFound: '*'

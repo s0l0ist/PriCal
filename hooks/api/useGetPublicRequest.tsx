@@ -49,8 +49,8 @@ export default function useGetPublicRequest() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (requestIds: GetPublicRequestProps) => {
-    apiRequest<GetPublicRequestProps>(requestIds)
+  const makeApiRequest = (payload: GetPublicRequestProps) => {
+    apiRequest<GetPublicRequestProps>(payload)
     setState(prev => ({
       ...prev,
       processing: true

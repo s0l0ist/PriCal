@@ -7,7 +7,7 @@ type FetchHandlerProps<T> = {
 
 type FetchProps = {
   url: string
-  method: 'post' | 'get'
+  method: 'post' | 'get' | 'delete'
 }
 
 type RequestState = {
@@ -63,7 +63,7 @@ export default function useRequest() {
             body: ''
           }
 
-          if (fetchProps.method === 'post') {
+          if (fetchProps.method !== 'get') {
             options.body = JSON.stringify(payload)
           }
 
@@ -74,17 +74,17 @@ export default function useRequest() {
           const response = await fetch(url, options)
           const json = await response.json()
           handleCompleted(json)
+        } catch (e) {
+          setState(prev => ({
+            ...prev,
+            receivedError: true
+          }))
+          handleError(e)
+        } finally {
           setState(prev => ({
             ...prev,
             requesting: false
           }))
-        } catch (e) {
-          setState(prev => ({
-            ...prev,
-            requesting: false,
-            receivedError: true
-          }))
-          handleError(e)
         }
       },
       [fetchHandlerProps]

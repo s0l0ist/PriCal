@@ -3,10 +3,10 @@ import { View, StyleSheet, Text } from 'react-native'
 
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
 import useSync from '../hooks/store/useSync'
-import { DetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
+import { ScheduleDetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
 
 type ScheduleDetailsProps = {
-  route: DetailsScreenRouteProp
+  route: ScheduleDetailsScreenRouteProp
 }
 
 const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
