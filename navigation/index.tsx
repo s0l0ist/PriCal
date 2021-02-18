@@ -2,8 +2,8 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 
-import NotFoundScreen from '../screens/NotFoundScreen'
 import ApprovalScreen from '../screens/ApprovalScreen'
+import NotFoundScreen from '../screens/NotFoundScreen'
 import BottomTabNavigator, { RootStackParamList } from './BottomTabNavigator'
 import LinkingConfiguration from './LinkingConfiguration'
 
