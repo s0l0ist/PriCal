@@ -6,15 +6,15 @@ export default {
     screens: {
       Root: {
         screens: {
-          CreateTab: {
+          Create: {
             screens: {
               CreateScreen: 'create'
             }
           },
-          SchedulesTab: {
+          Schedules: {
             screens: {
               SchedulesScreen: 'schedules',
-              ScheduleDetailsScreen: 'schedule'
+              ScheduleDetailsScreen: 'schedule/:requestId'
             }
           }
         }
