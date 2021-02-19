@@ -31,7 +31,7 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
   const [requestName, setRequestName] = React.useState<string>('')
   const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
   const [apiResponse, setApiResponse] = React.useState<CreateRequestResponse>()
-  const [{ createRequest }] = useSchedule()
+  const { createRequest } = useSchedule()
   const [api, makeApiRequest] = useCreateRequest()
   const { addRequest } = useSync()
 

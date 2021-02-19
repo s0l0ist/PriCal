@@ -30,11 +30,14 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
   const [approval, setApproval] = useState(false)
   const [api, getPublicRequest] = useGetPublicRequest()
   const [api2, sendResponse] = useCreateResponse()
-  const [{ createResponse }] = useSchedule()
+  const { createResponse } = useSchedule()
 
-  const onApproval = () => {
-    setApproval(true)
-  }
+  /**
+   * When we want approval, set the state to true which
+   * triggers other effects
+   */
+  const onApproval = () => setApproval(true)
+
   /**
    * Effect: Get the public request details to perform the
    * PSI server response and setup to be sent back.
@@ -57,7 +60,6 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
       if (api.response && !api.error && approval) {
         try {
           const serverResponse = await createResponse(api.response!.request)
-          console.log('serverResponse', serverResponse)
           sendResponse({
             requestId,
             response: serverResponse.serverResponse,
@@ -88,7 +90,11 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
    */
   React.useEffect(() => {
     if (!modalVisible) {
-      navigation.goBack()
+      if (navigation.canGoBack()) {
+        navigation.goBack()
+      } else {
+        navigation.navigate('Root')
+      }
     }
   }, [modalVisible])
 

@@ -2,7 +2,8 @@ import React from 'react'
 import { View, StyleSheet, Text } from 'react-native'
 
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
-import useSync from '../hooks/store/useSync'
+import useSync, { Request } from '../hooks/store/useSync'
+import useSchedule from '../hooks/useSchedule'
 import { ScheduleDetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
 
 type ScheduleDetailsProps = {
@@ -14,9 +15,29 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
     params: { requestId, requestName }
   }
 }) => {
+  const [requestContext, setRequestContext] = React.useState<Request>()
+  const [intersection, setIntersection] = React.useState<number[]>([])
   const [api, getResponseDetails] = useGetPrivateResponse()
   const { getRequest } = useSync()
+  const { getIntersection } = useSchedule()
 
+  /**
+   * Effect: on mount, fetch the context from local storage
+   */
+  React.useEffect(() => {
+    ;(async () => {
+      // Fetch the request storage
+      const request = await getRequest(requestId)
+      // This should never happen as we always stay in sync in the previous screen
+      if (!request) {
+        throw new Error('Unable to fetch stored request')
+      }
+      setRequestContext(request)
+      return () => {
+        setRequestContext(undefined)
+      }
+    })()
+  }, [])
   /**
    * On a manual refresh, we fetch the *private* request details.
    *
@@ -27,21 +48,16 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
    * for the other party to confirm the request.
    */
   const onRefresh = React.useCallback(async () => {
-    // Fetch from storage, extract Ids
-    const request = await getRequest(requestId)
-    // This should never happen as we always stay in sync in the previous screen
-    if (!request) {
-      throw new Error('Unable to fetch stored request')
+    if (requestContext) {
+      // Fetch the private response information. The response will
+      // contain enough information to perform the PSI intersection calulation
+      // iff the request was approved by the other party.
+      getResponseDetails({
+        requestId: requestContext.requestId,
+        contextId: requestContext.contextId
+      })
     }
-
-    // Fetch the private response information. The response will
-    // contain enough information to perform the PSI intersection calulation
-    // iff the request was approved by the other party.
-    getResponseDetails({
-      requestId: request.requestId,
-      contextId: request.contextId
-    })
-  }, [requestId])
+  }, [requestContext])
 
   /**
    * Effect: Refresh the details our list if props change
@@ -49,7 +65,50 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
    */
   React.useEffect(() => {
     onRefresh()
-  }, [requestId, requestName])
+  }, [requestContext, requestId, requestName])
+
+  /**
+   * Compute the intersection of a response.
+   *
+   * This is done by looking up the private key that was
+   * used to create the inititial PSI Request and passing in
+   * the PSI response/setup from the approver.
+   */
+  const calculateIntersection = React.useCallback(
+    ({ response, setup }: { response: string; setup: string }) => {
+      if (requestContext) {
+        return getIntersection(requestContext.privateKey, response, setup)
+      }
+      return []
+    },
+    [requestContext, getIntersection]
+  )
+
+  React.useEffect(() => {
+    ;(async () => {
+      if (api.response?.response && api.response?.setup) {
+        const inter = await calculateIntersection({
+          response: api.response.response,
+          setup: api.response.setup
+        })
+        setIntersection(inter)
+      }
+    })()
+  }, [api.response])
+
+  // If no response/setup, then the request is still pending
+  if (!api.response?.response || !api.response?.setup) {
+    return (
+      <View>
+        <Text style={styles.title}>
+          {api.response?.requestName ?? requestName}
+        </Text>
+        <View>
+          <Text>{`Your request is pending approval`}</Text>
+        </View>
+      </View>
+    )
+  }
 
   return (
     <View>
@@ -57,10 +116,7 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
         {api.response?.requestName ?? requestName}
       </Text>
       <View>
-        <Text>{`requestId: ${requestId}`}</Text>
-        <Text>{`contextId: ${api.response?.contextId}`}</Text>
-        <Text>{`response: ${api.response?.response}`}</Text>
-        <Text>{`setup: ${api.response?.setup}`}</Text>
+        <Text>{`Got intersection: [${intersection.join(',')}]`}</Text>
       </View>
     </View>
   )

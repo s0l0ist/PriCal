@@ -3,7 +3,7 @@ import * as React from 'react'
 import { REQUEST_MAP } from '../../constants/Storage'
 import useStorage from './useStorage'
 
-type Request = {
+export type Request = {
   requestId: string
   requestName: string
   contextId: string

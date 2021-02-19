@@ -52,7 +52,7 @@ export default function usePsi() {
     psi: undefined
   })
 
-  const { getRandomString } = useRandom()
+  const { getRandomString, getRandomBytes } = useRandom()
 
   /**
    * [Acting as a Client] Encrypts a grid and returns the serialized client request
@@ -61,7 +61,9 @@ export default function usePsi() {
   const createClientRequest = React.useCallback(
     (grid: string[]) => {
       const contextId = getRandomString(4)
-      const client = state.psi!.client!.createWithNewKey(true)
+      // We provide our own random key as the PSI library has issues
+      // with react-native
+      const client = state.psi!.client!.createFromKey(getRandomBytes(32), true)
       const privateKey = Base64.fromByteArray(client.getPrivateKeyBytes())
       const clientRequest = Base64.fromByteArray(
         client.createRequest(grid).serializeBinary()
@@ -89,7 +91,9 @@ export default function usePsi() {
   const createServerResponse = React.useCallback(
     (request: base64, grid: string[]) => {
       const clientRequest = deserializeRequest(request)
-      const server = state.psi!.server!.createWithNewKey(true)
+      // We provide our own random key as the PSI library has issues
+      // with react-native
+      const server = state.psi!.server!.createFromKey(getRandomBytes(32), true)
       const serverResponse = Base64.fromByteArray(
         server.processRequest(clientRequest).serializeBinary()
       )

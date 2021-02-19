@@ -9,7 +9,11 @@ import usePsi from './usePsi'
 export default function useSchedule() {
   const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
-  const { createClientRequest, createServerResponse } = usePsi()
+  const {
+    createClientRequest,
+    createServerResponse,
+    computeIntersection
+  } = usePsi()
 
   /**
    * Creates a request to schedule
@@ -65,28 +69,20 @@ export default function useSchedule() {
     return createServerResponse(request, grid)
   }
 
-  // const computeIntersection = async () => {
+  /**
+   * Computes the intersection from a server response/setup payload
+   */
+  const getIntersection = async (
+    key: string,
+    response: string,
+    setup: string
+  ) => {
+    console.log('computing intersection')
+    return computeIntersection(key, response, setup)
+  }
 
-  // }
-
-  // const operation = React.useCallback(
-  //   (list1: RequestContext[], list2: RequestContext[]) =>
-  //     list1.filter(
-  //       (set => (a: RequestContext) => set.has(a.requestId))(
-  //         new Set(list2.map(b => b.requestId))
-  //       )
-  //     ),
-  //   []
-  // )
-
-  // const intersection = React.useCallback(
-  //   (list1: RequestContext[], list2: RequestContext[]) =>
-  //     operation(list1, list2),
-  //   []
-  // )
-
-  return React.useMemo(() => [{ createRequest, createResponse }] as const, [
-    createRequest,
-    createResponse
-  ])
+  return React.useMemo(
+    () => ({ createRequest, createResponse, getIntersection } as const),
+    [createRequest, createResponse, getIntersection]
+  )
 }

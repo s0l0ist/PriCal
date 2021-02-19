@@ -35,8 +35,11 @@ const Schedules: React.FC<SchedulesProps> = ({ navigation }) => {
     if (api.processing) {
       return
     }
-    // Fetch from storage, extract Ids
-    const requestIds = [...(await getRequests()).keys()]
+    // fetch from storage
+    const requests = await getRequests()
+    // extract Ids
+    const requestIds = [...requests.keys()]
+
     // If there were no Ids stored, we can just skip this call
     // as there's nothing to fetch and nothing to update
     if (!requestIds) {
