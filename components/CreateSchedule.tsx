@@ -4,7 +4,9 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  View
+  View,
+  Pressable,
+  Button
 } from 'react-native'
 
 import useCreateRequest, {
@@ -111,16 +113,13 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
           value={requestName}
         />
 
-        <TouchableOpacity
-          disabled={!requestName || api.processing}
-          onPress={onCreateRequest}
-          style={styles.helpLink}
-        >
-          <Text style={styles.getStartedText}>
-            Tap here to create a client request, send it and compute the
-            intersection
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.button}>
+          <Button
+            disabled={!requestName || api.processing}
+            onPress={onCreateRequest}
+            title="Tap here create a request"
+          />
+        </View>
       </View>
     </View>
   )
@@ -142,6 +141,10 @@ const styles = StyleSheet.create({
   },
   helpLinkText: {
     textAlign: 'center'
+  },
+  button: {
+    marginTop: 20,
+    justifyContent: 'center'
   }
 })
 

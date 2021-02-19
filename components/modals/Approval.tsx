@@ -33,12 +33,6 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
   const { createResponse } = useSchedule()
 
   /**
-   * When we want approval, set the state to true which
-   * triggers other effects
-   */
-  const onApproval = () => setApproval(true)
-
-  /**
    * Effect: Get the public request details to perform the
    * PSI server response and setup to be sent back.
    */
@@ -58,17 +52,13 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
   React.useEffect(() => {
     ;(async () => {
       if (api.response && !api.error && approval) {
-        try {
-          const serverResponse = await createResponse(api.response!.request)
-          sendResponse({
-            requestId,
-            response: serverResponse.serverResponse,
-            setup: serverResponse.serverSetup
-          })
-          setApproval(false)
-        } catch (err) {
-          console.warn(err)
-        }
+        const serverResponse = await createResponse(api.response!.request)
+        sendResponse({
+          requestId,
+          response: serverResponse.serverResponse,
+          setup: serverResponse.serverSetup
+        })
+        setApproval(false)
       }
     })()
   }, [api.response, api.error, approval])
@@ -131,7 +121,7 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
               <Pressable
                 style={styles.button}
                 disabled={isProcessing}
-                onPress={onApproval}
+                onPress={() => setApproval(true)}
               >
                 <Ionicons name="checkmark" size={48} color="green" />
               </Pressable>
