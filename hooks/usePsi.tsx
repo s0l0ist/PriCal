@@ -27,6 +27,12 @@ export type ServerResponse = {
 }
 
 /**
+ * Create a singleton instance as we shouldn't instantiate
+ * more than 1 WASM instance in the application's lifecycle
+ */
+let psi: PSILibrary
+
+/**
  * Define our PSI library helpers
  *
  * This file holds our module's PSI WASM instance. There should ever only be
@@ -163,17 +169,18 @@ export default function usePsi() {
   )
 
   /**
-   * Effect: Load the library on mount
+   * Effect: On mount, initialize the PSI library and set the state
    */
   React.useEffect(() => {
     ;(async () => {
-      if (!state.psi) {
-        const psi = await PSI()
-        setState(prev => ({
-          ...prev,
-          psi
-        }))
+      if (!psi) {
+        console.log('psi loading')
+        psi = await PSI()
       }
+      setState(prev => ({
+        ...prev,
+        psi
+      }))
     })()
   }, [])
 
