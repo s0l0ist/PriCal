@@ -19,11 +19,7 @@ export default {
           }
         }
       },
-      Approval: {
-        screens: {
-          ApprovalScreen: 'approval/:requestId'
-        }
-      },
+      Approval: 'approval/:requestId',
       NotFound: '*'
     }
   }

@@ -14,7 +14,9 @@ import SchedulesScreen from '../screens/SchedulesScreen'
 export type RootStackParamList = {
   Root: undefined
   NotFound: undefined
-  Approval: undefined
+  Approval: {
+    requestId: string
+  }
 }
 
 /**
@@ -23,7 +25,6 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
   Create: undefined
   Schedules: undefined
-  Approvals: undefined
 }
 
 /**
@@ -51,6 +52,11 @@ export type ScheduleDetailsScreenRouteProp = RouteProp<
   SchedulesTabParamList,
   'ScheduleDetailsScreen'
 >
+
+/**
+ * Type for the approval screen route
+ */
+export type ApprovalScreenRouteProp = RouteProp<RootStackParamList, 'Approval'>
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab

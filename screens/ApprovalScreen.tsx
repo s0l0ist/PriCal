@@ -1,20 +1,27 @@
+import { StackNavigationProp } from '@react-navigation/stack'
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
 
 import ApprovalModal from '../components/modals/Approval'
+import {
+  ApprovalScreenRouteProp,
+  RootStackParamList
+} from '../navigation/BottomTabNavigator'
 
-const ApprovalScreen: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <ApprovalModal />
-    </View>
-  )
+export type ApprovalScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Root'
+>
+
+type ApprovalScreenProps = {
+  route: ApprovalScreenRouteProp
+  navigation: ApprovalScreenNavigationProp
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  }
-})
+const ApprovalScreen: React.FC<ApprovalScreenProps> = ({
+  route,
+  navigation
+}) => {
+  return <ApprovalModal route={route} navigation={navigation} />
+}
 
 export default ApprovalScreen

@@ -163,12 +163,11 @@ export default function usePsi() {
   )
 
   /**
-   * Effect to load the library and contexts from SecureStorage
+   * Effect: Load the library on mount
    */
   React.useEffect(() => {
     ;(async () => {
       if (!state.psi) {
-        console.log('psi loading')
         const psi = await PSI()
         setState(prev => ({
           ...prev,
@@ -176,7 +175,7 @@ export default function usePsi() {
         }))
       }
     })()
-  }, [state.psi])
+  }, [])
 
   return React.useMemo(() => {
     return {

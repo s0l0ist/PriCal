@@ -23,12 +23,34 @@ const RootStack = createStackNavigator<RootStackParamList>()
 
 function RootNavigator() {
   return (
-    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+    <RootStack.Navigator mode="modal" screenOptions={{ headerShown: false }}>
       <RootStack.Screen name="Root" component={BottomTabNavigator} />
       <RootStack.Screen
         name="Approval"
         component={ApprovalScreen}
-        options={{ title: 'Approve Request' }}
+        options={{
+          animationEnabled: true,
+          title: 'Approve Request',
+          cardStyle: { backgroundColor: 'rgba(0, 0, 0, 0.15)' },
+          cardOverlayEnabled: true,
+          cardStyleInterpolator: ({ current: { progress } }) => {
+            return {
+              cardStyle: {
+                opacity: progress.interpolate({
+                  inputRange: [0, 0.5, 0.9, 1],
+                  outputRange: [0, 0.25, 0.7, 1]
+                })
+              },
+              overlayStyle: {
+                opacity: progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 0.5],
+                  extrapolate: 'clamp'
+                })
+              }
+            }
+          }
+        }}
       />
       <RootStack.Screen
         name="NotFound"

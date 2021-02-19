@@ -65,6 +65,10 @@ export default function useSchedule() {
     return createServerResponse(request, grid)
   }
 
+  // const computeIntersection = async () => {
+
+  // }
+
   // const operation = React.useCallback(
   //   (list1: RequestContext[], list2: RequestContext[]) =>
   //     list1.filter(
