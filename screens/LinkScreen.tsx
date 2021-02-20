@@ -1,4 +1,3 @@
-import { BottomTabView } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import React from 'react'
 
