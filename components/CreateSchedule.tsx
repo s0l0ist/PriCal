@@ -1,13 +1,5 @@
 import * as React from 'react'
-import {
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Text,
-  View,
-  Pressable,
-  Button
-} from 'react-native'
+import { StyleSheet, TextInput, View, Button } from 'react-native'
 
 import useCreateRequest, {
   CreateRequestResponse
@@ -82,7 +74,7 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
   React.useEffect(() => {
     ;(async () => {
       if (apiResponse && requestPartial) {
-        console.log('Received api.response, storing, navigating to schedules')
+        console.log('Received api.response, storing, navigating to link screen')
         // Sync to storage
         await addRequest({
           requestId: apiResponse.requestId,
@@ -94,7 +86,7 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
         setRequestPartial(undefined)
         setApiResponse(undefined)
         // Trigger navigation to the schedules tab
-        navigation.navigate('Schedules')
+        navigation.navigate('LinkScreen', { requestId: apiResponse.requestId })
       }
     })()
   }, [apiResponse, requestPartial])

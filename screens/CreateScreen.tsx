@@ -7,11 +7,11 @@ import CreateView from '../components/CreateView'
 // import useNotification from '../hooks/useNotification'
 import useStorage from '../hooks/store/useStorage'
 import usePermissions from '../hooks/usePermissions'
-import { BottomTabParamList } from '../navigation/BottomTabNavigator'
+import { CreateTabParamList } from '../navigation/BottomTabNavigator'
 
 export type CreateScreenNavigationProp = StackNavigationProp<
-  BottomTabParamList,
-  'Schedules'
+  CreateTabParamList,
+  'LinkScreen'
 >
 
 type CreateScreenProps = {

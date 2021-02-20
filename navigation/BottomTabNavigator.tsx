@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 
 import CreateScreen from '../screens/CreateScreen'
+import LinkScreen from '../screens/LinkScreen'
 import ScheduleDetailsScreen from '../screens/ScheduleDetailsScreen'
 import SchedulesScreen from '../screens/SchedulesScreen'
 
@@ -32,6 +33,9 @@ export type BottomTabParamList = {
  */
 export type CreateTabParamList = {
   CreateScreen: undefined
+  LinkScreen: {
+    requestId: string
+  }
 }
 
 /**
@@ -52,6 +56,11 @@ export type ScheduleDetailsScreenRouteProp = RouteProp<
   SchedulesTabParamList,
   'ScheduleDetailsScreen'
 >
+
+/**
+ * Type for the link screen route
+ */
+export type LinkScreenRouteProp = RouteProp<CreateTabParamList, 'LinkScreen'>
 
 /**
  * Type for the approval screen route
@@ -100,6 +109,11 @@ function CreateTabNavigator() {
         name="CreateScreen"
         component={CreateScreen}
         options={{ headerTitle: 'Create a Request' }}
+      />
+      <CreateTabStack.Screen
+        name="LinkScreen"
+        component={LinkScreen}
+        options={{ headerTitle: 'Send your link' }}
       />
     </CreateTabStack.Navigator>
   )
