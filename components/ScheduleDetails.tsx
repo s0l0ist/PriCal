@@ -12,7 +12,7 @@ import { SchedulesScreenNavigationProp } from '../screens/ScheduleDetailsScreen'
 const ScheduleDetails: React.FC = () => {
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])
-  const [api, getResponseDetails] = useGetPrivateResponse()
+  const [responseApi, getResponseDetails] = useGetPrivateResponse()
   const [, deleteRequest] = useDeleteRequest()
   const { getRequest } = useSync()
   const { getIntersection } = useSchedule()
@@ -87,15 +87,15 @@ const ScheduleDetails: React.FC = () => {
 
   React.useEffect(() => {
     ;(async () => {
-      if (api.response?.response && api.response?.setup) {
+      if (responseApi.response?.response && responseApi.response?.setup) {
         const inter = await calculateIntersection({
-          response: api.response.response,
-          setup: api.response.setup
+          response: responseApi.response.response,
+          setup: responseApi.response.setup
         })
         setIntersection(inter)
       }
     })()
-  }, [api.response])
+  }, [responseApi.response])
 
   if (!requestContext) {
     return (
@@ -109,7 +109,7 @@ const ScheduleDetails: React.FC = () => {
   return (
     <View>
       <Text style={styles.title}>
-        {api.response?.requestName ?? requestName}
+        {responseApi.response?.requestName ?? requestName}
       </Text>
       <View>
         <Text>{`Your request is pending approval`}</Text>

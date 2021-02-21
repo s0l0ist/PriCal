@@ -19,8 +19,8 @@ import { ApprovalScreenNavigationProp } from '../../screens/ApprovalScreen'
 const ApprovalModal: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true)
   const [approval, setApproval] = useState(false)
-  const [api, getPublicRequest] = useGetPublicRequest()
-  const [api2, sendResponse] = useCreateResponse()
+  const [requestApi, getPublicRequest] = useGetPublicRequest()
+  const [responseApi, sendResponse] = useCreateResponse()
   const { createResponse } = useSchedule()
 
   const {
@@ -47,8 +47,10 @@ const ApprovalModal: React.FC = () => {
    */
   React.useEffect(() => {
     ;(async () => {
-      if (api.response && !api.error && approval) {
-        const serverResponse = await createResponse(api.response!.request)
+      if (requestApi.response && !requestApi.error && approval) {
+        const serverResponse = await createResponse(
+          requestApi.response!.request
+        )
         sendResponse({
           requestId,
           response: serverResponse.serverResponse,
@@ -57,7 +59,7 @@ const ApprovalModal: React.FC = () => {
         setApproval(false)
       }
     })()
-  }, [api.response, api.error, approval])
+  }, [requestApi.response, requestApi.error, approval])
 
   /**
    * Effect: Upon a successful server response to the request,
@@ -65,10 +67,10 @@ const ApprovalModal: React.FC = () => {
    * to go back.
    */
   React.useEffect(() => {
-    if (api2.response && !api2.error) {
+    if (responseApi.response && !responseApi.error) {
       setModalVisible(false)
     }
-  }, [api2.response, api2.error])
+  }, [responseApi.response, responseApi.error])
 
   /**
    * Effect: Go back to the root screen when the modal
@@ -92,8 +94,8 @@ const ApprovalModal: React.FC = () => {
    * requests are in flight
    */
   const isProcessing = React.useMemo(() => {
-    return api.processing || api2.processing
-  }, [api.processing, api2.processing])
+    return requestApi.processing || responseApi.processing
+  }, [requestApi.processing, responseApi.processing])
 
   return (
     <View style={styles.centeredView}>
@@ -105,13 +107,13 @@ const ApprovalModal: React.FC = () => {
       >
         <View style={styles.mainView}>
           <View style={styles.modalView}>
-            {api.response && (
+            {requestApi.response && (
               <Text style={styles.modalText}>
                 Hi there, someone would like to request your 2-week
                 availability.
               </Text>
             )}
-            {api.error && (
+            {requestApi.error && (
               <Text style={styles.modalText}>
                 This request has been canceled!
               </Text>
@@ -125,10 +127,10 @@ const ApprovalModal: React.FC = () => {
               >
                 <Ionicons name="close-outline" size={48} color="gray" />
               </Pressable>
-              {api.response && (
+              {requestApi.response && (
                 <Pressable
                   style={styles.button}
-                  disabled={isProcessing || Boolean(api.error)}
+                  disabled={isProcessing || Boolean(requestApi.error)}
                   onPress={() => setApproval(true)}
                 >
                   <Ionicons name="checkmark" size={48} color="green" />
