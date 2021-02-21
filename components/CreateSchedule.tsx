@@ -21,9 +21,12 @@ const CreateRequest: React.FC = () => {
   const [requestName, setRequestName] = React.useState<string>('')
   const [showModal, setShowModal] = React.useState<boolean>(false)
   const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
-  const [apiResponse, setApiResponse] = React.useState<CreateRequestResponse>()
+  const [
+    requestApiResponse,
+    setApiResponse
+  ] = React.useState<CreateRequestResponse>()
   const { createRequest } = useSchedule()
-  const [api, makeApiRequest] = useCreateRequest()
+  const [requestApi, makeApiRequest] = useCreateRequest()
   const { addRequest } = useSync()
 
   /**
@@ -64,14 +67,14 @@ const CreateRequest: React.FC = () => {
 
   /**
    * Effect: monitor the API response and set a local state that we control
-   * Specifically, this allows us to clear the api response state for our
+   * Specifically, this allows us to clear the requestApi response state for our
    * other hook below
    */
   React.useEffect(() => {
-    if (api.response) {
-      setApiResponse(api.response)
+    if (requestApi.response) {
+      setApiResponse(requestApi.response)
     }
-  }, [api.response])
+  }, [requestApi.response])
 
   /**
    * Effect: When we receive a valid response from the server that our request
@@ -80,20 +83,22 @@ const CreateRequest: React.FC = () => {
    */
   React.useEffect(() => {
     ;(async () => {
-      if (apiResponse && requestPartial) {
-        console.log('Received api.response, storing, navigating to link screen')
+      if (requestApiResponse && requestPartial) {
+        console.log(
+          'Received requestApi.response, storing, navigating to link screen'
+        )
         // Sync to storage
         await addRequest({
-          requestId: apiResponse.requestId,
-          requestName: apiResponse.requestName,
-          contextId: apiResponse.contextId,
+          requestId: requestApiResponse.requestId,
+          requestName: requestApiResponse.requestName,
+          contextId: requestApiResponse.contextId,
           privateKey: requestPartial.privateKey
         })
         // Trigger the modal
         setShowModal(true)
       }
     })()
-  }, [apiResponse, requestPartial])
+  }, [requestApiResponse, requestPartial])
 
   if (!showModal) {
     return (
@@ -112,7 +117,7 @@ const CreateRequest: React.FC = () => {
 
           <View style={styles.button}>
             <Button
-              disabled={!requestName || api.processing}
+              disabled={!requestName || requestApi.processing}
               onPress={onCreateRequest}
               title="Tap here create a request"
             />
@@ -123,7 +128,10 @@ const CreateRequest: React.FC = () => {
   }
 
   return (
-    <LinkModal requestId={api.response!.requestId} onClose={onModalClose} />
+    <LinkModal
+      requestId={requestApi.response!.requestId}
+      onClose={onModalClose}
+    />
   )
 }
 

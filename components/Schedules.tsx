@@ -19,7 +19,7 @@ import { SchedulesScreenNavigationProp } from '../screens/SchedulesScreen'
 import { compare } from '../utils/compare'
 
 const Schedules: React.FC = () => {
-  const [api, listRequests] = useListRequests()
+  const [requestsApi, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
 
   const navigation = useNavigation<SchedulesScreenNavigationProp>()
@@ -31,7 +31,7 @@ const Schedules: React.FC = () => {
    */
   const onRefresh = React.useCallback(async () => {
     // If we're already refreshing, ignore the request
-    if (api.processing) {
+    if (requestsApi.processing) {
       return
     }
     // fetch from storage
@@ -56,11 +56,11 @@ const Schedules: React.FC = () => {
    * by the server.
    */
   React.useEffect(() => {
-    if (api.response) {
-      const requestIds = api.response.map(x => x.requestId)
+    if (requestsApi.response) {
+      const requestIds = requestsApi.response.map(x => x.requestId)
       filterRequests(requestIds)
     }
-  }, [api.response])
+  }, [requestsApi.response])
 
   /**
    * Effect: On component mount, refresh our schedules
@@ -86,9 +86,10 @@ const Schedules: React.FC = () => {
     []
   )
 
-  const requests = React.useMemo(() => sortedRequests(api.response ?? []), [
-    api.response
-  ])
+  const requests = React.useMemo(
+    () => sortedRequests(requestsApi.response ?? []),
+    [requestsApi.response]
+  )
 
   const Schedule = React.useCallback(
     ({
@@ -133,9 +134,9 @@ const Schedules: React.FC = () => {
         renderItem={renderItem}
         keyExtractor={x => x.requestId}
         onRefresh={onRefresh}
-        refreshing={api.processing}
+        refreshing={requestsApi.processing}
       />
-      <TouchableOpacity disabled={api.processing} onPress={onRefresh}>
+      <TouchableOpacity disabled={requestsApi.processing} onPress={onRefresh}>
         <Text>
           Tap here to create a client request, send it and compute the
           intersection
