@@ -134,7 +134,7 @@ export default function usePsi() {
       const serverSetup = deserializeServerSetup(setup)
       const intersection = client.getIntersection(serverSetup, serverResponse)
       client.delete()
-      return intersection.sort()
+      return intersection.sort((a, b) => a - b)
     },
     [state.psi]
   )

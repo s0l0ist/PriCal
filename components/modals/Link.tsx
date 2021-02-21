@@ -5,29 +5,26 @@ import { MailComposerStatus } from 'expo-mail-composer'
 import React from 'react'
 import { Modal, StyleSheet, Text, Pressable, View, Alert } from 'react-native'
 
-import { LinkScreenRouteProp } from '../../navigation/BottomTabNavigator'
 import LinkConfig from '../../navigation/LinkingConfiguration'
-import { LinkScreenNavigationProp } from '../../screens/LinkScreen'
 
-type LinkProps = {
-  route: LinkScreenRouteProp
-  navigation: LinkScreenNavigationProp
-}
 const createUrl = (id: string) => {
   const url = `${LinkConfig.prefixes.slice(-1).pop()}${
     LinkConfig.config.screens.Approval
   }`
+  // TODO: We don't have a way to define a link programatically
+  // so if the `:requestId` changes, we *have* to change this
+  // function manually or else it will fail silently and break
+  // deep linking.
   return url.replace(':requestId', id)
 }
 
-const LinkModal: React.FC<LinkProps> = ({
-  route: {
-    params: { requestId }
-  },
-  navigation
-}) => {
-  const [modalVisible, setModalVisible] = React.useState<boolean>(true)
+type LinkModalProps = {
+  requestId: string
+  onClose: () => void
+}
 
+const LinkModal: React.FC<LinkModalProps> = ({ requestId, onClose }) => {
+  const [modalVisible, setModalVisible] = React.useState<boolean>(true)
   /**
    * Copy the app link to the clipboard
    */
@@ -49,8 +46,9 @@ const LinkModal: React.FC<LinkProps> = ({
         'Unable to open your mail app, please copy the link instead!',
         [
           {
-            text: 'OK',
-            style: 'default'
+            text: 'Copy',
+            style: 'default',
+            onPress: () => copyToClipboard(requestId)
           }
         ],
         { cancelable: false }
@@ -69,7 +67,7 @@ const LinkModal: React.FC<LinkProps> = ({
       return
     }
 
-    // The email was saved or sent!
+    // The email was saved or sent, close the modal.
     setModalVisible(false)
   }
 
@@ -79,11 +77,8 @@ const LinkModal: React.FC<LinkProps> = ({
    */
   React.useEffect(() => {
     if (!modalVisible) {
-      // Need to remove the modal by going back a screen
-      // This resets the tab to its root state
-      navigation.goBack()
-      // Next, we should redirect the user to the schedules screen
-      navigation.navigate('Schedules')
+      // Trigger the callback prop
+      onClose()
     }
   }, [modalVisible])
 
@@ -98,8 +93,8 @@ const LinkModal: React.FC<LinkProps> = ({
         <View style={styles.mainView}>
           <View style={styles.modalView}>
             <Text style={styles.modalText}>
-              Your request was created successfully! Copy or email the link to
-              your intended recepient.
+              Done! Next, you'll need to send the link to your intended
+              recepient. Copy the link directly or send an email!
             </Text>
             <View style={styles.buttonContainer}>
               <Pressable

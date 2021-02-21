@@ -40,7 +40,7 @@ export default function useGetPrivateResponse() {
         })
       },
       onError: err => {
-        console.error('Failed to get the server response')
+        console.warn('Failed to get the server response')
         setState(prev => ({
           ...prev,
           processing: false,

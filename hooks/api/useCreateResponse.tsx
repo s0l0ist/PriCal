@@ -37,7 +37,7 @@ export default function useCreateResponse() {
         })
       },
       onError: err => {
-        console.error('Failed to create the server response')
+        console.warn('Failed to create the server response')
         setState(prev => ({
           ...prev,
           processing: false,

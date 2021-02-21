@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import React, { useState } from 'react'
 import {
   ActivityIndicator,
@@ -15,22 +16,17 @@ import useSchedule from '../../hooks/useSchedule'
 import { ApprovalScreenRouteProp } from '../../navigation/BottomTabNavigator'
 import { ApprovalScreenNavigationProp } from '../../screens/ApprovalScreen'
 
-type ApprovalProps = {
-  route: ApprovalScreenRouteProp
-  navigation: ApprovalScreenNavigationProp
-}
-
-const ApprovalModal: React.FC<ApprovalProps> = ({
-  route: {
-    params: { requestId }
-  },
-  navigation
-}) => {
+const ApprovalModal: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true)
   const [approval, setApproval] = useState(false)
   const [api, getPublicRequest] = useGetPublicRequest()
   const [api2, sendResponse] = useCreateResponse()
   const { createResponse } = useSchedule()
+
+  const {
+    params: { requestId }
+  } = useRoute<ApprovalScreenRouteProp>()
+  const navigation = useNavigation<ApprovalScreenNavigationProp>()
 
   /**
    * Effect: Get the public request details to perform the
@@ -83,7 +79,10 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
       if (navigation.canGoBack()) {
         navigation.goBack()
       } else {
-        navigation.navigate('Root')
+        // This is called when the deep link is clicked
+        // when the app is closed. There's no state to `goBack` to
+        // so we replace the entire stack with the Root stack
+        navigation.replace('Root')
       }
     }
   }, [modalVisible])
@@ -106,9 +105,17 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
       >
         <View style={styles.mainView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Hi there, someone would like to request your 2-week availability.
-            </Text>
+            {api.response && (
+              <Text style={styles.modalText}>
+                Hi there, someone would like to request your 2-week
+                availability.
+              </Text>
+            )}
+            {api.error && (
+              <Text style={styles.modalText}>
+                This request has been canceled!
+              </Text>
+            )}
             <ActivityIndicator animating={isProcessing} />
             <View style={styles.buttonContainer}>
               <Pressable
@@ -118,13 +125,15 @@ const ApprovalModal: React.FC<ApprovalProps> = ({
               >
                 <Ionicons name="close-outline" size={48} color="gray" />
               </Pressable>
-              <Pressable
-                style={styles.button}
-                disabled={isProcessing}
-                onPress={() => setApproval(true)}
-              >
-                <Ionicons name="checkmark" size={48} color="green" />
-              </Pressable>
+              {api.response && (
+                <Pressable
+                  style={styles.button}
+                  disabled={isProcessing || Boolean(api.error)}
+                  onPress={() => setApproval(true)}
+                >
+                  <Ionicons name="checkmark" size={48} color="green" />
+                </Pressable>
+              )}
             </View>
           </View>
         </View>

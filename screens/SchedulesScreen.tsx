@@ -10,14 +10,10 @@ export type SchedulesScreenNavigationProp = StackNavigationProp<
   'ScheduleDetailsScreen'
 >
 
-type SchedulesScreenProps = {
-  navigation: SchedulesScreenNavigationProp
-}
-
-const SchedulesScreen: React.FC<SchedulesScreenProps> = ({ navigation }) => {
+const SchedulesScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Schedules navigation={navigation} />
+      <Schedules />
     </View>
   )
 }

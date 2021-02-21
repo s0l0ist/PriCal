@@ -1,25 +1,26 @@
+import { useRoute, useNavigation } from '@react-navigation/native'
 import React from 'react'
-import { View, StyleSheet, Text } from 'react-native'
+import { View, StyleSheet, Text, Button } from 'react-native'
 
+import useDeleteRequest from '../hooks/api/useDeleteRequest'
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
 import useSync, { Request } from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
 import { ScheduleDetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
+import { SchedulesScreenNavigationProp } from '../screens/ScheduleDetailsScreen'
 
-type ScheduleDetailsProps = {
-  route: ScheduleDetailsScreenRouteProp
-}
-
-const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
-  route: {
-    params: { requestId, requestName }
-  }
-}) => {
+const ScheduleDetails: React.FC = () => {
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])
   const [api, getResponseDetails] = useGetPrivateResponse()
+  const [, deleteRequest] = useDeleteRequest()
   const { getRequest } = useSync()
   const { getIntersection } = useSchedule()
+
+  const {
+    params: { requestId, requestName }
+  } = useRoute<ScheduleDetailsScreenRouteProp>()
+  const navigation = useNavigation<SchedulesScreenNavigationProp>()
 
   /**
    * Effect: on mount, fetch the context from local storage
@@ -96,25 +97,32 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({
     })()
   }, [api.response])
 
-  // If no response/setup, then the request is still pending
-  if (!api.response?.response || !api.response?.setup) {
+  if (!requestContext) {
     return (
       <View>
-        <Text style={styles.title}>
-          {api.response?.requestName ?? requestName}
-        </Text>
-        <View>
-          <Text>{`Your request is pending approval`}</Text>
-        </View>
+        <Text>Loading...</Text>
       </View>
     )
   }
 
+  // If no response/setup, then the request is still pending
   return (
     <View>
       <Text style={styles.title}>
         {api.response?.requestName ?? requestName}
       </Text>
+      <View>
+        <Text>{`Your request is pending approval`}</Text>
+      </View>
+      <Button
+        title="Delete"
+        onPress={() => {
+          deleteRequest({
+            requests: [{ requestId, contextId: requestContext.contextId }]
+          })
+          navigation.goBack()
+        }}
+      />
       <View>
         <Text>{`Got intersection: [${intersection.join(',')}]`}</Text>
       </View>

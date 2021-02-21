@@ -6,11 +6,7 @@ import useCreateRequest, {
 } from '../hooks/api/useCreateRequest'
 import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
-import { CreateScreenNavigationProp } from '../screens/CreateScreen'
-
-type CreateRequestProps = {
-  navigation: CreateScreenNavigationProp
-}
+import LinkModal from './modals/Link'
 
 type Request = {
   requestId: string
@@ -21,8 +17,9 @@ type Request = {
 
 type RequestPartial = Pick<Request, 'requestName' | 'contextId' | 'privateKey'>
 
-const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
+const CreateRequest: React.FC = () => {
   const [requestName, setRequestName] = React.useState<string>('')
+  const [showModal, setShowModal] = React.useState<boolean>(false)
   const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
   const [apiResponse, setApiResponse] = React.useState<CreateRequestResponse>()
   const { createRequest } = useSchedule()
@@ -56,6 +53,16 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
   }
 
   /**
+   * When the user closes the modal, clean up the state and navigate
+   * to the schedules screen
+   */
+  const onModalClose = () => {
+    setRequestPartial(undefined)
+    setApiResponse(undefined)
+    setShowModal(false)
+  }
+
+  /**
    * Effect: monitor the API response and set a local state that we control
    * Specifically, this allows us to clear the api response state for our
    * other hook below
@@ -82,38 +89,41 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
           contextId: apiResponse.contextId,
           privateKey: requestPartial.privateKey
         })
-        // Clean up our local state after consumption
-        setRequestPartial(undefined)
-        setApiResponse(undefined)
-        // Trigger navigation to the schedules tab
-        navigation.navigate('LinkScreen', { requestId: apiResponse.requestId })
+        // Trigger the modal
+        setShowModal(true)
       }
     })()
   }, [apiResponse, requestPartial])
 
-  return (
-    <View>
-      <View style={styles.helpContainer}>
-        <TextInput
-          style={{
-            height: 40,
-            width: '100%',
-            borderColor: 'gray',
-            borderWidth: 1
-          }}
-          onChangeText={onRequestNameChange}
-          value={requestName}
-        />
-
-        <View style={styles.button}>
-          <Button
-            disabled={!requestName || api.processing}
-            onPress={onCreateRequest}
-            title="Tap here create a request"
+  if (!showModal) {
+    return (
+      <View>
+        <View style={styles.helpContainer}>
+          <TextInput
+            style={{
+              height: 40,
+              width: '100%',
+              borderColor: 'gray',
+              borderWidth: 1
+            }}
+            onChangeText={onRequestNameChange}
+            value={requestName}
           />
+
+          <View style={styles.button}>
+            <Button
+              disabled={!requestName || api.processing}
+              onPress={onCreateRequest}
+              title="Tap here create a request"
+            />
+          </View>
         </View>
       </View>
-    </View>
+    )
+  }
+
+  return (
+    <LinkModal requestId={api.response!.requestId} onClose={onModalClose} />
   )
 }
 

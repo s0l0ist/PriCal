@@ -36,7 +36,7 @@ export default function useGetPublicRequest() {
         })
       },
       onError: err => {
-        console.error('Failed to get the client request')
+        console.warn('Failed to get the client request')
         setState(prev => ({
           ...prev,
           processing: false,

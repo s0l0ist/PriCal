@@ -6,4 +6,6 @@ export const ONE_DAY = ONE_HOUR * 24
 export const ONE_WEEK = ONE_DAY * 7
 export const TIME_SLICE_MS = ONE_MINUTE * 15
 export const GRID_ELEMENTS_PER_DAY = ONE_DAY / TIME_SLICE_MS
-export const SCHEDULE_DAYS = 1
+
+// Change only this variable
+export const SCHEDULE_DAYS = 7

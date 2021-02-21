@@ -39,7 +39,7 @@ export default function useCreateRequest() {
         })
       },
       onError: err => {
-        console.error('Failed to create the client request')
+        console.warn('Failed to create the client request')
         setState(prev => ({
           ...prev,
           processing: false,

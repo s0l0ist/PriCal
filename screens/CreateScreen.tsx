@@ -7,18 +7,14 @@ import CreateView from '../components/CreateView'
 // import useNotification from '../hooks/useNotification'
 import useStorage from '../hooks/store/useStorage'
 import usePermissions from '../hooks/usePermissions'
-import { CreateTabParamList } from '../navigation/BottomTabNavigator'
+import { SchedulesTabParamList } from '../navigation/BottomTabNavigator'
 
 export type CreateScreenNavigationProp = StackNavigationProp<
-  CreateTabParamList,
-  'LinkScreen'
+  SchedulesTabParamList,
+  'SchedulesScreen'
 >
 
-type CreateScreenProps = {
-  navigation: CreateScreenNavigationProp
-}
-
-const CreateScreen: React.FC<CreateScreenProps> = ({ navigation }) => {
+const CreateScreen: React.FC = () => {
   const [{ hasPermission, missingPermissions }] = usePermissions()
   const [{ hasSecureStorage }] = useStorage()
   // const [{ expoPushToken }] = useNotification()
@@ -44,7 +40,7 @@ const CreateScreen: React.FC<CreateScreenProps> = ({ navigation }) => {
 
   return (
     <CreateView>
-      <CreateSchedule navigation={navigation} />
+      <CreateSchedule />
     </CreateView>
   )
 }

@@ -40,7 +40,7 @@ export default function useDeleteRequest() {
         })
       },
       onError: err => {
-        console.error('Failed to delete the client requests(s)')
+        console.warn('Failed to delete the client requests(s)')
         setState(prev => ({
           ...prev,
           processing: false,

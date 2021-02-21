@@ -38,7 +38,7 @@ export default function useListRequests() {
         })
       },
       onError: err => {
-        console.error('Failed to list the client requests')
+        console.warn('Failed to list the client requests')
         setState(prev => ({
           ...prev,
           processing: false,

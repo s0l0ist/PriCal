@@ -8,8 +8,7 @@ export default {
         screens: {
           Create: {
             screens: {
-              CreateScreen: 'create',
-              LinkScreen: 'link/:requestId'
+              CreateScreen: 'create'
             }
           },
           Schedules: {

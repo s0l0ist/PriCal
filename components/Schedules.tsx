@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native'
 import React from 'react'
 import {
   View,
@@ -17,13 +18,11 @@ import useSync from '../hooks/store/useSync'
 import { SchedulesScreenNavigationProp } from '../screens/SchedulesScreen'
 import { compare } from '../utils/compare'
 
-type SchedulesProps = {
-  navigation: SchedulesScreenNavigationProp
-}
-
-const Schedules: React.FC<SchedulesProps> = ({ navigation }) => {
+const Schedules: React.FC = () => {
   const [api, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
+
+  const navigation = useNavigation<SchedulesScreenNavigationProp>()
 
   /**
    * On a manual refresh, we load our requests from storage
