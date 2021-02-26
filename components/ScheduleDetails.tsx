@@ -8,6 +8,7 @@ import useSync, { Request } from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
 import { ScheduleDetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
 import { SchedulesScreenNavigationProp } from '../screens/ScheduleDetailsScreen'
+import webViewContext from './contexts/webViewContext'
 
 const ScheduleDetails: React.FC = () => {
   const [requestContext, setRequestContext] = React.useState<Request>()
@@ -15,7 +16,9 @@ const ScheduleDetails: React.FC = () => {
   const [responseApi, getResponseDetails] = useGetPrivateResponse()
   const [, deleteRequest] = useDeleteRequest()
   const { getRequest } = useSync()
-  const { getIntersection } = useSchedule()
+
+  const context = React.useContext(webViewContext)! // This *will* be defined
+  const { getIntersection } = useSchedule(context)
 
   const {
     params: { requestId, requestName }
@@ -76,9 +79,14 @@ const ScheduleDetails: React.FC = () => {
    * the PSI response/setup from the approver.
    */
   const calculateIntersection = React.useCallback(
-    ({ response, setup }: { response: string; setup: string }) => {
+    async ({ response, setup }: { response: string; setup: string }) => {
       if (requestContext) {
-        return getIntersection(requestContext.privateKey, response, setup)
+        const { intersection } = await getIntersection(
+          requestContext.privateKey,
+          response,
+          setup
+        )
+        return intersection
       }
       return []
     },

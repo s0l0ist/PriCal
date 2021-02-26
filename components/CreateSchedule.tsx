@@ -6,8 +6,8 @@ import useCreateRequest, {
 } from '../hooks/api/useCreateRequest'
 import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
+import webViewContext from './contexts/webViewContext'
 import LinkModal from './modals/Link'
-
 type Request = {
   requestId: string
   requestName: string
@@ -25,7 +25,9 @@ const CreateRequest: React.FC = () => {
     requestApiResponse,
     setRequestApiResponse
   ] = React.useState<CreateRequestResponse>()
-  const { createRequest } = useSchedule()
+
+  const context = React.useContext(webViewContext)! // This *will* be defined
+  const { createRequest } = useSchedule(context)
   const [createRequestApi, makeApiRequest] = useCreateRequest()
   const { addRequest } = useSync()
 

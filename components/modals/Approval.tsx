@@ -15,13 +15,15 @@ import useGetPublicRequest from '../../hooks/api/useGetPublicRequest'
 import useSchedule from '../../hooks/useSchedule'
 import { ApprovalScreenRouteProp } from '../../navigation/BottomTabNavigator'
 import { ApprovalScreenNavigationProp } from '../../screens/ApprovalScreen'
+import webViewContext from '../contexts/webViewContext'
 
 const ApprovalModal: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true)
   const [approval, setApproval] = useState(false)
   const [requestApi, getPublicRequest] = useGetPublicRequest()
   const [responseApi, sendResponse] = useCreateResponse()
-  const { createResponse } = useSchedule()
+  const context = React.useContext(webViewContext)! // This *will* be defined
+  const { createResponse } = useSchedule(context)
 
   const {
     params: { requestId }

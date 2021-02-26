@@ -1,4 +1,5 @@
 import { StackNavigationProp } from '@react-navigation/stack'
+import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
@@ -13,6 +14,7 @@ export type SchedulesScreenNavigationProp = StackNavigationProp<
 const SchedulesScreen: React.FC = () => {
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" />
       <Schedules />
     </View>
   )

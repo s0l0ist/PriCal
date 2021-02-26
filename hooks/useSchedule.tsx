@@ -4,16 +4,28 @@ import { SCHEDULE_DAYS } from '../constants/Grid'
 import { getDateRange } from '../utils/date'
 import useCalendar from './useCalendar'
 import useGrid from './useGrid'
-import usePsi from './usePsi'
+import { Context, ServerResponse, Intersection } from './useWebViewProtocol'
 
-export default function useSchedule() {
+type ScheduleProps = {
+  createClientRequest: (grid: string[]) => Promise<Context>
+  createServerResponse: (
+    request: string,
+    grid: string[]
+  ) => Promise<ServerResponse>
+  computeIntersection: (
+    key: string,
+    response: string,
+    setup: string
+  ) => Promise<Intersection>
+}
+
+export default function useSchedule({
+  createClientRequest,
+  createServerResponse,
+  computeIntersection
+}: ScheduleProps) {
   const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
-  const {
-    createClientRequest,
-    createServerResponse,
-    computeIntersection
-  } = usePsi()
 
   /**
    * Creates a request to schedule
@@ -33,7 +45,7 @@ export default function useSchedule() {
     }))
 
     const grid = convertToGrid(fomattedEvents, start, end)
-    const context = createClientRequest(grid)
+    const context = await createClientRequest(grid)
 
     return {
       requestName,
@@ -72,11 +84,7 @@ export default function useSchedule() {
   /**
    * Computes the intersection from a server response/setup payload
    */
-  const getIntersection = async (
-    key: string,
-    response: string,
-    setup: string
-  ) => {
+  const getIntersection = (key: string, response: string, setup: string) => {
     console.log('computing intersection')
     return computeIntersection(key, response, setup)
   }

@@ -1,6 +1,7 @@
 import { StackScreenProps } from '@react-navigation/stack'
+import { StatusBar } from 'expo-status-bar'
 import * as React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { RootStackParamList } from '../navigation/BottomTabNavigator'
 
@@ -9,13 +10,11 @@ type NotFoundScreenProps = StackScreenProps<RootStackParamList, 'NotFound'>
 const NotFoundScreen: React.FC<NotFoundScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" />
       <Text style={styles.title}>This screen doesn't exist.</Text>
-      <TouchableOpacity
-        onPress={() => navigation.replace('Root')}
-        style={styles.link}
-      >
+      <Pressable onPress={() => navigation.replace('Root')} style={styles.link}>
         <Text style={styles.linkText}>Go to home screen!</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   )
 }
