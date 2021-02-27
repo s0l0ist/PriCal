@@ -21,7 +21,7 @@ export type Intersection = {
   intersection: number[]
 }
 
-enum PSI_MESSAGE_TYPES {
+enum PSI_COMMAND_TYPES {
   CREATE_REQUEST = 'CREATE_REQUEST',
   CREATE_RESPONSE = 'CREATE_RESPONSE',
   COMPUTE_INTERSECTION = 'COMPUTE_INTERSECTION'
@@ -29,7 +29,7 @@ enum PSI_MESSAGE_TYPES {
 
 interface PSI_CREATE_REQUEST_COMMAND {
   id: string
-  type: PSI_MESSAGE_TYPES.CREATE_REQUEST
+  type: PSI_COMMAND_TYPES.CREATE_REQUEST
   payload: {
     grid: string[]
   }
@@ -37,7 +37,7 @@ interface PSI_CREATE_REQUEST_COMMAND {
 
 interface PSI_CREATE_RESPONSE_COMMAND {
   id: string
-  type: PSI_MESSAGE_TYPES.CREATE_RESPONSE
+  type: PSI_COMMAND_TYPES.CREATE_RESPONSE
   payload: {
     request: base64
     grid: string[]
@@ -46,7 +46,7 @@ interface PSI_CREATE_RESPONSE_COMMAND {
 
 interface PSI_COMPUTE_INTERSECTION_COMMAND {
   id: string
-  type: PSI_MESSAGE_TYPES.COMPUTE_INTERSECTION
+  type: PSI_COMMAND_TYPES.COMPUTE_INTERSECTION
   payload: {
     key: base64
     response: base64
@@ -112,7 +112,7 @@ export default function useWebViewProtocol({
   const createClientRequest = (grid: string[]) => {
     const payload = {
       id: getRandomString(4),
-      type: PSI_MESSAGE_TYPES.CREATE_REQUEST,
+      type: PSI_COMMAND_TYPES.CREATE_REQUEST,
       payload: {
         grid
       }
@@ -125,7 +125,7 @@ export default function useWebViewProtocol({
     const id = getRandomString(4)
     const payload = {
       id,
-      type: PSI_MESSAGE_TYPES.CREATE_RESPONSE,
+      type: PSI_COMMAND_TYPES.CREATE_RESPONSE,
       payload: {
         request,
         grid
@@ -143,7 +143,7 @@ export default function useWebViewProtocol({
     const id = getRandomString(4)
     const payload = {
       id,
-      type: PSI_MESSAGE_TYPES.COMPUTE_INTERSECTION,
+      type: PSI_COMMAND_TYPES.COMPUTE_INTERSECTION,
       payload: {
         key,
         response,
