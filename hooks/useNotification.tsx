@@ -11,6 +11,11 @@ type NotificationState = {
   notificationResponse: Notifications.NotificationResponse | undefined
 }
 
+const DUMMY_TOKEN = {
+  type: 'expo',
+  data: 'dummy_expo_push_token'
+} as Notifications.ExpoPushToken
+
 export default function useNotification() {
   const [, { storeObject, getObject }] = useStorage()
 
@@ -49,6 +54,7 @@ export default function useNotification() {
         let token = await getObject<Notifications.ExpoPushToken>(
           EXPO_NOTIFICATION_TOKEN
         )
+        // If no token, then fetch one
         if (!token) {
           token = await Notifications.getExpoPushTokenAsync()
           await storeObject<Notifications.ExpoPushToken>(
@@ -56,14 +62,27 @@ export default function useNotification() {
             token
           )
         }
+        // If the token is the dummy token, then fetch a real one
+        if (JSON.stringify(token) === JSON.stringify(DUMMY_TOKEN)) {
+          token = await Notifications.getExpoPushTokenAsync()
+          await storeObject<Notifications.ExpoPushToken>(
+            EXPO_NOTIFICATION_TOKEN,
+            token
+          )
+        }
+
         setState(prev => ({
           ...prev,
           expoPushToken: token!
         }))
       } else {
-        console.log(
-          'Running in a simulator, skipping push notification initialization'
+        console.info(
+          'Running in a simulator, setting dummy push notification token'
         )
+        setState(prev => ({
+          ...prev,
+          expoPushToken: DUMMY_TOKEN
+        }))
       }
     })()
 

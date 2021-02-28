@@ -1,29 +1,16 @@
 import * as React from 'react'
 
+import { PsiApiContextProps } from '../components/contexts/webViewContext'
 import { SCHEDULE_DAYS } from '../constants/Grid'
 import { getDateRange } from '../utils/date'
 import useCalendar from './useCalendar'
 import useGrid from './useGrid'
-import { Context, ServerResponse, Intersection } from './useWebViewProtocol'
-
-type ScheduleProps = {
-  createClientRequest: (grid: string[]) => Promise<Context>
-  createServerResponse: (
-    request: string,
-    grid: string[]
-  ) => Promise<ServerResponse>
-  computeIntersection: (
-    key: string,
-    response: string,
-    setup: string
-  ) => Promise<Intersection>
-}
 
 export default function useSchedule({
   createClientRequest,
   createServerResponse,
   computeIntersection
-}: ScheduleProps) {
+}: PsiApiContextProps) {
   const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
 
@@ -45,7 +32,7 @@ export default function useSchedule({
     }))
 
     const grid = convertToGrid(fomattedEvents, start, end)
-    const context = await createClientRequest(grid)
+    const context = await createClientRequest({ grid })
 
     return {
       requestName,
@@ -78,7 +65,7 @@ export default function useSchedule({
     }))
 
     const grid = convertToGrid(events, start, end)
-    return createServerResponse(request, grid)
+    return createServerResponse({ request, grid })
   }
 
   /**
@@ -86,7 +73,7 @@ export default function useSchedule({
    */
   const getIntersection = (key: string, response: string, setup: string) => {
     console.log('computing intersection')
-    return computeIntersection(key, response, setup)
+    return computeIntersection({ key, response, setup })
   }
 
   return React.useMemo(

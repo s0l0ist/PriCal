@@ -1,27 +1,27 @@
 import * as React from 'react'
 
 import {
-  Context,
+  ClientRequest,
   ServerResponse,
-  Intersection
+  Intersection,
+  ClientRequestProps,
+  ComputeIntersectionProps,
+  ServerResponseProps
 } from '../../hooks/useWebViewProtocol'
 
-type ContextProps = {
-  createClientRequest: (grid: string[]) => Promise<Context>
-  createServerResponse: (
-    request: string,
-    grid: string[]
-  ) => Promise<ServerResponse>
+export type PsiApiContextProps = {
+  createClientRequest: (props: ClientRequestProps) => Promise<ClientRequest>
+  createServerResponse: (props: ServerResponseProps) => Promise<ServerResponse>
   computeIntersection: (
-    key: string,
-    response: string,
-    setup: string
+    props: ComputeIntersectionProps
   ) => Promise<Intersection>
 }
 
 // We cannot set a default value until the WebView has been loaded. Unfortunately,
 // this means we need to keep in mind this context may not be initialized. However
 // in this application, we're ensuring we use the context after it has been initialized.
-const PsiWebViewContext = React.createContext<ContextProps>({} as ContextProps)
+const PsiWebViewContext = React.createContext<PsiApiContextProps>(
+  {} as PsiApiContextProps
+)
 
 export default PsiWebViewContext

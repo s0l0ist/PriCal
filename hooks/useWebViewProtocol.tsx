@@ -4,9 +4,33 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview'
 
 import useRandom from './useRandom'
 
+/**
+ * Type alias to 'see' that the string should be base64 encoded
+ */
 type base64 = string
 
-export type Context = {
+/**
+ * Prop types for our APIs
+ */
+export type ClientRequestProps = {
+  grid: string[]
+}
+
+export type ServerResponseProps = {
+  request: base64
+  grid: string[]
+}
+
+export type ComputeIntersectionProps = {
+  key: base64
+  response: base64
+  setup: base64
+}
+
+/**
+ * Return types for our APIs
+ */
+export type ClientRequest = {
   contextId: string
   privateKey: base64
   clientRequest: base64
@@ -30,28 +54,19 @@ enum PSI_COMMAND_TYPES {
 interface PSI_CREATE_REQUEST_COMMAND {
   id: string
   type: PSI_COMMAND_TYPES.CREATE_REQUEST
-  payload: {
-    grid: string[]
-  }
+  payload: ClientRequestProps
 }
 
 interface PSI_CREATE_RESPONSE_COMMAND {
   id: string
   type: PSI_COMMAND_TYPES.CREATE_RESPONSE
-  payload: {
-    request: base64
-    grid: string[]
-  }
+  payload: ServerResponseProps
 }
 
 interface PSI_COMPUTE_INTERSECTION_COMMAND {
   id: string
   type: PSI_COMMAND_TYPES.COMPUTE_INTERSECTION
-  payload: {
-    key: base64
-    response: base64
-    setup: base64
-  }
+  payload: ComputeIntersectionProps
 }
 
 type COMMAND =
@@ -64,22 +79,18 @@ export default function useWebViewProtocol({
 }: {
   webviewRef: React.RefObject<WebView<object>>
 }) {
-  const listener = React.useRef(new EventEmitter())
+  const listener = React.useRef<EventEmitter>()
   const { getRandomString } = useRandom()
   /**
    * Define an internal function to send commands to the WebView
    */
-  const sendMessage = React.useCallback(
-    (command: COMMAND) => {
-      console.log('sending message to WebView')
-      webviewRef.current?.postMessage(JSON.stringify(command))
-    },
-    [webviewRef]
-  )
+  const sendMessage = (command: COMMAND) => {
+    webviewRef.current!.postMessage(JSON.stringify(command))
+  }
 
   /**
    * Define a handler which takes in an event from the WebView
-   * and triggers our listener.
+   * and sends it back to our listener via the payload's ID
    *
    * This should be passed into the WebView's `onMessage` handler
    */
@@ -89,79 +100,72 @@ export default function useWebViewProtocol({
   }
 
   /**
-   *
+   * Define a handler that sends a payload to the WevView
+   * and returns a promise holding the WebView's response
    */
-  const firePromise = React.useCallback(
-    async function firePromise<T>(payload: any) {
-      const data = await new Promise(resolve => {
-        // Create a temporary listener for the `id`
-        // This promise will return with the WebView's response
-        listener.current!.once(payload.id, (payload: any) => {
-          resolve(payload)
-        })
-
-        // Fire the message to the WebView
-        sendMessage(payload)
+  const firePromise = async <T,>(payload: any) => {
+    const data = await new Promise(resolve => {
+      // Create a temporary listener for the `id`
+      // This promise will return with the WebView's response
+      listener.current!.once(payload.id, (payload: any) => {
+        resolve(payload)
       })
 
-      return data as T
-    },
-    [sendMessage]
-  )
+      // Fire the message to the WebView!
+      sendMessage(payload)
+    })
 
-  const createClientRequest = (grid: string[]) => {
-    const payload = {
-      id: getRandomString(4),
-      type: PSI_COMMAND_TYPES.CREATE_REQUEST,
-      payload: {
-        grid
-      }
-    } as PSI_CREATE_REQUEST_COMMAND
-
-    return firePromise<Context>(payload)
-  }
-
-  const createServerResponse = async (request: base64, grid: string[]) => {
-    const id = getRandomString(4)
-    const payload = {
-      id,
-      type: PSI_COMMAND_TYPES.CREATE_RESPONSE,
-      payload: {
-        request,
-        grid
-      }
-    } as PSI_CREATE_RESPONSE_COMMAND
-
-    return firePromise<ServerResponse>(payload)
-  }
-
-  const computeIntersection = async (
-    key: string,
-    response: string,
-    setup: string
-  ) => {
-    const id = getRandomString(4)
-    const payload = {
-      id,
-      type: PSI_COMMAND_TYPES.COMPUTE_INTERSECTION,
-      payload: {
-        key,
-        response,
-        setup
-      }
-    } as PSI_COMPUTE_INTERSECTION_COMMAND
-
-    return firePromise<Intersection>(payload)
+    return data as T
   }
 
   /**
-   * Ensure we remve all listeners on unmount
+   * Create and expose the 3 PSI APIs that we want to bridge.
+   */
+  const createClientRequest = (
+    payload: ClientRequestProps
+  ): Promise<ClientRequest> => {
+    const message = {
+      id: getRandomString(4),
+      type: PSI_COMMAND_TYPES.CREATE_REQUEST,
+      payload
+    } as PSI_CREATE_REQUEST_COMMAND
+
+    return firePromise<ClientRequest>(message)
+  }
+
+  const createServerResponse = async (
+    payload: ServerResponseProps
+  ): Promise<ServerResponse> => {
+    const message = {
+      id: getRandomString(4),
+      type: PSI_COMMAND_TYPES.CREATE_RESPONSE,
+      payload
+    } as PSI_CREATE_RESPONSE_COMMAND
+
+    return firePromise<ServerResponse>(message)
+  }
+
+  const computeIntersection = async (
+    payload: ComputeIntersectionProps
+  ): Promise<Intersection> => {
+    const message = {
+      id: getRandomString(4),
+      type: PSI_COMMAND_TYPES.COMPUTE_INTERSECTION,
+      payload
+    } as PSI_COMPUTE_INTERSECTION_COMMAND
+
+    return firePromise<Intersection>(message)
+  }
+
+  /**
+   * Effect: Create our listener on mount and remove any listeners on unmount
    */
   React.useEffect(() => {
+    listener.current = new EventEmitter()
     return () => {
-      listener.current.removeAllListeners()
+      listener.current!.removeAllListeners()
     }
-  }, [listener])
+  }, [])
 
   return React.useMemo(
     () =>

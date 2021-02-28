@@ -13,7 +13,7 @@ type ReturnTypeAsync<T extends (...args: any) => any> = T extends (
  * Creates a HOC which times the execution of the provided function
  * @param func Function to measure time
  */
-function withLog<T extends (...args: any[]) => any>(
+export default function withLog<T extends (...args: any[]) => any>(
   func: T
 ): (...args: Parameters<T>) => ReturnTypeAsync<T> {
   const funcName = func.name
@@ -26,5 +26,3 @@ function withLog<T extends (...args: any[]) => any>(
     return results
   }
 }
-
-export default withLog

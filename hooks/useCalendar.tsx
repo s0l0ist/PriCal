@@ -20,9 +20,9 @@ export default function useCalendar() {
   /**
    * Returns a list of the devices calendars
    */
-  const getCalendars = React.useCallback((): Promise<Calendar.Calendar[]> => {
+  const getCalendars = (): Promise<Calendar.Calendar[]> => {
     return Calendar.getCalendarsAsync()
-  }, [])
+  }
 
   /**
    * Lists all events within the specified window for the given calendars
@@ -30,16 +30,13 @@ export default function useCalendar() {
    * @param startDate
    * @param endDate
    */
-  const listEvents = React.useCallback(
-    (
-      calendarIds: string[],
-      startDate: Date,
-      endDate: Date
-    ): Promise<Calendar.Event[]> => {
-      return Calendar.getEventsAsync(calendarIds, startDate, endDate)
-    },
-    []
-  )
+  const listEvents = (
+    calendarIds: string[],
+    startDate: Date,
+    endDate: Date
+  ): Promise<Calendar.Event[]> => {
+    return Calendar.getEventsAsync(calendarIds, startDate, endDate)
+  }
 
   /**
    * Effect to set our state.
@@ -52,8 +49,7 @@ export default function useCalendar() {
           x.entityType === Calendar.EntityTypes.EVENT &&
           (x.type === Calendar.SourceType.LOCAL ||
             x.type === Calendar.SourceType.EXCHANGE ||
-            x.type === Calendar.SourceType.CALDAV ||
-            x.type === Calendar.SourceType.MOBILEME)
+            x.type === Calendar.SourceType.CALDAV)
       )
       setState({
         calendars,

@@ -83,23 +83,17 @@ export default function usePermissions() {
 
   const getPermissionStatuses = (
     permissionRequests: PermissionsArray
-  ) => async (): Promise<PermissionResponse[]> =>
-    await Promise.all(permissionRequests.map(x => x()))
-
-  const getAllPermissionStatuses = React.useMemo(
-    () =>
-      getPermissionStatuses([
-        requestReminderPermission,
-        requestCalendarPermission,
-        requestNotificationPermission
-      ]),
-    []
-  )
+  ): Promise<PermissionResponse[]> =>
+    Promise.all(permissionRequests.map(x => x()))
 
   // Request any permissions prior to any user interaction
   React.useEffect(() => {
     ;(async () => {
-      const permissionStatuses = await getAllPermissionStatuses()
+      const permissionStatuses = await getPermissionStatuses([
+        requestReminderPermission,
+        requestCalendarPermission,
+        requestNotificationPermission
+      ])
       const hasPermission = permissionStatuses.every(x => x.Response.granted)
       const grantedPermissions = permissionStatuses.filter(
         x => x.Response.granted

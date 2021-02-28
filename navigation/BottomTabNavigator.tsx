@@ -32,9 +32,6 @@ export type BottomTabParamList = {
  */
 export type CreateTabParamList = {
   CreateScreen: undefined
-  Approval: {
-    requestId: string
-  }
 }
 
 /**
@@ -72,7 +69,7 @@ const SchedulesTabStack = createStackNavigator<SchedulesTabParamList>()
  */
 export default function BottomTabNavigator() {
   return (
-    <BottomTab.Navigator initialRouteName="Create" lazy={false}>
+    <BottomTab.Navigator initialRouteName="Create" lazy={true}>
       <BottomTab.Screen
         name="Create"
         component={CreateTabNavigator}
