@@ -3,7 +3,7 @@ import { Text as DefaultText } from 'react-native'
 
 type TextProps = DefaultText['props']
 
-const MonoText: React.FC<TextProps> = ({ style, ...otherProps }) => {
+export default function MonoText({ style, ...otherProps }: TextProps) {
   return (
     <DefaultText
       style={[{ fontFamily: 'space-mono' }, style]}
@@ -11,5 +11,3 @@ const MonoText: React.FC<TextProps> = ({ style, ...otherProps }) => {
     />
   )
 }
-
-export default MonoText

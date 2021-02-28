@@ -6,11 +6,13 @@ import useDeleteRequest from '../hooks/api/useDeleteRequest'
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
 import useSync, { Request } from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
-import { ScheduleDetailsScreenRouteProp } from '../navigation/BottomTabNavigator'
-import { SchedulesScreenNavigationProp } from '../screens/ScheduleDetailsScreen'
+import {
+  ScheduleDetailsScreenRouteProp,
+  SchedulesScreenNavigationProp
+} from '../navigation/BottomTabNavigator'
 import webViewContext from './contexts/webViewContext'
 
-const ScheduleDetails: React.FC = () => {
+export default function ScheduleDetails() {
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])
   const [responseApi, getResponseDetails] = useGetPrivateResponse()
@@ -124,6 +126,7 @@ const ScheduleDetails: React.FC = () => {
       </View>
       <Button
         title="Delete"
+        disabled={responseApi.processing}
         onPress={() => {
           deleteRequest({
             requests: [{ requestId, contextId: requestContext.contextId }]
@@ -149,5 +152,3 @@ const styles = StyleSheet.create({
     fontSize: 32
   }
 })
-
-export default ScheduleDetails

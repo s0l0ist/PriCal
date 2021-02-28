@@ -15,7 +15,7 @@ type RequestState = {
   receivedError: boolean
 }
 
-function objToQueryString(payload: any) {
+const objToQueryString = (payload: any) => {
   const keyValuePairs = []
   for (const key in payload) {
     keyValuePairs.push(

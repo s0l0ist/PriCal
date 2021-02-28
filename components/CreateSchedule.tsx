@@ -17,7 +17,7 @@ type Request = {
 
 type RequestPartial = Pick<Request, 'requestName' | 'contextId' | 'privateKey'>
 
-const CreateRequest: React.FC = () => {
+export default function CreateRequest() {
   const [requestName, setRequestName] = React.useState<string>('')
   const [showModal, setShowModal] = React.useState<boolean>(false)
   const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
@@ -159,5 +159,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   }
 })
-
-export default CreateRequest

@@ -1,4 +1,3 @@
-import { StackNavigationProp } from '@react-navigation/stack'
 import { StatusBar } from 'expo-status-bar'
 import * as React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
@@ -6,14 +5,8 @@ import { StyleSheet, Text, View } from 'react-native'
 import CreateSchedule from '../components/CreateSchedule'
 import Permissions from '../components/Permissions'
 import PsiWebView from '../components/PsiWebView'
-import { SchedulesTabParamList } from '../navigation/BottomTabNavigator'
 
-export type CreateScreenNavigationProp = StackNavigationProp<
-  SchedulesTabParamList,
-  'SchedulesScreen'
->
-
-const CreateScreen: React.FC = () => {
+export default function CreateScreen() {
   return (
     <View style={styles.container}>
       <Permissions>
@@ -37,5 +30,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 })
-
-export default CreateScreen

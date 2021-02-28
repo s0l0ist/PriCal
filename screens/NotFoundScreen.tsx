@@ -1,13 +1,13 @@
-import { StackScreenProps } from '@react-navigation/stack'
+import { useNavigation } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
 import * as React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { RootStackParamList } from '../navigation/BottomTabNavigator'
+import { NotFoundScreenNavigationProps } from '../navigation/BottomTabNavigator'
 
-type NotFoundScreenProps = StackScreenProps<RootStackParamList, 'NotFound'>
+export default function NotFoundScreen() {
+  const navigation = useNavigation<NotFoundScreenNavigationProps>()
 
-const NotFoundScreen: React.FC<NotFoundScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -40,5 +40,3 @@ const styles = StyleSheet.create({
     color: '#2e78b7'
   }
 })
-
-export default NotFoundScreen

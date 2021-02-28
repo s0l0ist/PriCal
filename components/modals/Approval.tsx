@@ -13,11 +13,13 @@ import {
 import useCreateResponse from '../../hooks/api/useCreateResponse'
 import useGetPublicRequest from '../../hooks/api/useGetPublicRequest'
 import useSchedule from '../../hooks/useSchedule'
-import { ApprovalScreenRouteProp } from '../../navigation/BottomTabNavigator'
-import { ApprovalScreenNavigationProp } from '../../screens/ApprovalScreen'
+import {
+  ApprovalScreenNavigationProp,
+  ApprovalScreenRouteProp
+} from '../../navigation/BottomTabNavigator'
 import webViewContext from '../contexts/webViewContext'
 
-const ApprovalModal: React.FC = () => {
+export default function ApprovalModal() {
   const [modalVisible, setModalVisible] = useState(true)
   const [approval, setApproval] = useState(false)
   const [requestApi, getPublicRequest] = useGetPublicRequest()
@@ -81,11 +83,14 @@ const ApprovalModal: React.FC = () => {
   React.useEffect(() => {
     if (!modalVisible) {
       if (navigation.canGoBack()) {
+        // This is called when the deep link is clicked, and the application
+        // was open in the background.
         navigation.goBack()
       } else {
-        // This is called when the deep link is clicked
-        // when the app is closed. There's no state to `goBack` to
-        // so we replace the entire stack with the Root stack
+        // This is called when the deep link is clicked, but the application
+        // was closed, triggering the app to open. When this happens,
+        // there's no state to `goBack` to so we replace the entire
+        // stack with the Root stack.
         navigation.replace('Root')
       }
     }
@@ -190,5 +195,3 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   }
 })
-
-export default ApprovalModal

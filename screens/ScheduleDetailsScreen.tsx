@@ -1,18 +1,11 @@
-import { StackNavigationProp } from '@react-navigation/stack'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
 import PsiWebView from '../components/PsiWebView'
 import ScheduleDetails from '../components/ScheduleDetails'
-import { SchedulesTabParamList } from '../navigation/BottomTabNavigator'
 
-export type SchedulesScreenNavigationProp = StackNavigationProp<
-  SchedulesTabParamList,
-  'ScheduleDetailsScreen'
->
-
-const ScheduleDetailsScreen: React.FC = () => {
+export default function ScheduleDetailsScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -28,5 +21,3 @@ const styles = StyleSheet.create({
     flex: 1
   }
 })
-
-export default ScheduleDetailsScreen

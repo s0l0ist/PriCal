@@ -1,7 +1,10 @@
 import { Ionicons } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { RouteProp } from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack'
+import {
+  createStackNavigator,
+  StackNavigationProp
+} from '@react-navigation/stack'
 import * as React from 'react'
 
 import CreateScreen from '../screens/CreateScreen'
@@ -9,7 +12,7 @@ import ScheduleDetailsScreen from '../screens/ScheduleDetailsScreen'
 import SchedulesScreen from '../screens/SchedulesScreen'
 
 /**
- * Type for the root navigation stack
+ * Types for our navigation hierarchy from the root tree (left to right)
  */
 export type RootStackParamList = {
   Root: undefined
@@ -18,25 +21,13 @@ export type RootStackParamList = {
     requestId: string
   }
 }
-
-/**
- * Type for the bottom tabs
- */
 export type BottomTabParamList = {
   Create: undefined
   Schedules: undefined
 }
-
-/**
- * Type for the create tab params
- */
 export type CreateTabParamList = {
   CreateScreen: undefined
 }
-
-/**
- * Type for the schedules tab params
- */
 export type SchedulesTabParamList = {
   SchedulesScreen: undefined
   ScheduleDetailsScreen: {
@@ -46,17 +37,32 @@ export type SchedulesTabParamList = {
 }
 
 /**
- * Type for the schedule details screen route
+ * Types for the useNavigation hook used throughout the app
  */
+export type ApprovalScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Root'
+>
+export type NotFoundScreenNavigationProps = StackNavigationProp<
+  RootStackParamList,
+  'NotFound'
+>
+export type CreateScreenNavigationProp = StackNavigationProp<
+  SchedulesTabParamList,
+  'SchedulesScreen'
+>
+export type SchedulesScreenNavigationProp = StackNavigationProp<
+  SchedulesTabParamList,
+  'ScheduleDetailsScreen'
+>
+/**
+ * Types for the useRoute hook used throughout the app
+ */
+export type ApprovalScreenRouteProp = RouteProp<RootStackParamList, 'Approval'>
 export type ScheduleDetailsScreenRouteProp = RouteProp<
   SchedulesTabParamList,
   'ScheduleDetailsScreen'
 >
-
-/**
- * Type for the approval screen route
- */
-export type ApprovalScreenRouteProp = RouteProp<RootStackParamList, 'Approval'>
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab

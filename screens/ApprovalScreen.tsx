@@ -1,18 +1,11 @@
-import { StackNavigationProp } from '@react-navigation/stack'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { View } from 'react-native'
 
 import PsiWebView from '../components/PsiWebView'
 import ApprovalModal from '../components/modals/Approval'
-import { RootStackParamList } from '../navigation/BottomTabNavigator'
 
-export type ApprovalScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Root'
->
-
-const ApprovalScreen: React.FC = () => {
+export default function ApprovalScreen() {
   return (
     <View>
       <StatusBar style="dark" />
@@ -22,5 +15,3 @@ const ApprovalScreen: React.FC = () => {
     </View>
   )
 }
-
-export default ApprovalScreen

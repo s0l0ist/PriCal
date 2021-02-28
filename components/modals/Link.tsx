@@ -23,7 +23,8 @@ type LinkModalProps = {
   onClose: () => void
 }
 
-const LinkModal: React.FC<LinkModalProps> = ({ requestId, onClose }) => {
+// const LinkModal: React.FC<LinkModalProps> = ({ requestId, onClose }) => {
+export default function LinkModal({ requestId, onClose }: LinkModalProps) {
   const [modalVisible, setModalVisible] = React.useState<boolean>(true)
   /**
    * Copy the app link to the clipboard
@@ -161,5 +162,3 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   }
 })
-
-export default LinkModal

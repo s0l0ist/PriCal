@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Text,
   ListRenderItemInfo,
-  TouchableOpacity,
   Pressable
 } from 'react-native'
 
@@ -15,10 +14,10 @@ import useListRequests, {
   ListRequestResponses
 } from '../hooks/api/useListRequests'
 import useSync from '../hooks/store/useSync'
-import { SchedulesScreenNavigationProp } from '../screens/SchedulesScreen'
+import { SchedulesScreenNavigationProp } from '../navigation/BottomTabNavigator'
 import { compare } from '../utils/compare'
 
-const Schedules: React.FC = () => {
+export default function Schedules() {
   const [requestsApi, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
 
@@ -136,12 +135,9 @@ const Schedules: React.FC = () => {
         onRefresh={onRefresh}
         refreshing={requestsApi.processing}
       />
-      <TouchableOpacity disabled={requestsApi.processing} onPress={onRefresh}>
-        <Text>
-          Tap here to create a client request, send it and compute the
-          intersection
-        </Text>
-      </TouchableOpacity>
+      <Pressable disabled={requestsApi.processing} onPress={onRefresh}>
+        <Text>Tap to refresh</Text>
+      </Pressable>
     </View>
   )
 }
@@ -157,5 +153,3 @@ const styles = StyleSheet.create({
     fontSize: 32
   }
 })
-
-export default Schedules
