@@ -11,17 +11,15 @@ export default function useStorage() {
     hasSecureStorage: false
   })
 
-  const isStorageAvailable = async (): Promise<boolean> => {
-    return SecureStore.isAvailableAsync()
-  }
+  const isStorageAvailable = async (): Promise<boolean> =>
+    SecureStore.isAvailableAsync()
 
   const storeItem = React.useCallback(
-    async (key: string, value: string): Promise<void> => {
-      return SecureStore.setItemAsync(key, value, {
+    async (key: string, value: string): Promise<void> =>
+      SecureStore.setItemAsync(key, value, {
         keychainService: KEYCHAIN_SERVICE,
         keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY
-      })
-    },
+      }),
     []
   )
 
