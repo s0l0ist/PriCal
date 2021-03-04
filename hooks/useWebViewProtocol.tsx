@@ -12,6 +12,10 @@ type base64 = string
 /**
  * Prop types for our APIs
  */
+export type InitializedProps = {
+  initialized: boolean
+}
+
 export type ClientRequestProps = {
   grid: string[]
 }
@@ -46,9 +50,15 @@ export type Intersection = {
 }
 
 enum PSI_COMMAND_TYPES {
+  INITIALIZED = 'INITIALIZED',
   CREATE_REQUEST = 'CREATE_REQUEST',
   CREATE_RESPONSE = 'CREATE_RESPONSE',
   COMPUTE_INTERSECTION = 'COMPUTE_INTERSECTION'
+}
+
+type PSI_INITIALIZED_COMMAND = {
+  type: PSI_COMMAND_TYPES.INITIALIZED
+  payload: InitializedProps
 }
 
 type PSI_CREATE_REQUEST_COMMAND = {
@@ -70,6 +80,7 @@ type PSI_COMPUTE_INTERSECTION_COMMAND = {
 }
 
 type COMMAND =
+  | PSI_INITIALIZED_COMMAND
   | PSI_CREATE_REQUEST_COMMAND
   | PSI_CREATE_RESPONSE_COMMAND
   | PSI_COMPUTE_INTERSECTION_COMMAND
@@ -86,6 +97,22 @@ export default function useWebViewProtocol({
    */
   const sendMessage = (command: COMMAND) => {
     webviewRef.current!.postMessage(JSON.stringify(command))
+  }
+
+  /**
+   * Define a handler that will invoke a callback when
+   * an event from the WebView appears. Used only for
+   * signaling the PSI library has loaded completely.
+   *
+   * We use a separate function because the message only
+   * comes from the web direction and doesn't have a corresponding
+   * `id` for any listener.
+   */
+  const onLoad = (fn: (payload: InitializedProps) => void) => {
+    return (event: WebViewMessageEvent) => {
+      const p = JSON.parse(event.nativeEvent.data) as InitializedProps
+      fn(p)
+    }
   }
 
   /**
@@ -170,6 +197,7 @@ export default function useWebViewProtocol({
   return React.useMemo(
     () =>
       ({
+        onLoad,
         onMessage,
         createClientRequest,
         createServerResponse,
@@ -177,6 +205,7 @@ export default function useWebViewProtocol({
       } as const),
     [
       webviewRef,
+      onLoad,
       onMessage,
       createClientRequest,
       createServerResponse,

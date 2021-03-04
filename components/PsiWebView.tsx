@@ -37,6 +37,7 @@ const PsiWebView: React.FC = ({ children }) => {
    * to be evaluated and their response is returned asynchronously
    */
   const {
+    onLoad,
     onMessage,
     createClientRequest,
     createServerResponse,
@@ -44,6 +45,8 @@ const PsiWebView: React.FC = ({ children }) => {
   } = useWebViewProtocol({
     webviewRef
   })
+
+  const setPsiInitialized = onLoad(payload => setLoaded(payload.initialized))
 
   return (
     <webViewContext.Provider
@@ -63,12 +66,13 @@ const PsiWebView: React.FC = ({ children }) => {
             uri: 'http://localhost:19006'
           }}
           style={{ width: 0, height: 0 }}
-          onMessage={onMessage}
+          // The first message received should be the initialization
+          // command. Afterward, we need to use the other handler.
+          onMessage={loaded ? onMessage : setPsiInitialized}
           scalesPageToFit={true}
           onLoadStart={() => console.log('started loading page')}
           onLoad={() => {
             console.log('finished loading page')
-            setLoaded(true)
           }}
         />
       </View>

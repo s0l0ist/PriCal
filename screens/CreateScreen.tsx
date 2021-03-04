@@ -4,7 +4,6 @@ import { StyleSheet, Text, View } from 'react-native'
 
 import CreateSchedule from '../components/CreateSchedule'
 import Permissions from '../components/Permissions'
-import PsiWebView from '../components/PsiWebView'
 
 export default function CreateScreen() {
   return (
@@ -12,9 +11,7 @@ export default function CreateScreen() {
       <Permissions>
         <Text style={styles.title}>PriCal</Text>
         <StatusBar style="dark" />
-        <PsiWebView>
-          <CreateSchedule />
-        </PsiWebView>
+        <CreateSchedule />
       </Permissions>
     </View>
   )
