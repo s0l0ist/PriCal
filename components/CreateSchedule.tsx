@@ -6,7 +6,8 @@ import useCreateRequest, {
 } from '../hooks/api/useCreateRequest'
 import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
-import webViewContext from './contexts/webViewContext'
+import ExpoNotificationContext from './contexts/ExpoNotificationContext'
+import WebViewContext from './contexts/WebViewContext'
 import LinkModal from './modals/Link'
 type Request = {
   requestId: string
@@ -26,7 +27,8 @@ export default function CreateRequest() {
     setRequestApiResponse
   ] = React.useState<CreateRequestResponse>()
 
-  const context = React.useContext(webViewContext)! // This *will* be defined
+  const context = React.useContext(WebViewContext)! // This *will* be defined
+  const expoPush = React.useContext(ExpoNotificationContext)
   const { createRequest } = useSchedule(context)
   const [createRequestApi, makeApiRequest] = useCreateRequest()
   const { addRequest } = useSync()
@@ -47,6 +49,7 @@ export default function CreateRequest() {
     console.log('creating and sending client request', requestName)
     const partialRequest = await createRequest(requestName)
     makeApiRequest({
+      token: expoPush.token?.data,
       requestName: partialRequest.requestName,
       contextId: partialRequest.contextId,
       request: partialRequest.request

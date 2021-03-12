@@ -10,7 +10,7 @@ import {
   ScheduleDetailsScreenRouteProp,
   SchedulesScreenNavigationProp
 } from '../navigation/BottomTabNavigator'
-import webViewContext from './contexts/webViewContext'
+import WebViewContext from './contexts/WebViewContext'
 
 export default function ScheduleDetails() {
   const [requestContext, setRequestContext] = React.useState<Request>()
@@ -19,7 +19,7 @@ export default function ScheduleDetails() {
   const [, deleteRequest] = useDeleteRequest()
   const { getRequest } = useSync()
 
-  const context = React.useContext(webViewContext)! // This *will* be defined
+  const context = React.useContext(WebViewContext)! // This *will* be defined
   const { getIntersection } = useSchedule(context)
 
   const {

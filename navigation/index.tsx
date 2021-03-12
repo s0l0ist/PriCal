@@ -2,7 +2,9 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 
-import PsiWebView from '../components/PsiWebView'
+import ExpoTokenProvider from '../components/providers/ExpoTokenProvider'
+import PermissionsProvider from '../components/providers/PermissionsProvider'
+import PsiProvider from '../components/providers/PsiProvider'
 import ApprovalScreen from '../screens/ApprovalScreen'
 import NotFoundScreen from '../screens/NotFoundScreen'
 import BottomTabNavigator, { RootStackParamList } from './BottomTabNavigator'
@@ -12,16 +14,24 @@ import LinkingConfiguration from './LinkingConfiguration'
  * If you are not familiar with React Navigation, we recommend going through the
  * "Fundamentals" guide: https://reactnavigation.org/docs/getting-started
  *
- * We're also wrapping the entire navigtion with our PsiWebView which
+ * We're also wrapping the entire navigtion with our PsiProvider which
  * loads a hidden PSI webview and waits for it to initialize before
- * loading the rest of the application.
+ * loading the rest of the application. The API calls will be available via
+ * a context
+ *
+ * The ExpoTokenProvider will allow access to the devices push token available
+ * in a context
  */
 export default function Navigation() {
   return (
     <NavigationContainer linking={LinkingConfiguration}>
-      <PsiWebView>
-        <RootNavigator />
-      </PsiWebView>
+      <PsiProvider>
+        <PermissionsProvider>
+          <ExpoTokenProvider>
+            <RootNavigator />
+          </ExpoTokenProvider>
+        </PermissionsProvider>
+      </PsiProvider>
     </NavigationContainer>
   )
 }

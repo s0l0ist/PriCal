@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { PsiApiContextProps } from '../components/contexts/webViewContext'
+import { PsiApiContextProps } from '../components/contexts/WebViewContext'
 import { SCHEDULE_DAYS } from '../constants/Grid'
 import { getDateRange } from '../utils/date'
 import useCalendar from './useCalendar'

@@ -3,6 +3,7 @@ import * as React from 'react'
 import useRequest from '../useRequest'
 
 export type CreateRequestProps = {
+  token?: string // This is an optional push notification token
   requestName: string
   contextId: string
   request: string

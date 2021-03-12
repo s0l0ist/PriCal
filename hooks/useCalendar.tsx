@@ -1,9 +1,15 @@
 import * as Calendar from 'expo-calendar'
 import * as React from 'react'
 
+export enum PERMISSIONS_ENUM {
+  CALENDAR = 'CALENDAR',
+  REMINDERS = 'REMINDERS',
+  NOTIFICATIONS = 'NOTIFICATIONS'
+}
+
 export type PermissionResponse = {
   Response: Calendar.PermissionResponse
-  Permission: string
+  Permission: PERMISSIONS_ENUM
 }
 
 type CalendarState = {

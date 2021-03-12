@@ -2,8 +2,8 @@ import * as React from 'react'
 import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 
-import useWebViewProtocol from '../hooks/useWebViewProtocol'
-import webViewContext from './contexts/webViewContext'
+import useWebViewProtocol from '../../hooks/useWebViewProtocol'
+import WebViewContext from '../contexts/WebViewContext'
 
 /**
  * Create a WebView component that will load the static site exposing
@@ -49,7 +49,7 @@ const PsiWebView: React.FC = ({ children }) => {
   const setPsiInitialized = onLoad(payload => setLoaded(payload.initialized))
 
   return (
-    <webViewContext.Provider
+    <WebViewContext.Provider
       value={{
         createClientRequest,
         createServerResponse,
@@ -63,7 +63,7 @@ const PsiWebView: React.FC = ({ children }) => {
           originWhitelist={['*']}
           source={{
             // TODO: replace with a public url
-            uri: 'http://localhost:19007'
+            uri: 'http://192.168.1.203:19006/'
           }}
           style={{ width: 0, height: 0 }}
           // The first message received should be the initialization
@@ -83,7 +83,7 @@ const PsiWebView: React.FC = ({ children }) => {
         </View>
       )}
       {loaded && children}
-    </webViewContext.Provider>
+    </WebViewContext.Provider>
   )
 }
 

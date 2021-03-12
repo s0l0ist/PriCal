@@ -1,88 +1,65 @@
 import Constants from 'expo-constants'
 import * as Notifications from 'expo-notifications'
 import * as React from 'react'
-
-import { EXPO_NOTIFICATION_TOKEN } from '../constants/Storage'
-import useStorage from './store/useStorage'
-
-type NotificationState = {
-  expoPushToken: Notifications.ExpoPushToken | undefined
-  notification: Notifications.Notification | undefined
-  notificationResponse: Notifications.NotificationResponse | undefined
-}
+import PermissionsContext from '../components/contexts/PermissionsContext'
 
 const DUMMY_TOKEN = {
   type: 'expo',
   data: 'dummy_expo_push_token'
 } as Notifications.ExpoPushToken
 
-export default function useNotification() {
-  const [, { storeObject, getObject }] = useStorage()
-
-  const [state, setState] = React.useState<NotificationState>({
-    expoPushToken: undefined,
-    notification: undefined,
-    notificationResponse: undefined
+/**
+ * Define how all notifications will present to on
+ * the device
+ */
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false
   })
+})
 
+export default function useNotification() {
+  const [token, setPushToken] = React.useState<Notifications.ExpoPushToken>()
+
+  const { hasNotificationsPermission } = React.useContext(PermissionsContext)
+  console.log('hasNotificationsPermission', hasNotificationsPermission)
+  /**
+   * Handler when the device receives a notification
+   */
   const notificationReceivedHandler = React.useCallback(
     (note: Notifications.Notification): void => {
       console.log('Notification received:', note)
-      setState(prev => ({
-        ...prev,
-        notification: note
-      }))
     },
     []
   )
 
+  /**
+   * Handler when the user interacts with the notification (aka the reponse)
+   */
   const notificationReponseReceivedHandler = React.useCallback(
     (response: Notifications.NotificationResponse): void => {
       console.log('Notification response received:', response)
-      setState(prev => ({
-        ...prev,
-        notificationResponse: response
-      }))
     },
     []
   )
 
+  /**
+   * Effect:
+   */
   React.useEffect(() => {
     ;(async () => {
-      if (Constants.isDevice) {
-        // Get the token from storage, if it doesn't exist, get it and store it
-        let token = await getObject<Notifications.ExpoPushToken>(
-          EXPO_NOTIFICATION_TOKEN
-        )
-        // If no token, then fetch one
-        if (!token) {
-          token = await Notifications.getExpoPushTokenAsync()
-          await storeObject<Notifications.ExpoPushToken>(
-            EXPO_NOTIFICATION_TOKEN,
-            token
+      if (hasNotificationsPermission) {
+        if (Constants.isDevice) {
+          const token = await Notifications.getExpoPushTokenAsync()
+          setPushToken(token)
+        } else {
+          console.info(
+            'Running in a simulator, setting dummy push notification token'
           )
+          setPushToken(DUMMY_TOKEN)
         }
-        // If the token is the dummy token, then fetch a real one
-        if (JSON.stringify(token) === JSON.stringify(DUMMY_TOKEN)) {
-          token = await Notifications.getExpoPushTokenAsync()
-          await storeObject<Notifications.ExpoPushToken>(
-            EXPO_NOTIFICATION_TOKEN,
-            token
-          )
-        }
-
-        setState(prev => ({
-          ...prev,
-          expoPushToken: token!
-        }))
-      } else {
-        console.info(
-          'Running in a simulator, setting dummy push notification token'
-        )
-        setState(prev => ({
-          ...prev,
-          expoPushToken: DUMMY_TOKEN
-        }))
       }
     })()
 
@@ -94,16 +71,12 @@ export default function useNotification() {
       notificationReponseReceivedHandler
     )
 
-    // Set our destructors
+    // Cleanup on unmount
     return () => {
-      Notifications.removeNotificationSubscription(
-        notificationReceivedSubscription
-      )
-      Notifications.removeNotificationSubscription(
-        notificationResponseReceivedSubscription
-      )
+      notificationReceivedSubscription.remove()
+      notificationResponseReceivedSubscription.remove()
     }
-  }, [])
+  }, [hasNotificationsPermission])
 
-  return React.useMemo(() => [state] as const, [state])
+  return React.useMemo(() => [token] as const, [token])
 }
