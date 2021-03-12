@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 import useWebViewProtocol from '../hooks/useWebViewProtocol'
@@ -63,7 +63,7 @@ const PsiWebView: React.FC = ({ children }) => {
           originWhitelist={['*']}
           source={{
             // TODO: replace with a public url
-            uri: 'http://localhost:19006'
+            uri: 'http://localhost:19007'
           }}
           style={{ width: 0, height: 0 }}
           // The first message received should be the initialization
@@ -76,7 +76,12 @@ const PsiWebView: React.FC = ({ children }) => {
           }}
         />
       </View>
-      <ActivityIndicator animating={!loaded} />
+      {!loaded && (
+        <View style={styles.loading}>
+          <Text>Loading...</Text>
+          <ActivityIndicator animating={!loaded} />
+        </View>
+      )}
       {loaded && children}
     </webViewContext.Provider>
   )
@@ -86,6 +91,11 @@ const styles = StyleSheet.create({
   container: {
     width: 0,
     height: 0
+  },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 
