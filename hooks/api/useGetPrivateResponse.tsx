@@ -15,12 +15,14 @@ export type GetPrivateResponseResponse = {
 }
 type GetPrivateResponseState = {
   processing: boolean
+  completed: boolean
   response: GetPrivateResponseResponse | undefined
   error: Error | undefined
 }
 export default function useGetPrivateResponse() {
   const [state, setState] = React.useState<GetPrivateResponseState>({
     processing: false,
+    completed: false,
     response: undefined,
     error: undefined
   })
@@ -35,6 +37,7 @@ export default function useGetPrivateResponse() {
       onCompleted: payload => {
         setState({
           processing: false,
+          completed: true,
           response: payload,
           error: undefined
         })
@@ -44,6 +47,7 @@ export default function useGetPrivateResponse() {
         setState(prev => ({
           ...prev,
           processing: false,
+          completed: true,
           error: err
         }))
       }

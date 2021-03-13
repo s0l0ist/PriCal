@@ -13,12 +13,14 @@ export type ListRequestResponses = ListRequestResponse[]
 
 type ListRequestsState = {
   processing: boolean
+  completed: boolean
   response: ListRequestResponses | undefined
   error: Error | undefined
 }
 export default function useListRequests() {
   const [state, setState] = React.useState<ListRequestsState>({
     processing: false,
+    completed: false,
     response: undefined,
     error: undefined
   })
@@ -33,6 +35,7 @@ export default function useListRequests() {
       onCompleted: payload => {
         setState({
           processing: false,
+          completed: true,
           response: payload,
           error: undefined
         })
@@ -42,6 +45,7 @@ export default function useListRequests() {
         setState(prev => ({
           ...prev,
           processing: false,
+          completed: true,
           error: err
         }))
       }

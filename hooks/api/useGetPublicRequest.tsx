@@ -11,12 +11,14 @@ export type GetPublicRequestResponse = {
 }
 type GetPublicRequestState = {
   processing: boolean
+  completed: boolean
   response: GetPublicRequestResponse | undefined
   error: Error | undefined
 }
 export default function useGetPublicRequest() {
   const [state, setState] = React.useState<GetPublicRequestState>({
     processing: false,
+    completed: false,
     response: undefined,
     error: undefined
   })
@@ -31,6 +33,7 @@ export default function useGetPublicRequest() {
       onCompleted: payload => {
         setState({
           processing: false,
+          completed: true,
           response: payload,
           error: undefined
         })
@@ -40,6 +43,7 @@ export default function useGetPublicRequest() {
         setState(prev => ({
           ...prev,
           processing: false,
+          completed: true,
           error: err
         }))
       }

@@ -15,12 +15,14 @@ export type DeleteRequestResponses = DeleteRequestResponse[]
 
 type DeleteRequestState = {
   processing: boolean
+  completed: boolean
   response: DeleteRequestResponses | undefined
   error: Error | undefined
 }
 export default function useDeleteRequest() {
   const [state, setState] = React.useState<DeleteRequestState>({
     processing: false,
+    completed: false,
     response: undefined,
     error: undefined
   })
@@ -35,6 +37,7 @@ export default function useDeleteRequest() {
       onCompleted: payload => {
         setState({
           processing: false,
+          completed: true,
           response: payload,
           error: undefined
         })
@@ -44,6 +47,7 @@ export default function useDeleteRequest() {
         setState(prev => ({
           ...prev,
           processing: false,
+          completed: true,
           error: err
         }))
       }

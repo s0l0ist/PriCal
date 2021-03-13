@@ -45,7 +45,7 @@ export default function Schedules() {
     if (!requestIds) {
       return
     }
-    // Fetch the latest server data
+    // TODO: Update with information about availability
     listRequests({
       requestIds
     })
@@ -55,7 +55,6 @@ export default function Schedules() {
    * When the user pulls down to refres, we set a different loading state
    */
   const onPullRefresh = () => {
-    console.log('pulling refresh')
     setPullLoading(true)
     onRefresh()
   }
@@ -68,7 +67,6 @@ export default function Schedules() {
   React.useEffect(() => {
     ;(async () => {
       if (requestsApi.response) {
-        console.log('got responsse', pullLoading)
         const requestIds = requestsApi.response.map(x => x.requestId)
         await filterRequests(requestIds)
         setLoading(false)
@@ -155,7 +153,7 @@ export default function Schedules() {
 
   return (
     <View style={styles.container}>
-      {!requests.length && (
+      {requestsApi.completed && !requests.length && (
         <View>
           <Text>You have no requests</Text>
         </View>

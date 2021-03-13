@@ -15,12 +15,14 @@ export type CreateRequestResponse = {
 }
 type CreateRequestState = {
   processing: boolean
+  completed: boolean
   response: CreateRequestResponse | undefined
   error: Error | undefined
 }
 export default function useCreateRequest() {
   const [state, setState] = React.useState<CreateRequestState>({
     processing: false,
+    completed: false,
     response: undefined,
     error: undefined
   })
@@ -35,6 +37,7 @@ export default function useCreateRequest() {
       onCompleted: payload => {
         setState({
           processing: false,
+          completed: true,
           response: payload,
           error: undefined
         })
@@ -44,6 +47,7 @@ export default function useCreateRequest() {
         setState(prev => ({
           ...prev,
           processing: false,
+          completed: true,
           error: err
         }))
       }
