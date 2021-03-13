@@ -1,5 +1,11 @@
 import * as React from 'react'
-import { StyleSheet, TextInput, View, Button } from 'react-native'
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  Button,
+  ActivityIndicator
+} from 'react-native'
 
 import useCreateRequest, {
   CreateRequestResponse
@@ -9,6 +15,7 @@ import useSchedule from '../hooks/useSchedule'
 import ExpoNotificationContext from './contexts/ExpoNotificationContext'
 import WebViewContext from './contexts/WebViewContext'
 import LinkModal from './modals/Link'
+
 type Request = {
   requestId: string
   requestName: string
@@ -20,6 +27,7 @@ type RequestPartial = Pick<Request, 'requestName' | 'contextId' | 'privateKey'>
 
 export default function CreateRequest() {
   const [requestName, setRequestName] = React.useState<string>('')
+  const [loading, setLoading] = React.useState<boolean>(false)
   const [showModal, setShowModal] = React.useState<boolean>(false)
   const [requestPartial, setRequestPartial] = React.useState<RequestPartial>()
   const [
@@ -28,28 +36,24 @@ export default function CreateRequest() {
   ] = React.useState<CreateRequestResponse>()
 
   const context = React.useContext(WebViewContext)! // This *will* be defined
-  const expoPush = React.useContext(ExpoNotificationContext)
+  // Take the push notification if we have one.
+  const { token } = React.useContext(ExpoNotificationContext)
   const { createRequest } = useSchedule(context)
   const [createRequestApi, makeApiRequest] = useCreateRequest()
   const { addRequest } = useSync()
 
   /**
-   * Handler to update the requestName
-   */
-  const onRequestNameChange = (text: string) => {
-    setRequestName(text)
-  }
-
-  /**
    * Create a client request when the button is pressed
-   * and then send it to the server for storage
+   * and then send it to the cloud
    */
   const onCreateRequest = async () => {
+    setLoading(true)
+
     // Create the clientReqeust
     console.log('creating and sending client request', requestName)
     const partialRequest = await createRequest(requestName)
     makeApiRequest({
-      token: expoPush.token?.data,
+      token: token?.data, // Attach the push token to the payload.
       requestName: partialRequest.requestName,
       contextId: partialRequest.contextId,
       request: partialRequest.request
@@ -68,6 +72,7 @@ export default function CreateRequest() {
     setRequestPartial(undefined)
     setRequestApiResponse(undefined)
     setShowModal(false)
+    setLoading(false)
   }
 
   /**
@@ -80,6 +85,15 @@ export default function CreateRequest() {
       setRequestApiResponse(createRequestApi.response)
     }
   }, [createRequestApi.response])
+
+  /**
+   * Effect: If the API call had an error, we clear the loading status
+   */
+  React.useEffect(() => {
+    if (createRequestApi.error) {
+      setLoading(false)
+    }
+  }, [createRequestApi.error])
 
   /**
    * Effect: When we receive a valid response from the server that our request
@@ -99,6 +113,8 @@ export default function CreateRequest() {
           contextId: requestApiResponse.contextId,
           privateKey: requestPartial.privateKey
         })
+        // Clear loading
+        setLoading(false)
         // Trigger the modal
         setShowModal(true)
       }
@@ -116,13 +132,14 @@ export default function CreateRequest() {
               borderColor: 'gray',
               borderWidth: 1
             }}
-            onChangeText={onRequestNameChange}
+            onChangeText={setRequestName}
             value={requestName}
           />
+          <ActivityIndicator style={styles.activity} animating={loading} />
 
           <View style={styles.button}>
             <Button
-              disabled={!requestName || createRequestApi.processing}
+              disabled={!requestName || loading}
               onPress={onCreateRequest}
               title="Tap here create a request"
             />
@@ -157,8 +174,10 @@ const styles = StyleSheet.create({
   helpLinkText: {
     textAlign: 'center'
   },
+  activity: {
+    padding: 20
+  },
   button: {
-    marginTop: 20,
     justifyContent: 'center'
   }
 })

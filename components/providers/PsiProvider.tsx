@@ -63,7 +63,7 @@ const PsiWebView: React.FC = ({ children }) => {
           originWhitelist={['*']}
           source={{
             // TODO: replace with a public url
-            uri: 'http://192.168.1.203:19006/'
+            uri: 'http://172.20.10.2:19006/'
           }}
           style={{ width: 0, height: 0 }}
           // The first message received should be the initialization
