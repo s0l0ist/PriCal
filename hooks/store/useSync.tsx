@@ -46,6 +46,15 @@ export default function useSync() {
   }
 
   /**
+   * Removes a single request from storage by requestId
+   */
+  const removeRequest = async (requestId: string) => {
+    const requests = await getMap<Request>(REQUEST_MAP)
+    requests.delete(requestId)
+    return storeMap<Request>(REQUEST_MAP, requests)
+  }
+
+  /**
    * Removes multiple requests from storage by requestId
    */
   const removeRequests = async (requestIds: string[]) => {
@@ -91,6 +100,7 @@ export default function useSync() {
         getRequests,
         addRequest,
         addRequests,
+        removeRequest,
         removeRequests,
         filterRequests,
         setRequests,
@@ -101,6 +111,7 @@ export default function useSync() {
       getRequests,
       addRequest,
       addRequests,
+      removeRequest,
       removeRequests,
       filterRequests,
       setRequests,

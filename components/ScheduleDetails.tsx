@@ -16,8 +16,8 @@ export default function ScheduleDetails() {
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])
   const [responseApi, getResponseDetails] = useGetPrivateResponse()
-  const [, deleteRequest] = useDeleteRequest()
-  const { getRequest } = useSync()
+  const [deleteResponseApi, deleteRequest] = useDeleteRequest()
+  const { getRequest, removeRequest } = useSync()
 
   const context = React.useContext(WebViewContext)! // This *will* be defined
   const { getIntersection } = useSchedule(context)
@@ -44,6 +44,16 @@ export default function ScheduleDetails() {
       }
     })()
   }, [])
+
+  React.useEffect(() => {
+    ;(async () => {
+      if (deleteResponseApi.response) {
+        // If successful, then delete from storage
+        await removeRequest(requestId)
+        navigation.goBack()
+      }
+    })()
+  }, [deleteResponseApi.response])
   /**
    * On a manual refresh, we fetch the *private* request details.
    *
@@ -131,7 +141,6 @@ export default function ScheduleDetails() {
           deleteRequest({
             requests: [{ requestId, contextId: requestContext.contextId }]
           })
-          navigation.goBack()
         }}
       />
       <View>

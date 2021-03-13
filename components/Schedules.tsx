@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import React from 'react'
 import {
   View,
@@ -18,15 +18,17 @@ import { SchedulesScreenNavigationProp } from '../navigation/BottomTabNavigator'
 import { compare } from '../utils/compare'
 
 export default function Schedules() {
+  const [loading, setLoading] = React.useState<boolean>(false)
+  const [pullLoading, setPullLoading] = React.useState<boolean>(false)
   const [requestsApi, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
 
   const navigation = useNavigation<SchedulesScreenNavigationProp>()
 
   /**
-   * On a manual refresh, we load our requests from storage
-   * and sync them to what the server has. If the server returns
-   * fewer requests, we need to throw away our stale data
+   * Refresh the list of requests from storage
+   * and sync them to what the cloud has. If the cloud returns
+   * fewer requests, we need to throw away our stale data.
    */
   const onRefresh = React.useCallback(async () => {
     // If we're already refreshing, ignore the request
@@ -50,23 +52,48 @@ export default function Schedules() {
   }, [])
 
   /**
+   * When the user pulls down to refres, we set a different loading state
+   */
+  const onPullRefresh = () => {
+    console.log('pulling refresh')
+    setPullLoading(true)
+    onRefresh()
+  }
+
+  /**
    * Effect: Always accept the server as the source of truth.
    * we purge any stale items in storage that aren't reflected
    * by the server.
    */
   React.useEffect(() => {
-    if (requestsApi.response) {
-      const requestIds = requestsApi.response.map(x => x.requestId)
-      filterRequests(requestIds)
-    }
+    ;(async () => {
+      if (requestsApi.response) {
+        console.log('got responsse', pullLoading)
+        const requestIds = requestsApi.response.map(x => x.requestId)
+        await filterRequests(requestIds)
+        setLoading(false)
+        setPullLoading(false)
+      }
+    })()
   }, [requestsApi.response])
 
-  /**
-   * Effect: On component mount, refresh our schedules
-   */
   React.useEffect(() => {
-    onRefresh()
-  }, [])
+    if (requestsApi.error) {
+      setLoading(false)
+      setPullLoading(false)
+    }
+  }, [requestsApi.error])
+
+  /**
+   * Effect: On screen/component focus, we refresh the list
+   * but we do not animate the flatlist.
+   */
+  useFocusEffect(
+    React.useCallback(() => {
+      setLoading(true)
+      onRefresh()
+    }, [])
+  )
 
   /**
    * Compose a sort function for requests
@@ -127,22 +154,28 @@ export default function Schedules() {
   )
 
   return (
-    <View>
+    <View style={styles.container}>
+      {!requests.length && (
+        <View>
+          <Text>You have no requests</Text>
+        </View>
+      )}
+
       <FlatList
         data={requests}
         renderItem={renderItem}
         keyExtractor={x => x.requestId}
-        onRefresh={onRefresh}
-        refreshing={requestsApi.processing}
+        onRefresh={onPullRefresh}
+        refreshing={pullLoading}
       />
-      <Pressable disabled={requestsApi.processing} onPress={onRefresh}>
-        <Text>Tap to refresh</Text>
-      </Pressable>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
   item: {
     backgroundColor: '#f9c2ff',
     padding: 20,
