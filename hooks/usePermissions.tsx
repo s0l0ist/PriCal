@@ -9,81 +9,6 @@ type PermissionsArray = readonly ((
   ...args: (() => Promise<PermissionResponse>)[]
 ) => Promise<PermissionResponse>)[]
 
-/**
- * Requests for REMINDER permission if not already granted
- */
-const requestReminderPermission = async (): Promise<PermissionResponse> => {
-  // This permission is really only required for iOS devices as the Expo Calendar library
-  // requires this permission in order to just read the calendars.
-  if (Platform.OS !== 'ios') {
-    return {
-      Response: {
-        status: Permissions.PermissionStatus.GRANTED,
-        expires: 'never' as Permissions.PermissionExpiration,
-        granted: true,
-        canAskAgain: false
-      } as Permissions.PermissionResponse,
-      Permission: PERMISSIONS_ENUM.REMINDERS
-    }
-  }
-
-  const permission = await Permissions.getAsync(Permissions.REMINDERS)
-  if (permission.canAskAgain && !permission.granted) {
-    const permissionResponse = await Permissions.askAsync(Permissions.REMINDERS)
-    return {
-      Response: permissionResponse,
-      Permission: PERMISSIONS_ENUM.REMINDERS
-    }
-  }
-  return { Response: permission, Permission: PERMISSIONS_ENUM.REMINDERS }
-}
-
-/**
- * Requests for CALENDAR permission if not already granted
- */
-const requestCalendarPermission = async (): Promise<PermissionResponse> => {
-  const permission = await Permissions.getAsync(Permissions.CALENDAR)
-  if (permission.canAskAgain && !permission.granted) {
-    const permissionResponse = await Permissions.askAsync(Permissions.CALENDAR)
-    return {
-      Response: permissionResponse,
-      Permission: PERMISSIONS_ENUM.CALENDAR
-    }
-  }
-  return { Response: permission, Permission: PERMISSIONS_ENUM.CALENDAR }
-}
-
-/**
- * Requests for NOTIFICATIONS permission if not already granted
- */
-const requestNotificationPermission = async (): Promise<PermissionResponse> => {
-  // If we're in a simulator, simulate a successful grant
-  // TODO: remove this check once we test push notifications work.
-  if (!Constants.isDevice) {
-    return {
-      Response: {
-        status: Permissions.PermissionStatus.GRANTED,
-        expires: 'never' as Permissions.PermissionExpiration,
-        granted: true,
-        canAskAgain: false
-      } as Permissions.PermissionResponse,
-      Permission: PERMISSIONS_ENUM.NOTIFICATIONS
-    }
-  }
-
-  const permission = await Permissions.getAsync(Permissions.NOTIFICATIONS)
-  if (permission.canAskAgain && !permission.granted) {
-    const permissionResponse = await Permissions.askAsync(
-      Permissions.NOTIFICATIONS
-    )
-    return {
-      Response: permissionResponse,
-      Permission: PERMISSIONS_ENUM.NOTIFICATIONS
-    }
-  }
-  return { Response: permission, Permission: PERMISSIONS_ENUM.NOTIFICATIONS }
-}
-
 type PermissionState = {
   hasAllPermissions: boolean
   hasNotificationsPermission: boolean
@@ -158,4 +83,82 @@ export default function usePermissions() {
   }, [])
 
   return React.useMemo(() => [state] as const, [state])
+}
+
+/**
+ * Requests for REMINDER permission (only needed for iOS)
+ */
+async function requestReminderPermission(): Promise<PermissionResponse> {
+  /**
+   * Reminders are not used in this application; however the permission
+   * is required for iOS devices as the expo-calendar library cannot function
+   * without it.
+   */
+  if (Platform.OS !== 'ios') {
+    return {
+      Response: {
+        status: Permissions.PermissionStatus.GRANTED,
+        expires: 'never' as Permissions.PermissionExpiration,
+        granted: true,
+        canAskAgain: false
+      } as Permissions.PermissionResponse,
+      Permission: PERMISSIONS_ENUM.REMINDERS
+    }
+  }
+
+  const permission = await Permissions.getAsync(Permissions.REMINDERS)
+  if (permission.canAskAgain && !permission.granted) {
+    const permissionResponse = await Permissions.askAsync(Permissions.REMINDERS)
+    return {
+      Response: permissionResponse,
+      Permission: PERMISSIONS_ENUM.REMINDERS
+    }
+  }
+  return { Response: permission, Permission: PERMISSIONS_ENUM.REMINDERS }
+}
+
+/**
+ * Requests for CALENDAR permission (needed to access events)
+ */
+async function requestCalendarPermission(): Promise<PermissionResponse> {
+  const permission = await Permissions.getAsync(Permissions.CALENDAR)
+  if (permission.canAskAgain && !permission.granted) {
+    const permissionResponse = await Permissions.askAsync(Permissions.CALENDAR)
+    return {
+      Response: permissionResponse,
+      Permission: PERMISSIONS_ENUM.CALENDAR
+    }
+  }
+  return { Response: permission, Permission: PERMISSIONS_ENUM.CALENDAR }
+}
+
+/**
+ * Requests for NOTIFICATIONS permission (needed for push notifications)
+ */
+async function requestNotificationPermission(): Promise<PermissionResponse> {
+  // If we're in a simulator, simulate a successful grant
+  // TODO: remove this check once we test push notifications work.
+  if (!Constants.isDevice) {
+    return {
+      Response: {
+        status: Permissions.PermissionStatus.GRANTED,
+        expires: 'never' as Permissions.PermissionExpiration,
+        granted: true,
+        canAskAgain: false
+      } as Permissions.PermissionResponse,
+      Permission: PERMISSIONS_ENUM.NOTIFICATIONS
+    }
+  }
+
+  const permission = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+  if (permission.canAskAgain && !permission.granted) {
+    const permissionResponse = await Permissions.askAsync(
+      Permissions.NOTIFICATIONS
+    )
+    return {
+      Response: permissionResponse,
+      Permission: PERMISSIONS_ENUM.NOTIFICATIONS
+    }
+  }
+  return { Response: permission, Permission: PERMISSIONS_ENUM.NOTIFICATIONS }
 }

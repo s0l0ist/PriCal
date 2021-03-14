@@ -12,17 +12,8 @@ type FetchProps = {
 
 type RequestState = {
   requesting: boolean
+  completed: boolean
   receivedError: boolean
-}
-
-const objToQueryString = (payload: any) => {
-  const keyValuePairs = []
-  for (const key in payload) {
-    keyValuePairs.push(
-      encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])
-    )
-  }
-  return keyValuePairs.join('&')
 }
 
 /**
@@ -40,12 +31,13 @@ export default function useRequest() {
   ) {
     const [state, setState] = React.useState<RequestState>({
       requesting: false,
+      completed: false,
       receivedError: false
     })
 
     /**
-     * Dispatches a network request
-     * @param payload The payload to be send in the request body
+     * Create a request handler that dispatches a network request
+     * with a given payload.
      */
     const request = React.useCallback(
       async function request<A>(payload: A) {
@@ -54,10 +46,11 @@ export default function useRequest() {
 
         // Fire the request!
         try {
-          setState({
+          setState(prev => ({
+            ...prev,
             requesting: true,
             receivedError: false
-          })
+          }))
 
           const options = {
             method: fetchProps.method,
@@ -84,7 +77,8 @@ export default function useRequest() {
         } finally {
           setState(prev => ({
             ...prev,
-            requesting: false
+            requesting: false,
+            completed: true
           }))
         }
       },
@@ -102,4 +96,17 @@ export default function useRequest() {
       } as const),
     [buildRequest]
   )
+}
+
+/**
+ * Converts an Object to a URI-safe query string
+ */
+function objToQueryString(payload: any) {
+  const keyValuePairs = []
+  for (const key in payload) {
+    keyValuePairs.push(
+      encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])
+    )
+  }
+  return keyValuePairs.join('&')
 }

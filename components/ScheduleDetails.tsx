@@ -12,6 +12,9 @@ import {
 } from '../navigation/BottomTabNavigator'
 import WebViewContext from './contexts/WebViewContext'
 
+/**
+ * Component to show the details of both parties schedules
+ */
 export default function ScheduleDetails() {
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])

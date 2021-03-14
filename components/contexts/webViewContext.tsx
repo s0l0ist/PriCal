@@ -7,7 +7,7 @@ import {
   ClientRequestProps,
   ComputeIntersectionProps,
   ServerResponseProps
-} from '../../hooks/useWebViewProtocol'
+} from '../../hooks/usePsiProtocol'
 
 export type PsiApiContextProps = {
   createClientRequest: (props: ClientRequestProps) => Promise<ClientRequest>

@@ -17,6 +17,9 @@ import useSync from '../hooks/store/useSync'
 import { SchedulesScreenNavigationProp } from '../navigation/BottomTabNavigator'
 import { compare } from '../utils/compare'
 
+/**
+ * Component to list all schedule requests
+ */
 export default function Schedules() {
   const [loading, setLoading] = React.useState<boolean>(false)
   const [pullLoading, setPullLoading] = React.useState<boolean>(false)

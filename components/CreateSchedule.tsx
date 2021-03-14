@@ -25,6 +25,9 @@ type Request = {
 
 type RequestPartial = Pick<Request, 'requestName' | 'contextId' | 'privateKey'>
 
+/**
+ * Component that renders the flow to create a schedule request
+ */
 export default function CreateRequest() {
   const [requestName, setRequestName] = React.useState<string>('')
   const [loading, setLoading] = React.useState<boolean>(false)

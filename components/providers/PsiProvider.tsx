@@ -2,11 +2,11 @@ import * as React from 'react'
 import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 
-import useWebViewProtocol from '../../hooks/useWebViewProtocol'
+import usePsiProtocol from '../../hooks/usePsiProtocol'
 import WebViewContext from '../contexts/WebViewContext'
 
 /**
- * Create a WebView component that will load the static site exposing
+ * Create a WebView component that will load a static site exposing
  * a PSI API. This component will be used as a parent component
  * to wrap children in order to provide the APIs used in the webview
  * parent component. The WebView needs to be rendered in order to
@@ -27,7 +27,7 @@ const PsiWebView: React.FC = ({ children }) => {
 
   /**
    * Track the loaded state of the web page. This is used to block
-   * rendering the children until the page is ready.
+   * rendering the children until both the page and PSI library are ready.
    */
   const [loaded, setLoaded] = React.useState<boolean>(false)
 
@@ -37,16 +37,29 @@ const PsiWebView: React.FC = ({ children }) => {
    * to be evaluated and their response is returned asynchronously
    */
   const {
-    onLoad,
+    onPsiInit,
     onMessage,
     createClientRequest,
     createServerResponse,
     computeIntersection
-  } = useWebViewProtocol({
+  } = usePsiProtocol({
     webviewRef
   })
 
-  const setPsiInitialized = onLoad(payload => setLoaded(payload.initialized))
+  /**
+   * When the PSI library has finished initializing, set our initialized flag.
+   *
+   * We cannot use the PSI library until the WebView has loaded AND the
+   * initialization of the PSI library inside has completed. Therefore,
+   * we switch the handler for the WebView's `onMessage` callback
+   * when the PSI library is ready to accept commands.
+   *
+   * Note: we do not explicitly prevent commands from being sent to the PSI library.
+   * If messages are sent before it is loaded, they will be silently dropped. This
+   * is why we use this component as a high-level provider that will be rendered
+   * very early in the application.
+   */
+  const setPsiInitialized = onPsiInit(payload => setLoaded(payload.initialized))
 
   return (
     <WebViewContext.Provider
