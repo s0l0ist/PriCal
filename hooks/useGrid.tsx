@@ -11,7 +11,9 @@ type Event = {
   start: Date
   end: Date
 }
-
+/**
+ * A hook for interfacing with a time-grid used for the input in the PSI payloads
+ */
 export default function useGrid() {
   const { getRandomString } = useRandom()
   /**

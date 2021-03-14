@@ -6,6 +6,9 @@ import { getDateRange } from '../utils/date'
 import useCalendar from './useCalendar'
 import useGrid from './useGrid'
 
+/**
+ * A hook for interfacing with the schedule API
+ */
 export default function useSchedule({
   createClientRequest,
   createServerResponse,

@@ -19,6 +19,9 @@ type GetPrivateResponseState = {
   response: GetPrivateResponseResponse | undefined
   error: Error | undefined
 }
+/**
+ * A hook for making an API call to get a client request and server response
+ */
 export default function useGetPrivateResponse() {
   const [state, setState] = React.useState<GetPrivateResponseState>({
     processing: false,

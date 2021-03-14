@@ -93,11 +93,7 @@ type PermissionState = {
 }
 
 /**
- * Checks if all required permissions have been set.
- *
- * If any of them are unsuccessful, `hasPermission` is false
- * and you should inspect `permissionStatuses` to see
- * which have failed.
+ * A hook for interfacing with the permissions API
  */
 export default function usePermissions() {
   const [state, setState] = React.useState<PermissionState>({

@@ -6,6 +6,9 @@ import { KEYCHAIN_SERVICE } from '../../constants/Storage'
 type StorageState = {
   hasSecureStorage: boolean
 }
+/**
+ * A hook for a low level API around SecureStorage
+ */
 export default function useStorage() {
   const [state, setState] = React.useState<StorageState>({
     hasSecureStorage: false

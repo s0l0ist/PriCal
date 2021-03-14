@@ -17,6 +17,9 @@ type CalendarState = {
   localCalendars: Calendar.Calendar[]
 }
 
+/**
+ * A hook for interfacing with the calendar API
+ */
 export default function useCalendar() {
   const [state, setState] = React.useState<CalendarState>({
     calendars: [],

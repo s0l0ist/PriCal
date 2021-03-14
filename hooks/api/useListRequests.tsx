@@ -17,6 +17,9 @@ type ListRequestsState = {
   response: ListRequestResponses | undefined
   error: Error | undefined
 }
+/**
+ * A hook for making an API call to list all client requests
+ */
 export default function useListRequests() {
   const [state, setState] = React.useState<ListRequestsState>({
     processing: false,

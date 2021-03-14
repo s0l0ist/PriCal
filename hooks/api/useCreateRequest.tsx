@@ -19,6 +19,9 @@ type CreateRequestState = {
   response: CreateRequestResponse | undefined
   error: Error | undefined
 }
+/**
+ * A hook for making an API call to create a client request
+ */
 export default function useCreateRequest() {
   const [state, setState] = React.useState<CreateRequestState>({
     processing: false,

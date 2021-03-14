@@ -19,6 +19,9 @@ type DeleteRequestState = {
   response: DeleteRequestResponses | undefined
   error: Error | undefined
 }
+/**
+ * A hook for making an API call to delete a client request
+ */
 export default function useDeleteRequest() {
   const [state, setState] = React.useState<DeleteRequestState>({
     processing: false,

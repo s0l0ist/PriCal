@@ -15,6 +15,9 @@ type GetPublicRequestState = {
   response: GetPublicRequestResponse | undefined
   error: Error | undefined
 }
+/**
+ * A hook for making an API call to get a client request used to make a server response
+ */
 export default function useGetPublicRequest() {
   const [state, setState] = React.useState<GetPublicRequestState>({
     processing: false,

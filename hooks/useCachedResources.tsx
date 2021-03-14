@@ -3,6 +3,9 @@ import * as Font from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import * as React from 'react'
 
+/**
+ * A hook for interfacing with the cached resources API
+ */
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false)
 

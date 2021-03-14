@@ -21,6 +21,9 @@ Notifications.setNotificationHandler({
   })
 })
 
+/**
+ * A hook for interfacing with the notifications API
+ */
 export default function useNotification() {
   const [token, setPushToken] = React.useState<Notifications.ExpoPushToken>()
 

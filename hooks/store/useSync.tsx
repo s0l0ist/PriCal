@@ -10,6 +10,9 @@ export type Request = {
   privateKey: string
 }
 
+/**
+ * A hook for a universal storage library specific to this application
+ */
 export default function useSync() {
   const [, { storeMap, getMap }] = useStorage()
 

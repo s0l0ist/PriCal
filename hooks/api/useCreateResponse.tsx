@@ -16,6 +16,9 @@ type CreateResponseState = {
   response: CreateResponseResponse | undefined
   error: Error | undefined
 }
+/**
+ * A hook for making an API call to create a server response
+ */
 export default function useCreateResponse() {
   const [state, setState] = React.useState<CreateResponseState>({
     processing: false,

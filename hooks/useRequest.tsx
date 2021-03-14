@@ -25,6 +25,9 @@ const objToQueryString = (payload: any) => {
   return keyValuePairs.join('&')
 }
 
+/**
+ * A hook for interfacing with the request API
+ */
 export default function useRequest() {
   /**
    * Builds a request to be called later
@@ -56,19 +59,17 @@ export default function useRequest() {
             receivedError: false
           })
 
-          let url = fetchProps.url
           const options = {
             method: fetchProps.method,
             headers: { 'Content-Type': 'application/json' },
             body: ''
           }
 
-          if (fetchProps.method !== 'get') {
-            options.body = JSON.stringify(payload)
-          }
-
+          let url = fetchProps.url
           if (fetchProps.method === 'get') {
             url = `${fetchProps.url}?${objToQueryString(payload)}`
+          } else {
+            options.body = JSON.stringify(payload)
           }
 
           const response = await fetch(url, options)

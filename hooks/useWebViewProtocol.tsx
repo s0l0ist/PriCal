@@ -85,6 +85,9 @@ type COMMAND =
   | PSI_CREATE_RESPONSE_COMMAND
   | PSI_COMPUTE_INTERSECTION_COMMAND
 
+/**
+ * A hook for interfacing with the PSI API
+ */
 export default function useWebViewProtocol({
   webviewRef
 }: {

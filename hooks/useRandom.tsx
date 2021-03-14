@@ -1,6 +1,9 @@
 import * as Random from 'expo-random'
 import * as React from 'react'
 
+/**
+ * A hook for interfacing with the random API
+ */
 export default function useRandom() {
   /**
    * Convert a decimal number to hex
