@@ -14,11 +14,8 @@ export default function useStorage() {
     hasSecureStorage: false
   })
 
-  const isStorageAvailable = async (): Promise<boolean> =>
-    SecureStore.isAvailableAsync()
-
   const storeItem = React.useCallback(
-    async (key: string, value: string): Promise<void> =>
+    (key: string, value: string): Promise<void> =>
       SecureStore.setItemAsync(key, value, {
         keychainService: KEYCHAIN_SERVICE,
         keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY
@@ -26,7 +23,7 @@ export default function useStorage() {
     []
   )
 
-  const storeObject = React.useCallback(async function storeObject<T>(
+  const storeObject = React.useCallback(function storeObject<T>(
     key: string,
     value: T
   ): Promise<void> {
@@ -34,9 +31,7 @@ export default function useStorage() {
   },
   [])
 
-  const getItem = React.useCallback(async (key: string): Promise<
-    string | null
-  > => {
+  const getItem = React.useCallback((key: string): Promise<string | null> => {
     return SecureStore.getItemAsync(key, {
       keychainService: KEYCHAIN_SERVICE
     })
@@ -53,7 +48,7 @@ export default function useStorage() {
   },
   [])
 
-  const deleteItem = React.useCallback(async (key: string): Promise<void> => {
+  const deleteItem = React.useCallback((key: string): Promise<void> => {
     return SecureStore.deleteItemAsync(key, {
       keychainService: KEYCHAIN_SERVICE
     })
@@ -61,7 +56,7 @@ export default function useStorage() {
 
   const deleteObject = deleteItem
 
-  const storeMap = React.useCallback(async function storeMap<T>(
+  const storeMap = React.useCallback(function storeMap<T>(
     key: string,
     value: Map<string, T>
   ): Promise<void> {
@@ -84,7 +79,7 @@ export default function useStorage() {
   // Always check to see if the device supports SecureStorage.
   React.useEffect(() => {
     ;(async () => {
-      const hasSecureStorage = await isStorageAvailable()
+      const hasSecureStorage = await SecureStore.isAvailableAsync()
       setState({
         hasSecureStorage
       })

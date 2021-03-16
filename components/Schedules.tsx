@@ -22,7 +22,6 @@ import { compare } from '../utils/compare'
  */
 export default function Schedules() {
   const [loading, setLoading] = React.useState<boolean>(false)
-  const [pullLoading, setPullLoading] = React.useState<boolean>(false)
   const [requestsApi, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
 
@@ -58,7 +57,7 @@ export default function Schedules() {
    * When the user pulls down to refres, we set a different loading state
    */
   const onPullRefresh = () => {
-    setPullLoading(true)
+    setLoading(true)
     onRefresh()
   }
 
@@ -73,7 +72,6 @@ export default function Schedules() {
         const requestIds = requestsApi.response.map(x => x.requestId)
         await filterRequests(requestIds)
         setLoading(false)
-        setPullLoading(false)
       }
     })()
   }, [requestsApi.response])
@@ -81,7 +79,6 @@ export default function Schedules() {
   React.useEffect(() => {
     if (requestsApi.error) {
       setLoading(false)
-      setPullLoading(false)
     }
   }, [requestsApi.error])
 
@@ -91,26 +88,8 @@ export default function Schedules() {
    */
   useFocusEffect(
     React.useCallback(() => {
-      setLoading(true)
       onRefresh()
     }, [])
-  )
-
-  /**
-   * Compose a sort function for requests
-   */
-  const sortedRequests = React.useCallback(
-    (requests: ListRequestResponses) =>
-      [...requests.values()].filter(x => x.requestId).sort(compareRequestName),
-    []
-  )
-  /**
-   * Compose a comparator for `requestName`
-   */
-  const compareRequestName = React.useCallback(
-    (a: ListRequestResponse, b: ListRequestResponse) =>
-      compare(a, b, 'requestName'),
-    []
   )
 
   const requests = React.useMemo(
@@ -167,7 +146,7 @@ export default function Schedules() {
         renderItem={renderItem}
         keyExtractor={x => x.requestId}
         onRefresh={onPullRefresh}
-        refreshing={pullLoading}
+        refreshing={loading}
       />
     </View>
   )
@@ -187,3 +166,19 @@ const styles = StyleSheet.create({
     fontSize: 32
   }
 })
+
+/**
+ * Compose a sort function for requests
+ */
+function sortedRequests(requests: ListRequestResponses) {
+  return [...requests.values()]
+    .filter(x => x.requestId)
+    .sort(compareRequestName)
+}
+
+/**
+ * Compose a comparator for `requestName`
+ */
+function compareRequestName(a: ListRequestResponse, b: ListRequestResponse) {
+  return compare(a, b, 'requestName')
+}

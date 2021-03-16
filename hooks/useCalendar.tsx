@@ -1,5 +1,6 @@
 import * as Calendar from 'expo-calendar'
 import * as React from 'react'
+import PermissionsContext from '../components/contexts/PermissionsContext'
 
 export enum PERMISSIONS_ENUM {
   CALENDAR = 'CALENDAR',
@@ -26,18 +27,17 @@ export default function useCalendar() {
     localCalendars: []
   })
 
+  const { hasRequiredPermissions } = React.useContext(PermissionsContext)
+
   /**
-   * Returns a list of the devices calendars
+   * Returns a list of calendars
    */
   const getCalendars = (): Promise<Calendar.Calendar[]> => {
     return Calendar.getCalendarsAsync()
   }
 
   /**
-   * Lists all events within the specified window for the given calendars
-   * @param calendarIds
-   * @param startDate
-   * @param endDate
+   * Lists all events within the specified window for the specified calendars
    */
   const listEvents = (
     calendarIds: string[],
@@ -52,20 +52,22 @@ export default function useCalendar() {
    */
   React.useEffect(() => {
     ;(async () => {
-      const calendars = await getCalendars()
-      const localCalendars = calendars.filter(
-        x =>
-          x.entityType === Calendar.EntityTypes.EVENT &&
-          (x.type === Calendar.SourceType.LOCAL ||
-            x.type === Calendar.SourceType.EXCHANGE ||
-            x.type === Calendar.SourceType.CALDAV)
-      )
-      setState({
-        calendars,
-        localCalendars
-      })
+      if (hasRequiredPermissions) {
+        const calendars = await getCalendars()
+        const localCalendars = calendars.filter(
+          x =>
+            x.entityType === Calendar.EntityTypes.EVENT &&
+            (x.type === Calendar.SourceType.LOCAL ||
+              x.type === Calendar.SourceType.EXCHANGE ||
+              x.type === Calendar.SourceType.CALDAV)
+        )
+        setState({
+          calendars,
+          localCalendars
+        })
+      }
     })()
-  }, [])
+  }, [hasRequiredPermissions])
 
   return React.useMemo(() => [state, { listEvents }] as const, [state])
 }

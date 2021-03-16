@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import useRequest from '../useRequest'
+import useRequest from './useRequest'
 
 export type GetPublicRequestProps = {
   requestId: string

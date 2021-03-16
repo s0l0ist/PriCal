@@ -2,3 +2,4 @@ export const KEYCHAIN_SERVICE = 'PRI_CAL'
 export const MAX_KEYS_TO_STORE = 10
 export const EXPO_NOTIFICATION_TOKEN = 'EXPO_NOTIFICATION_TOKEN'
 export const REQUEST_MAP = 'REQUEST_MAP'
+export const PROFILE = 'PROFILE'

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { Text } from 'react-native'
 
 import useStorage from '../../hooks/store/useStorage'
 import usePermissions from '../../hooks/usePermissions'
@@ -12,14 +11,22 @@ import PermissionsContext from '../contexts/PermissionsContext'
  */
 const PermissionsProvider: React.FC = ({ children }) => {
   const [
-    { hasAllPermissions, hasNotificationsPermission, missingPermissions }
+    {
+      hasRequiredPermissions,
+      hasCalendarPermission,
+      hasReminderPermission,
+      hasNotificationsPermission,
+      missingPermissions
+    }
   ] = usePermissions()
   const [{ hasSecureStorage }] = useStorage()
 
   return (
     <PermissionsContext.Provider
       value={{
-        hasAllPermissions,
+        hasRequiredPermissions,
+        hasCalendarPermission,
+        hasReminderPermission,
         hasNotificationsPermission,
         missingPermissions,
         hasSecureStorage

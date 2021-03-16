@@ -53,7 +53,6 @@ export default function CreateRequest() {
     setLoading(true)
 
     // Create the clientReqeust
-    console.log('creating and sending client request', requestName)
     const partialRequest = await createRequest(requestName)
     makeApiRequest({
       token: token?.data, // Attach the push token to the payload.
@@ -106,9 +105,6 @@ export default function CreateRequest() {
   React.useEffect(() => {
     ;(async () => {
       if (requestApiResponse && requestPartial) {
-        console.log(
-          'Received createRequestApi.response, storing, navigating to link screen'
-        )
         // Sync to storage
         await addRequest({
           requestId: requestApiResponse.requestId,

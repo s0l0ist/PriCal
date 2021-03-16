@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { REQUEST_MAP } from '../../constants/Storage'
+import { PROFILE, REQUEST_MAP } from '../../constants/Storage'
 import useStorage from './useStorage'
 
 export type Request = {
@@ -10,11 +10,29 @@ export type Request = {
   privateKey: string
 }
 
+export type Profile = {
+  name: string
+}
+
 /**
  * A hook for a universal storage library specific to this application
  */
 export default function useSync() {
-  const [, { storeMap, getMap }] = useStorage()
+  const [, { storeMap, getMap, getObject, storeObject }] = useStorage()
+
+  /**
+   * Get the user's stored profile
+   */
+  const getProfile = () => {
+    return getObject<Profile>(PROFILE)
+  }
+
+  /**
+   * Set the user's profile
+   */
+  const setProfile = (profile: Profile) => {
+    return storeObject<Profile>(PROFILE, profile)
+  }
 
   /**
    * Get a single request from storage
@@ -99,6 +117,8 @@ export default function useSync() {
   return React.useMemo(
     () =>
       ({
+        getProfile,
+        setProfile,
         getRequest,
         getRequests,
         addRequest,
@@ -110,6 +130,8 @@ export default function useSync() {
         clearRequests
       } as const),
     [
+      getProfile,
+      setProfile,
       getRequest,
       getRequests,
       addRequest,

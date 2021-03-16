@@ -53,8 +53,6 @@ export default function useSchedule({
    * - Creates a PSI Setup from the time-grid and Response from the PSI Request
    */
   const createResponse = async (request: string) => {
-    console.log('creating server response')
-
     const rightNow = new Date()
     const { start, end } = getDateRange(SCHEDULE_DAYS, rightNow)
     const rawEvents = await listEvents(
@@ -75,7 +73,6 @@ export default function useSchedule({
    * Computes the intersection from a server response/setup payload
    */
   const getIntersection = (key: string, response: string, setup: string) => {
-    console.log('computing intersection')
     return computeIntersection({ key, response, setup })
   }
 

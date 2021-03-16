@@ -10,7 +10,9 @@ type PermissionsArray = readonly ((
 ) => Promise<PermissionResponse>)[]
 
 type PermissionState = {
-  hasAllPermissions: boolean
+  hasRequiredPermissions: boolean
+  hasCalendarPermission: boolean
+  hasReminderPermission: boolean
   hasNotificationsPermission: boolean
   permissionStatuses: PermissionResponse[]
   grantedPermissions: PermissionResponse[]
@@ -22,7 +24,9 @@ type PermissionState = {
  */
 export default function usePermissions() {
   const [state, setState] = React.useState<PermissionState>({
-    hasAllPermissions: false,
+    hasRequiredPermissions: false,
+    hasCalendarPermission: false,
+    hasReminderPermission: false,
     hasNotificationsPermission: false,
     permissionStatuses: [],
     grantedPermissions: [],
@@ -67,13 +71,15 @@ export default function usePermissions() {
 
       // iOS requires both Calendar and Reminders for the expo-calendar library
       // Andriod only needs Calendar.
-      const hasAllPermissions =
+      const hasRequiredPermissions =
         Platform.OS === 'ios'
           ? hasCalendarPermission && hasReminderPermission
           : hasCalendarPermission
 
       setState({
-        hasAllPermissions,
+        hasRequiredPermissions,
+        hasCalendarPermission,
+        hasReminderPermission,
         hasNotificationsPermission,
         permissionStatuses,
         grantedPermissions,
