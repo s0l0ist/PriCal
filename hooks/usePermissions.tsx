@@ -38,53 +38,62 @@ export default function usePermissions() {
   ): Promise<PermissionResponse[]> =>
     Promise.all(permissionRequests.map(x => x()))
 
-  // Request any permissions prior to any user interaction
+  /**
+   * Function to request all the applications permissions (both required and non-required)
+   */
+  const requestPermissions = React.useCallback(async () => {
+    const permissionStatuses = await getPermissionStatuses([
+      requestReminderPermission,
+      requestCalendarPermission,
+      requestNotificationPermission
+    ])
+
+    const grantedPermissions = permissionStatuses.filter(
+      x => x.Response.granted
+    )
+    const missingPermissions = permissionStatuses.filter(
+      x => !x.Response.granted
+    )
+
+    /**
+     * Depending on the device OS, we set the permissions
+     */
+    const hasCalendarPermission = permissionStatuses
+      .filter(x => x.Permission === PERMISSIONS_ENUM.CALENDAR)
+      .every(x => x.Response.granted)
+
+    const hasReminderPermission = permissionStatuses
+      .filter(x => x.Permission === PERMISSIONS_ENUM.REMINDERS)
+      .every(x => x.Response.granted)
+
+    const hasNotificationsPermission = permissionStatuses
+      .filter(x => x.Permission === PERMISSIONS_ENUM.NOTIFICATIONS)
+      .every(x => x.Response.granted)
+
+    // iOS requires both Calendar and Reminders for the expo-calendar library
+    // Andriod only needs Calendar.
+    const hasRequiredPermissions =
+      Platform.OS === 'ios'
+        ? hasCalendarPermission && hasReminderPermission
+        : hasCalendarPermission
+
+    setState({
+      hasRequiredPermissions,
+      hasCalendarPermission,
+      hasReminderPermission,
+      hasNotificationsPermission,
+      permissionStatuses,
+      grantedPermissions,
+      missingPermissions
+    })
+  }, [])
+
+  /**
+   * Effect: on mount, request all application permissions
+   */
   React.useEffect(() => {
     ;(async () => {
-      const permissionStatuses = await getPermissionStatuses([
-        requestReminderPermission,
-        requestCalendarPermission,
-        requestNotificationPermission
-      ])
-
-      const grantedPermissions = permissionStatuses.filter(
-        x => x.Response.granted
-      )
-      const missingPermissions = permissionStatuses.filter(
-        x => !x.Response.granted
-      )
-
-      /**
-       * Depending on the device OS, we set the permissions
-       */
-      const hasCalendarPermission = permissionStatuses
-        .filter(x => x.Permission === PERMISSIONS_ENUM.CALENDAR)
-        .every(x => x.Response.granted)
-
-      const hasReminderPermission = permissionStatuses
-        .filter(x => x.Permission === PERMISSIONS_ENUM.REMINDERS)
-        .every(x => x.Response.granted)
-
-      const hasNotificationsPermission = permissionStatuses
-        .filter(x => x.Permission === PERMISSIONS_ENUM.NOTIFICATIONS)
-        .every(x => x.Response.granted)
-
-      // iOS requires both Calendar and Reminders for the expo-calendar library
-      // Andriod only needs Calendar.
-      const hasRequiredPermissions =
-        Platform.OS === 'ios'
-          ? hasCalendarPermission && hasReminderPermission
-          : hasCalendarPermission
-
-      setState({
-        hasRequiredPermissions,
-        hasCalendarPermission,
-        hasReminderPermission,
-        hasNotificationsPermission,
-        permissionStatuses,
-        grantedPermissions,
-        missingPermissions
-      })
+      requestPermissions()
     })()
   }, [])
 

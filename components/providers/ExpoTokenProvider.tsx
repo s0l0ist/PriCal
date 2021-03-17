@@ -6,7 +6,7 @@ import ExpoNotificationContext from '../contexts/ExpoNotificationContext'
 /**
  * Create a PushToken provider that will give access
  * to a push notification token if permitted. The provider
- * will have the value of the token that will be send in
+ * will have the value of the token that will be sent in
  * the payload of a client request.
  */
 const ExpoTokenProvider: React.FC = ({ children }) => {

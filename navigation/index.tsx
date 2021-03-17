@@ -4,6 +4,7 @@ import * as React from 'react'
 
 import ExpoTokenProvider from '../components/providers/ExpoTokenProvider'
 import PermissionsProvider from '../components/providers/PermissionsProvider'
+import ProfileProvider from '../components/providers/ProfileProvider'
 import PsiProvider from '../components/providers/PsiProvider'
 import ApprovalScreen from '../screens/ApprovalScreen'
 import NotFoundScreen from '../screens/NotFoundScreen'
@@ -27,9 +28,11 @@ export default function Navigation() {
     <NavigationContainer linking={LinkingConfiguration}>
       <PsiProvider>
         <PermissionsProvider>
-          <ExpoTokenProvider>
-            <RootNavigator />
-          </ExpoTokenProvider>
+          <ProfileProvider>
+            <ExpoTokenProvider>
+              <RootNavigator />
+            </ExpoTokenProvider>
+          </ProfileProvider>
         </PermissionsProvider>
       </PsiProvider>
     </NavigationContainer>

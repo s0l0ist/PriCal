@@ -32,42 +32,44 @@ export default function useCalendar() {
   /**
    * Returns a list of calendars
    */
-  const getCalendars = (): Promise<Calendar.Calendar[]> => {
+  const getCalendars = React.useCallback((): Promise<Calendar.Calendar[]> => {
     return Calendar.getCalendarsAsync()
-  }
+  }, [])
 
   /**
    * Lists all events within the specified window for the specified calendars
    */
-  const listEvents = (
-    calendarIds: string[],
-    startDate: Date,
-    endDate: Date
-  ): Promise<Calendar.Event[]> => {
-    return Calendar.getEventsAsync(calendarIds, startDate, endDate)
-  }
+  const listEvents = React.useCallback(
+    (
+      calendarIds: string[],
+      startDate: Date,
+      endDate: Date
+    ): Promise<Calendar.Event[]> => {
+      return Calendar.getEventsAsync(calendarIds, startDate, endDate)
+    },
+    []
+  )
 
   /**
-   * Effect to set our state.
+   * Effect: get all calendars
+   * TODO: Allow user to select specific calendars
    */
   React.useEffect(() => {
     ;(async () => {
-      if (hasRequiredPermissions) {
-        const calendars = await getCalendars()
-        const localCalendars = calendars.filter(
-          x =>
-            x.entityType === Calendar.EntityTypes.EVENT &&
-            (x.type === Calendar.SourceType.LOCAL ||
-              x.type === Calendar.SourceType.EXCHANGE ||
-              x.type === Calendar.SourceType.CALDAV)
-        )
-        setState({
-          calendars,
-          localCalendars
-        })
-      }
+      const calendars = await getCalendars()
+      const localCalendars = calendars.filter(
+        x =>
+          x.entityType === Calendar.EntityTypes.EVENT &&
+          (x.type === Calendar.SourceType.LOCAL ||
+            x.type === Calendar.SourceType.EXCHANGE ||
+            x.type === Calendar.SourceType.CALDAV)
+      )
+      setState({
+        calendars,
+        localCalendars
+      })
     })()
-  }, [hasRequiredPermissions])
+  }, [])
 
   return React.useMemo(() => [state, { listEvents }] as const, [state])
 }

@@ -18,7 +18,10 @@ export type Profile = {
  * A hook for a universal storage library specific to this application
  */
 export default function useSync() {
-  const [, { storeMap, getMap, getObject, storeObject }] = useStorage()
+  const [
+    ,
+    { storeMap, getMap, getObject, storeObject, deleteObject }
+  ] = useStorage()
 
   /**
    * Get the user's stored profile
@@ -32,6 +35,13 @@ export default function useSync() {
    */
   const setProfile = (profile: Profile) => {
     return storeObject<Profile>(PROFILE, profile)
+  }
+
+  /**
+   * Delete the user's profile
+   */
+  const removeProfile = () => {
+    return deleteObject(PROFILE)
   }
 
   /**
@@ -119,6 +129,7 @@ export default function useSync() {
       ({
         getProfile,
         setProfile,
+        removeProfile,
         getRequest,
         getRequests,
         addRequest,
@@ -132,6 +143,7 @@ export default function useSync() {
     [
       getProfile,
       setProfile,
+      removeProfile,
       getRequest,
       getRequests,
       addRequest,
