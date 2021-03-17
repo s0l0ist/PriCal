@@ -10,7 +10,7 @@ export type ExpoNotificationContextProps = {
 
 /**
  * We use a context for push notification tokens since the application needs
- * to function even if the push notification persmissions were not granted or revoked.
+ * to function even if the push notification persmissions were not granted or were revoked.
  *
  * The application will use the context to check if there's a token. If not, then the requestor
  * will not receive a notification when the other party approves the request (and produces a response).

@@ -11,7 +11,6 @@ export type PermissionsContextProps = {
   hasReminderPermission: boolean
   hasNotificationsPermission: boolean
   missingPermissions: PermissionResponse[]
-  hasSecureStorage: boolean
 }
 
 /**
@@ -23,8 +22,7 @@ const PermissionsContext = React.createContext<PermissionsContextProps>({
   hasCalendarPermission: false,
   hasReminderPermission: false,
   hasNotificationsPermission: false,
-  missingPermissions: [],
-  hasSecureStorage: false
+  missingPermissions: []
 })
 
 export default PermissionsContext

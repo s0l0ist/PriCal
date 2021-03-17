@@ -4,11 +4,6 @@ import * as React from 'react'
 
 import PermissionsContext from '../components/contexts/PermissionsContext'
 
-const DUMMY_TOKEN = {
-  type: 'expo',
-  data: 'dummy_expo_push_token'
-} as Notifications.ExpoPushToken
-
 /**
  * Define how all notifications will present to on
  * the device

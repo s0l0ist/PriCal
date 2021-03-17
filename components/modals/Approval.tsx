@@ -17,14 +17,14 @@ import {
   ApprovalScreenNavigationProp,
   ApprovalScreenRouteProp
 } from '../../navigation/BottomTabNavigator'
-import WebViewContext from '../contexts/WebViewContext'
+import PsiContext from '../contexts/PsiContext'
 
 export default function ApprovalModal() {
   const [modalVisible, setModalVisible] = useState(true)
   const [approval, setApproval] = useState(false)
   const [requestApi, getPublicRequest] = useGetPublicRequest()
   const [responseApi, sendResponse] = useCreateResponse()
-  const context = React.useContext(WebViewContext)! // This *will* be defined
+  const context = React.useContext(PsiContext)
   const { createResponse } = useSchedule(context)
 
   const {

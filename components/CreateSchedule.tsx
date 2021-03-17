@@ -13,7 +13,7 @@ import useCreateRequest, {
 import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
 import ExpoNotificationContext from './contexts/ExpoNotificationContext'
-import WebViewContext from './contexts/WebViewContext'
+import PsiContext from './contexts/PsiContext'
 import LinkModal from './modals/Link'
 
 type Request = {
@@ -38,7 +38,7 @@ export default function CreateRequest() {
     setRequestApiResponse
   ] = React.useState<CreateRequestResponse>()
 
-  const context = React.useContext(WebViewContext)! // This *will* be defined
+  const context = React.useContext(PsiContext)
   // Take the push notification if we have one.
   const { token } = React.useContext(ExpoNotificationContext)
   const { createRequest } = useSchedule(context)

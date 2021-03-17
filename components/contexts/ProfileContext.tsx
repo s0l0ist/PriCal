@@ -3,7 +3,7 @@ import * as React from 'react'
 import { Profile } from '../../hooks/store/useSync'
 
 /**
- * The type can be undefined if the user denies permission
+ * The type can be undefined for the first time
  */
 export type ProfileContextProps = {
   profile: Profile | undefined

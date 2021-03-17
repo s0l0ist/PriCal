@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+import Onboarding from './components/Onboarding'
 import useCachedResources from './hooks/useCachedResources'
 import Navigation from './navigation'
 
@@ -12,7 +13,9 @@ export default function App() {
   }
   return (
     <SafeAreaProvider>
-      <Navigation />
+      <Onboarding>
+        <Navigation />
+      </Onboarding>
     </SafeAreaProvider>
   )
 }

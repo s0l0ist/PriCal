@@ -26,15 +26,7 @@ import LinkingConfiguration from './LinkingConfiguration'
 export default function Navigation() {
   return (
     <NavigationContainer linking={LinkingConfiguration}>
-      <PsiProvider>
-        <PermissionsProvider>
-          <ProfileProvider>
-            <ExpoTokenProvider>
-              <RootNavigator />
-            </ExpoTokenProvider>
-          </ProfileProvider>
-        </PermissionsProvider>
-      </PsiProvider>
+      <RootNavigator />
     </NavigationContainer>
   )
 }

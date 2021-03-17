@@ -2,20 +2,30 @@ import * as React from 'react'
 
 import useSync, { Profile } from './store/useSync'
 
+type ProfileState = {
+  profile: Profile | undefined
+  loaded: boolean
+}
 /**
  * A hook for interfacing with the user's local profile
  */
 export default function useProfile() {
-  const [userProfile, setUserProfile] = React.useState<Profile>()
+  const [state, setState] = React.useState<ProfileState>({
+    profile: undefined,
+    loaded: false
+  })
 
-  const { getProfile, setProfile } = useSync()
+  const { getProfile, storeProfile } = useSync()
 
   /**
    * Saves a user's profile
    */
-  const saveProfile = async (profile: Profile) => {
-    setUserProfile(profile)
-    setProfile(profile)
+  const saveProfile = (profile: Profile) => {
+    setState(prev => ({
+      ...prev,
+      profile
+    }))
+    return storeProfile(profile)
   }
 
   /**
@@ -25,13 +35,16 @@ export default function useProfile() {
     ;(async () => {
       const profile = await getProfile()
       if (profile) {
-        setUserProfile(profile)
+        setState({
+          profile,
+          loaded: true
+        })
       }
     })()
   }, [])
 
-  return React.useMemo(() => [userProfile, { saveProfile }] as const, [
-    userProfile,
+  return React.useMemo(() => [state, { saveProfile }] as const, [
+    state,
     saveProfile
   ])
 }

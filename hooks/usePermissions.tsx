@@ -10,6 +10,7 @@ type PermissionsArray = readonly ((
 ) => Promise<PermissionResponse>)[]
 
 type PermissionState = {
+  loaded: boolean
   hasRequiredPermissions: boolean
   hasCalendarPermission: boolean
   hasReminderPermission: boolean
@@ -24,6 +25,7 @@ type PermissionState = {
  */
 export default function usePermissions() {
   const [state, setState] = React.useState<PermissionState>({
+    loaded: false,
     hasRequiredPermissions: false,
     hasCalendarPermission: false,
     hasReminderPermission: false,
@@ -78,6 +80,7 @@ export default function usePermissions() {
         : hasCalendarPermission
 
     setState({
+      loaded: true,
       hasRequiredPermissions,
       hasCalendarPermission,
       hasReminderPermission,

@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { PsiApiContextProps } from '../components/contexts/WebViewContext'
+import { PsiContextProps } from '../components/contexts/PsiContext'
 import { SCHEDULE_DAYS } from '../constants/Grid'
 import { getDateRange } from '../utils/date'
 import useCalendar from './useCalendar'
@@ -13,7 +13,7 @@ export default function useSchedule({
   createClientRequest,
   createServerResponse,
   computeIntersection
-}: PsiApiContextProps) {
+}: PsiContextProps) {
   const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
 

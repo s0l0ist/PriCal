@@ -9,7 +9,7 @@ import {
   ServerResponseProps
 } from '../../hooks/usePsiProtocol'
 
-export type PsiApiContextProps = {
+export type PsiContextProps = {
   createClientRequest: (props: ClientRequestProps) => Promise<ClientRequest>
   createServerResponse: (props: ServerResponseProps) => Promise<ServerResponse>
   computeIntersection: (
@@ -20,8 +20,6 @@ export type PsiApiContextProps = {
 // We cannot set a default value until the WebView has been loaded. Unfortunately,
 // this means we need to keep in mind this context may not be initialized. However
 // in this application, we're ensuring we use the context after it has been initialized.
-const WebViewContext = React.createContext<PsiApiContextProps>(
-  {} as PsiApiContextProps
-)
+const PsiContext = React.createContext<PsiContextProps>({} as PsiContextProps)
 
-export default WebViewContext
+export default PsiContext

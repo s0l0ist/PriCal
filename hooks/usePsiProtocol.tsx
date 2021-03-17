@@ -4,6 +4,8 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview'
 
 import useRandom from './useRandom'
 
+const INITIALIZED_COMAND_ID = 'INITIALIZED'
+
 /**
  * Type alias to 'see' that the string should be base64 encoded
  */
@@ -49,14 +51,15 @@ export type Intersection = {
   intersection: number[]
 }
 
-enum PSI_COMMAND_TYPES {
+export enum PSI_COMMAND_TYPES {
   INITIALIZED = 'INITIALIZED',
   CREATE_REQUEST = 'CREATE_REQUEST',
   CREATE_RESPONSE = 'CREATE_RESPONSE',
   COMPUTE_INTERSECTION = 'COMPUTE_INTERSECTION'
 }
 
-type PSI_INITIALIZED_COMMAND = {
+export type PSI_INITIALIZED_COMMAND = {
+  id: string
   type: PSI_COMMAND_TYPES.INITIALIZED
   payload: InitializedProps
 }
@@ -97,6 +100,7 @@ export default function usePsiProtocol({
 }: {
   webviewRef: React.RefObject<WebView<object>>
 }) {
+  const [loaded, setLoaded] = React.useState<boolean>(false)
   const listener = React.useRef<EventEmitter>()
   const { getRandomString } = useRandom()
   /**
@@ -107,29 +111,13 @@ export default function usePsiProtocol({
   }
 
   /**
-   * Define a handler that will invoke a callback when
-   * an event from the WebView appears. This is used only
-   * for signaling the PSI library has initialized successfully.
-   *
-   * We use a separate function because the message only
-   * comes from the web direction and doesn't have a corresponding
-   * `id` for any listener.
-   */
-  const onPsiInit = (fn: (payload: InitializedProps) => void) => {
-    return (event: WebViewMessageEvent) => {
-      const p = JSON.parse(event.nativeEvent.data) as InitializedProps
-      fn(p)
-    }
-  }
-
-  /**
    * Define a handler which takes in an event from the WebView
    * and sends it back to our listener via the payload's ID
    *
    * This should be passed into the WebView's `onMessage` handler
    */
   const onMessage = (event: WebViewMessageEvent) => {
-    const payload = JSON.parse(event.nativeEvent.data)
+    const payload = JSON.parse(event.nativeEvent.data) as COMMAND
     listener.current!.emit(payload.id, payload)
   }
 
@@ -196,6 +184,10 @@ export default function usePsiProtocol({
    */
   React.useEffect(() => {
     listener.current = new EventEmitter()
+
+    // Listen for the one-time init message
+    listener.current.once(PSI_COMMAND_TYPES.INITIALIZED, () => setLoaded(true))
+
     return () => {
       listener.current!.removeAllListeners()
     }
@@ -203,16 +195,18 @@ export default function usePsiProtocol({
 
   return React.useMemo(
     () =>
-      ({
-        onPsiInit,
-        onMessage,
-        createClientRequest,
-        createServerResponse,
-        computeIntersection
-      } as const),
+      [
+        loaded,
+        {
+          onMessage,
+          createClientRequest,
+          createServerResponse,
+          computeIntersection
+        }
+      ] as const,
     [
+      loaded,
       webviewRef,
-      onPsiInit,
       onMessage,
       createClientRequest,
       createServerResponse,

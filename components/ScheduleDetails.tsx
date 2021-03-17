@@ -10,7 +10,7 @@ import {
   ScheduleDetailsScreenRouteProp,
   SchedulesScreenNavigationProp
 } from '../navigation/BottomTabNavigator'
-import WebViewContext from './contexts/WebViewContext'
+import PsiContext from './contexts/PsiContext'
 
 /**
  * Component to show the details of both parties schedules
@@ -22,7 +22,7 @@ export default function ScheduleDetails() {
   const [deleteResponseApi, deleteRequest] = useDeleteRequest()
   const { getRequest, removeRequest } = useSync()
 
-  const context = React.useContext(WebViewContext)! // This *will* be defined
+  const context = React.useContext(PsiContext)
   const { getIntersection } = useSchedule(context)
 
   const {

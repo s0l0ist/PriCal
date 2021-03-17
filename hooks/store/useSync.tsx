@@ -33,7 +33,7 @@ export default function useSync() {
   /**
    * Set the user's profile
    */
-  const setProfile = (profile: Profile) => {
+  const storeProfile = (profile: Profile) => {
     return storeObject<Profile>(PROFILE, profile)
   }
 
@@ -128,7 +128,7 @@ export default function useSync() {
     () =>
       ({
         getProfile,
-        setProfile,
+        storeProfile,
         removeProfile,
         getRequest,
         getRequests,
@@ -142,7 +142,7 @@ export default function useSync() {
       } as const),
     [
       getProfile,
-      setProfile,
+      storeProfile,
       removeProfile,
       getRequest,
       getRequests,
