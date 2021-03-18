@@ -116,8 +116,7 @@ export default function ApprovalModal() {
           <View style={styles.modalView}>
             {requestApi.response && (
               <Text style={styles.modalText}>
-                Hi there, someone would like to request your 2-week
-                availability.
+                {`Hi there, ${requestApi.response.requestor} wants to request your 2-week availability.`}
               </Text>
             )}
             {requestApi.error && (

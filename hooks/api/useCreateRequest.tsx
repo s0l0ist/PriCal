@@ -3,7 +3,8 @@ import * as React from 'react'
 import useRequest from './useRequest'
 
 export type CreateRequestProps = {
-  token?: string // This is an optional push notification token
+  token?: string // Optional push notification token
+  requestor: string // The user who is issuing the request to display when the user clicks the link.
   requestName: string
   contextId: string
   request: string

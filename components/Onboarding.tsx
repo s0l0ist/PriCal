@@ -1,5 +1,12 @@
 import React from 'react'
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Button,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
 
@@ -32,7 +39,8 @@ const Onboarding: React.FC = ({ children }) => {
   /*****************
    *  Profile
    *****************/
-  const [profile, { saveProfile }] = useProfile()
+  const [user, { saveProfile }] = useProfile()
+  const [name, setName] = React.useState<string>('')
 
   /*****************
    *  Permissions
@@ -84,20 +92,53 @@ const Onboarding: React.FC = ({ children }) => {
    * Effect: if we're done loading, we are finished initializing!
    */
   React.useEffect(() => {
-    if (profile.loaded && permissions.loaded) {
+    if (user.loaded && permissions.loaded) {
       setInitialized(true)
     }
-  }, [profile.loaded, permissions.loaded])
+  }, [user.loaded, permissions.loaded])
 
   /**
    * Show spinner
    */
   if (!initialized) {
     return (
-      <View style={styles.loading}>
+      <SafeAreaView style={styles.loading}>
         <Text>Loading...</Text>
         <ActivityIndicator animating={!initialized} />
-      </View>
+      </SafeAreaView>
+    )
+  }
+
+  /**
+   * If the user hasn't set up their profile,
+   * prompt them here.
+   */
+  if (!user.profile?.name) {
+    return (
+      <SafeAreaView style={styles.loading}>
+        <Text>Enter your name</Text>
+        <TextInput
+          style={{
+            height: 40,
+            paddingLeft: 10,
+            paddingRight: 10,
+            width: '75%',
+            borderRadius: 50,
+            borderColor: 'gray',
+            borderWidth: 1
+          }}
+          onChangeText={setName}
+          value={name}
+        />
+
+        <View>
+          <Button
+            disabled={!name}
+            onPress={() => saveProfile({ name })}
+            title="Save"
+          />
+        </View>
+      </SafeAreaView>
     )
   }
 
@@ -133,7 +174,7 @@ const Onboarding: React.FC = ({ children }) => {
   /**
    * Determine if we are ready to render the rest of the
    * application. We cannot put the psiLoaded in the above effect
-   * because we need to render the WebView first to start the
+   * because we need to render the WebView first to begin the
    * initialization process for psiLoaded!
    */
   const applicationReady = initialized && psiLoaded
@@ -153,7 +194,7 @@ const Onboarding: React.FC = ({ children }) => {
         </View>
       )}
       {applicationReady && (
-        <ProfileProvider profile={profile.profile}>
+        <ProfileProvider profile={user.profile}>
           <PermissionsProvider
             hasRequiredPermissions={permissions.hasRequiredPermissions}
             hasCalendarPermission={permissions.hasCalendarPermission}

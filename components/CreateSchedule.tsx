@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {
   StyleSheet,
+  Text,
   TextInput,
   View,
   Button,
@@ -13,6 +14,7 @@ import useCreateRequest, {
 import useSync from '../hooks/store/useSync'
 import useSchedule from '../hooks/useSchedule'
 import ExpoNotificationContext from './contexts/ExpoNotificationContext'
+import ProfileContext from './contexts/ProfileContext'
 import PsiContext from './contexts/PsiContext'
 import LinkModal from './modals/Link'
 
@@ -38,6 +40,7 @@ export default function CreateRequest() {
     setRequestApiResponse
   ] = React.useState<CreateRequestResponse>()
 
+  const user = React.useContext(ProfileContext)
   const context = React.useContext(PsiContext)
   // Take the push notification if we have one.
   const { token } = React.useContext(ExpoNotificationContext)
@@ -56,6 +59,7 @@ export default function CreateRequest() {
     const partialRequest = await createRequest(requestName)
     makeApiRequest({
       token: token?.data, // Attach the push token to the payload.
+      requestor: user.profile.name, // Attach our user's name
       requestName: partialRequest.requestName,
       contextId: partialRequest.contextId,
       request: partialRequest.request
@@ -122,28 +126,24 @@ export default function CreateRequest() {
 
   if (!showModal) {
     return (
-      <View>
-        <View style={styles.helpContainer}>
-          <TextInput
-            style={{
-              height: 40,
-              width: '100%',
-              borderColor: 'gray',
-              borderWidth: 1
-            }}
-            onChangeText={setRequestName}
-            value={requestName}
-          />
-          <ActivityIndicator style={styles.activity} animating={loading} />
+      <View style={styles.container}>
+        <Text style={styles.helperText}>
+          Create a request to view availability
+        </Text>
+        <TextInput
+          placeholder="John's schedule"
+          editable={!loading}
+          style={styles.textInput}
+          onChangeText={setRequestName}
+          value={requestName}
+        />
+        <ActivityIndicator style={styles.activity} animating={loading} />
 
-          <View style={styles.button}>
-            <Button
-              disabled={!requestName || loading}
-              onPress={onCreateRequest}
-              title="Tap here create a request"
-            />
-          </View>
-        </View>
+        <Button
+          disabled={!requestName || loading}
+          onPress={onCreateRequest}
+          title="Create"
+        />
       </View>
     )
   }
@@ -157,26 +157,25 @@ export default function CreateRequest() {
 }
 
 const styles = StyleSheet.create({
-  getStartedText: {
-    fontSize: 17,
-    lineHeight: 24,
-    textAlign: 'center'
-  },
-  helpContainer: {
-    marginTop: 15,
-    marginHorizontal: 20,
+  container: {
     alignItems: 'center'
   },
-  helpLink: {
-    paddingVertical: 15
+  helperText: {
+    fontSize: 17,
+    lineHeight: 24,
+    textAlign: 'center',
+    marginBottom: 10
   },
-  helpLinkText: {
-    textAlign: 'center'
+  textInput: {
+    height: 40,
+    textAlign: 'center',
+    width: '75%',
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderColor: 'gray',
+    borderWidth: 1
   },
   activity: {
-    padding: 20
-  },
-  button: {
-    justifyContent: 'center'
+    padding: 10
   }
 })

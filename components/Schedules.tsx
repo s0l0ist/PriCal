@@ -97,56 +97,59 @@ export default function Schedules() {
     [requestsApi.response]
   )
 
-  const Schedule = React.useCallback(
-    ({
-      requestName,
-      requestId
-    }: {
-      requestName: string
-      requestId: string
-    }) => (
-      <Pressable
-        onPress={() => {
-          // Navigate to the details route with params
-          navigation.navigate('ScheduleDetailsScreen', {
-            requestId,
-            requestName
-          })
-        }}
-      >
-        <View style={styles.item}>
-          <Text style={styles.title}>{requestName}</Text>
-          <Text>Tap to view</Text>
-        </View>
-      </Pressable>
-    ),
-    []
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toDateString()
+  }
+
+  const Schedule = ({
+    requestName,
+    requestId,
+    createdAt
+  }: {
+    requestName: string
+    requestId: string
+    createdAt: string
+  }) => (
+    <Pressable
+      onPress={() => {
+        // Navigate to the details route with params
+        navigation.navigate('ScheduleDetailsScreen', {
+          requestId,
+          requestName
+        })
+      }}
+    >
+      <View style={styles.item}>
+        <Text style={styles.title}>{requestName}</Text>
+        <Text>{formatDate(createdAt)}</Text>
+      </View>
+    </Pressable>
   )
 
-  const renderItem = React.useCallback(
-    (request: ListRenderItemInfo<ListRequestResponse>) => (
-      <Schedule
-        requestName={request.item.requestName}
-        requestId={request.item.requestId}
-      />
-    ),
-    []
+  const renderItem = (request: ListRenderItemInfo<ListRequestResponse>) => (
+    <Schedule
+      requestName={request.item.requestName}
+      requestId={request.item.requestId}
+      createdAt={request.item.createdAt}
+    />
   )
 
   return (
     <View style={styles.container}>
-      {requestsApi.completed && !requests.length && (
-        <View>
-          <Text>You have no requests</Text>
-        </View>
-      )}
-
       <FlatList
         data={requests}
         renderItem={renderItem}
         keyExtractor={x => x.requestId}
         onRefresh={onPullRefresh}
         refreshing={loading}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            {requestsApi.completed && !requests.length && (
+              <Text style={styles.emptyText}>You have no requests</Text>
+            )}
+          </View>
+        }
       />
     </View>
   )
@@ -154,10 +157,20 @@ export default function Schedules() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    marginTop: 8
+  },
+  emptyContainer: {
+    flex: 1,
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyText: {
+    fontSize: 17
   },
   item: {
-    backgroundColor: '#f9c2ff',
+    borderRadius: 10,
+    backgroundColor: 'white',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16

@@ -7,6 +7,7 @@ export type GetPublicRequestProps = {
 }
 export type GetPublicRequestResponse = {
   requestId: string
+  requestor: string
   request: string
 }
 type GetPublicRequestState = {

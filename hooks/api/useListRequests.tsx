@@ -8,6 +8,7 @@ export type ListRequestsProps = {
 export type ListRequestResponse = {
   requestId: string
   requestName: string
+  createdAt: string
 }
 export type ListRequestResponses = ListRequestResponse[]
 

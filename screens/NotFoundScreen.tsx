@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
 import * as React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { NotFoundScreenNavigationProps } from '../navigation/BottomTabNavigator'
 
@@ -9,19 +10,18 @@ export default function NotFoundScreen() {
   const navigation = useNavigation<NotFoundScreenNavigationProps>()
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       <Text style={styles.title}>This screen doesn't exist.</Text>
       <Pressable onPress={() => navigation.replace('Root')} style={styles.link}>
         <Text style={styles.linkText}>Go to home screen!</Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',

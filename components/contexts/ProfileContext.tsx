@@ -6,7 +6,7 @@ import { Profile } from '../../hooks/store/useSync'
  * The type can be undefined for the first time
  */
 export type ProfileContextProps = {
-  profile: Profile | undefined
+  profile: Profile
 }
 
 /**
@@ -15,7 +15,9 @@ export type ProfileContextProps = {
  * the user's name inside the profile in the client request payload
  */
 const ProfileContext = React.createContext<ProfileContextProps>({
-  profile: undefined
+  profile: {
+    name: ''
+  }
 })
 
 export default ProfileContext
