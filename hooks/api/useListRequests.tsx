@@ -9,6 +9,7 @@ export type ListRequestResponse = {
   requestId: string
   requestName: string
   createdAt: string
+  updatedAt?: string // If the requestee did not approve, this field will not be present
 }
 export type ListRequestResponses = ListRequestResponse[]
 

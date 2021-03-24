@@ -16,22 +16,22 @@ import PsiContext from './contexts/PsiContext'
  * Component to show the details of both parties schedules
  */
 export default function ScheduleDetails() {
+  const [loading, setLoading] = React.useState<boolean>(false)
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])
-  const [responseApi, getResponseDetails] = useGetPrivateResponse()
-  const [deleteResponseApi, deleteRequest] = useDeleteRequest()
+  const [privateResponseApi, getResponseDetails] = useGetPrivateResponse()
+  const [deleteRequestApi, deleteRequest] = useDeleteRequest()
   const { getRequest, removeRequest } = useSync()
-
   const context = React.useContext(PsiContext)
   const { getIntersection } = useSchedule(context)
-
   const {
     params: { requestId, requestName }
   } = useRoute<ScheduleDetailsScreenRouteProp>()
   const navigation = useNavigation<SchedulesScreenNavigationProp>()
 
   /**
-   * Effect: on mount, fetch the context from local storage
+   * Effect: on mount, fetch our context from local storage
+   * and also fire the request to fetch the server response
    */
   React.useEffect(() => {
     ;(async () => {
@@ -41,50 +41,52 @@ export default function ScheduleDetails() {
       if (!request) {
         throw new Error('Unable to fetch stored request')
       }
+      getResponseDetails({
+        requestId: request.requestId,
+        contextId: request.contextId
+      })
       setRequestContext(request)
       return () => {
+        setLoading(false)
         setRequestContext(undefined)
       }
     })()
   }, [])
 
+  /**
+   * Effect: when we receive any type of response, clear our loading status
+   */
   React.useEffect(() => {
     ;(async () => {
-      if (deleteResponseApi.response) {
+      if (privateResponseApi.response) {
+        if (privateResponseApi.response.response) {
+          const inter = await calculateIntersection({
+            response: privateResponseApi.response.response,
+            setup: privateResponseApi.response.setup
+          })
+          setIntersection(inter)
+        }
+        setLoading(false)
+      }
+      if (privateResponseApi.error) {
+        setLoading(false)
+      }
+    })()
+  }, [privateResponseApi.response, privateResponseApi.error])
+
+  /**
+   * Effect: if the delete request completed successfully, remove from local storage
+   * and go back
+   */
+  React.useEffect(() => {
+    ;(async () => {
+      if (deleteRequestApi.response) {
         // If successful, then delete from storage
         await removeRequest(requestId)
         navigation.goBack()
       }
     })()
-  }, [deleteResponseApi.response])
-  /**
-   * On a manual refresh, we fetch the *private* request details.
-   *
-   * This means only the device which knows both the requestId
-   * and contextId may fetch a person's PSI-encrypted schedule.
-   *
-   * If there's no server Response or Setup, then we're still waiting
-   * for the other party to confirm the request.
-   */
-  const onRefresh = React.useCallback(async () => {
-    if (requestContext) {
-      // Fetch the private response information. The response will
-      // contain enough information to perform the PSI intersection calulation
-      // iff the request was approved by the other party.
-      getResponseDetails({
-        requestId: requestContext.requestId,
-        contextId: requestContext.contextId
-      })
-    }
-  }, [requestContext])
-
-  /**
-   * Effect: Refresh the details our list if props change
-   * This is useful when we open deep links
-   */
-  React.useEffect(() => {
-    onRefresh()
-  }, [requestContext, requestId, requestName])
+  }, [deleteRequestApi.response])
 
   /**
    * Compute the intersection of a response.
@@ -108,18 +110,6 @@ export default function ScheduleDetails() {
     [requestContext, getIntersection]
   )
 
-  React.useEffect(() => {
-    ;(async () => {
-      if (responseApi.response?.response && responseApi.response?.setup) {
-        const inter = await calculateIntersection({
-          response: responseApi.response.response,
-          setup: responseApi.response.setup
-        })
-        setIntersection(inter)
-      }
-    })()
-  }, [responseApi.response])
-
   if (!requestContext) {
     return (
       <View>
@@ -132,14 +122,11 @@ export default function ScheduleDetails() {
   return (
     <View>
       <Text style={styles.title}>
-        {responseApi.response?.requestName ?? requestName}
+        {privateResponseApi.response?.requestName ?? requestName}
       </Text>
-      <View>
-        <Text>{`Your request is pending approval`}</Text>
-      </View>
       <Button
         title="Delete"
-        disabled={responseApi.processing}
+        disabled={privateResponseApi.processing}
         onPress={() => {
           deleteRequest({
             requests: [{ requestId, contextId: requestContext.contextId }]
@@ -155,7 +142,6 @@ export default function ScheduleDetails() {
 
 const styles = StyleSheet.create({
   item: {
-    backgroundColor: '#f9c2ff',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16

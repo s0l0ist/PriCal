@@ -22,7 +22,7 @@ import { compare } from '../utils/compare'
  */
 export default function Schedules() {
   const [loading, setLoading] = React.useState<boolean>(false)
-  const [requestsApi, listRequests] = useListRequests()
+  const [listRequestsApi, listRequests] = useListRequests()
   const { getRequests, filterRequests } = useSync()
 
   const navigation = useNavigation<SchedulesScreenNavigationProp>()
@@ -34,7 +34,7 @@ export default function Schedules() {
    */
   const onRefresh = React.useCallback(async () => {
     // If we're already refreshing, ignore the request
-    if (requestsApi.processing) {
+    if (listRequestsApi.processing) {
       return
     }
     // fetch from storage
@@ -68,19 +68,16 @@ export default function Schedules() {
    */
   React.useEffect(() => {
     ;(async () => {
-      if (requestsApi.response) {
-        const requestIds = requestsApi.response.map(x => x.requestId)
+      if (listRequestsApi.response) {
+        const requestIds = listRequestsApi.response.map(x => x.requestId)
         await filterRequests(requestIds)
         setLoading(false)
       }
+      if (listRequestsApi.error) {
+        setLoading(false)
+      }
     })()
-  }, [requestsApi.response])
-
-  React.useEffect(() => {
-    if (requestsApi.error) {
-      setLoading(false)
-    }
-  }, [requestsApi.error])
+  }, [listRequestsApi.response, listRequestsApi.error])
 
   /**
    * Effect: On screen/component focus, we refresh the list
@@ -93,8 +90,8 @@ export default function Schedules() {
   )
 
   const requests = React.useMemo(
-    () => sortedRequests(requestsApi.response ?? []),
-    [requestsApi.response]
+    () => sortedRequests(listRequestsApi.response ?? []),
+    [listRequestsApi.response]
   )
 
   const formatDate = (dateString: string) => {
@@ -105,11 +102,13 @@ export default function Schedules() {
   const Schedule = ({
     requestName,
     requestId,
-    createdAt
+    createdAt,
+    updatedAt
   }: {
     requestName: string
     requestId: string
     createdAt: string
+    updatedAt?: string
   }) => (
     <Pressable
       onPress={() => {
@@ -123,6 +122,7 @@ export default function Schedules() {
       <View style={styles.item}>
         <Text style={styles.title}>{requestName}</Text>
         <Text>{formatDate(createdAt)}</Text>
+        {updatedAt && <Text>{`Updated At: ${formatDate(updatedAt)}`}</Text>}
       </View>
     </Pressable>
   )
@@ -132,6 +132,7 @@ export default function Schedules() {
       requestName={request.item.requestName}
       requestId={request.item.requestId}
       createdAt={request.item.createdAt}
+      updatedAt={request.item.updatedAt}
     />
   )
 
@@ -145,7 +146,7 @@ export default function Schedules() {
         refreshing={loading}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            {requestsApi.completed && !requests.length && (
+            {listRequestsApi.completed && !requests.length && (
               <Text style={styles.emptyText}>You have no requests</Text>
             )}
           </View>
@@ -157,7 +158,7 @@ export default function Schedules() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 8
+    height: '100%'
   },
   emptyContainer: {
     flex: 1,
@@ -172,8 +173,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'white',
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16
+    marginTop: 8,
+    marginHorizontal: 8
   },
   title: {
     fontSize: 32
