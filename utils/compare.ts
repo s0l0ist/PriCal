@@ -20,7 +20,7 @@ const strCmp = (
   locale?: string | string[],
   options?: Intl.CollatorOptions
 ) => {
-  return a.localeCompare(b, locale, options)
+  return b.localeCompare(a, locale, options)
 }
 
 const cmp = <T>(a: T, b: T) => {

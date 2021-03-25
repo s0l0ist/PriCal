@@ -10,8 +10,10 @@ export type GetPrivateResponseResponse = {
   requestId: string
   requestName: string
   contextId: string
+  createdAt: string
   response?: string // Will not be present the client request was not approved
-  setup: string
+  setup?: string
+  updatedAt?: string
 }
 type GetPrivateResponseState = {
   processing: boolean

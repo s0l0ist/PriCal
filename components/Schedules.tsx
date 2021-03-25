@@ -185,14 +185,12 @@ const styles = StyleSheet.create({
  * Compose a sort function for requests
  */
 function sortedRequests(requests: ListRequestResponses) {
-  return [...requests.values()]
-    .filter(x => x.requestId)
-    .sort(compareRequestName)
+  return [...requests.values()].filter(x => x.requestId).sort(compareCreatedAt)
 }
 
 /**
- * Compose a comparator for `requestName`
+ * Compose a comparator for `createdAt`
  */
-function compareRequestName(a: ListRequestResponse, b: ListRequestResponse) {
-  return compare(a, b, 'requestName')
+function compareCreatedAt(a: ListRequestResponse, b: ListRequestResponse) {
+  return compare(a, b, 'createdAt')
 }

@@ -1,6 +1,6 @@
 import { useRoute, useNavigation } from '@react-navigation/native'
 import React from 'react'
-import { View, StyleSheet, Text, Button } from 'react-native'
+import { View, StyleSheet, Text, Button, ActivityIndicator } from 'react-native'
 
 import useDeleteRequest from '../hooks/api/useDeleteRequest'
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
@@ -10,13 +10,14 @@ import {
   ScheduleDetailsScreenRouteProp,
   SchedulesScreenNavigationProp
 } from '../navigation/BottomTabNavigator'
+import CalendarView from './CalendarView'
 import PsiContext from './contexts/PsiContext'
 
 /**
  * Component to show the details of both parties schedules
  */
 export default function ScheduleDetails() {
-  const [loading, setLoading] = React.useState<boolean>(false)
+  const [loading, setLoading] = React.useState<boolean>(true)
   const [requestContext, setRequestContext] = React.useState<Request>()
   const [intersection, setIntersection] = React.useState<number[]>([])
   const [privateResponseApi, getResponseDetails] = useGetPrivateResponse()
@@ -24,6 +25,7 @@ export default function ScheduleDetails() {
   const { getRequest, removeRequest } = useSync()
   const context = React.useContext(PsiContext)
   const { getIntersection } = useSchedule(context)
+
   const {
     params: { requestId, requestName }
   } = useRoute<ScheduleDetailsScreenRouteProp>()
@@ -46,10 +48,6 @@ export default function ScheduleDetails() {
         contextId: request.contextId
       })
       setRequestContext(request)
-      return () => {
-        setLoading(false)
-        setRequestContext(undefined)
-      }
     })()
   }, [])
 
@@ -59,7 +57,10 @@ export default function ScheduleDetails() {
   React.useEffect(() => {
     ;(async () => {
       if (privateResponseApi.response) {
-        if (privateResponseApi.response.response) {
+        if (
+          privateResponseApi.response.response &&
+          privateResponseApi.response.setup
+        ) {
           const inter = await calculateIntersection({
             response: privateResponseApi.response.response,
             setup: privateResponseApi.response.setup
@@ -110,37 +111,58 @@ export default function ScheduleDetails() {
     [requestContext, getIntersection]
   )
 
-  if (!requestContext) {
+  // If the component is still initializing, return the activity indicator
+  if (loading || !requestContext || !privateResponseApi.completed) {
     return (
-      <View>
-        <Text>Loading...</Text>
+      <View style={styles.container}>
+        <ActivityIndicator animating={loading} />
       </View>
     )
   }
 
-  // If no response/setup, then the request is still pending
+  // If the api response doesn't contain a serverResponse, we let the user
+  // know the request is still waiting for the other party to accept.
+  const isPending =
+    privateResponseApi.completed &&
+    (!privateResponseApi.response?.response ||
+      !privateResponseApi.response?.createdAt ||
+      !privateResponseApi.response?.updatedAt)
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text style={styles.title}>
         {privateResponseApi.response?.requestName ?? requestName}
       </Text>
-      <Button
-        title="Delete"
-        disabled={privateResponseApi.processing}
-        onPress={() => {
-          deleteRequest({
-            requests: [{ requestId, contextId: requestContext.contextId }]
-          })
-        }}
-      />
-      <View>
-        <Text>{`Got intersection: [${intersection.join(',')}]`}</Text>
-      </View>
+      {isPending && (
+        <Text>This request is still pending! Check back later</Text>
+      )}
+      {!isPending && (
+        <View>
+          <Button
+            title="Delete"
+            disabled={privateResponseApi.processing}
+            onPress={() => {
+              deleteRequest({
+                requests: [{ requestId, contextId: requestContext.contextId }]
+              })
+            }}
+          />
+          <Text>{`Got intersection: [${intersection.join(',')}]`}</Text>
+          <CalendarView
+            createdAt={privateResponseApi.response!.createdAt}
+            updatedAt={privateResponseApi.response!.updatedAt!}
+            intersection={[]}
+          />
+        </View>
+      )}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center'
+  },
   item: {
     padding: 20,
     marginVertical: 8,
