@@ -153,9 +153,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
+    padding: 10
   },
   modalText: {
     marginBottom: 50,

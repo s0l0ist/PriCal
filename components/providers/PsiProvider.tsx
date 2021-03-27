@@ -68,6 +68,7 @@ const PsiProvider: React.FC<PsiProviderProps> = ({
           // The first message received should be the initialization
           // command. Afterward, we need to use the other handler.
           onMessage={onMessage}
+          onError={() => console.error('error loading page')}
           onLoadStart={() => console.log('started loading page')}
           onLoad={() => {
             console.log('finished loading page')

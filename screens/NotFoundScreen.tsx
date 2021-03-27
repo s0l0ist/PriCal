@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
 import * as React from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { Pressable, StyleSheet, Text, SafeAreaView } from 'react-native'
 
 import { NotFoundScreenNavigationProps } from '../navigation/BottomTabNavigator'
 

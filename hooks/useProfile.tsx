@@ -39,7 +39,12 @@ export default function useProfile() {
           profile,
           loaded: true
         })
+        return
       }
+      setState(prev => ({
+        ...prev,
+        loaded: true
+      }))
     })()
   }, [])
 

@@ -55,7 +55,8 @@ export enum PSI_COMMAND_TYPES {
   INITIALIZED = 'INITIALIZED',
   CREATE_REQUEST = 'CREATE_REQUEST',
   CREATE_RESPONSE = 'CREATE_RESPONSE',
-  COMPUTE_INTERSECTION = 'COMPUTE_INTERSECTION'
+  COMPUTE_INTERSECTION = 'COMPUTE_INTERSECTION',
+  BROWSER_ERROR = 'BROWSER_ERROR'
 }
 
 export type PSI_INITIALIZED_COMMAND = {
@@ -117,8 +118,17 @@ export default function usePsiProtocol({
    * This should be passed into the WebView's `onMessage` handler
    */
   const onMessage = (event: WebViewMessageEvent) => {
-    const payload = JSON.parse(event.nativeEvent.data) as COMMAND
-    listener.current!.emit(payload.id, payload)
+    try {
+      const payload = JSON.parse(event.nativeEvent.data) as COMMAND
+      listener.current!.emit(payload.id, payload)
+    } catch (err) {
+      // Catch any errors returned to the application from the browser and
+      // log them.
+      listener.current!.emit(
+        PSI_COMMAND_TYPES.BROWSER_ERROR,
+        event.nativeEvent.data
+      )
+    }
   }
 
   /**
@@ -187,6 +197,10 @@ export default function usePsiProtocol({
 
     // Listen for the one-time init message
     listener.current.once(PSI_COMMAND_TYPES.INITIALIZED, () => setLoaded(true))
+    // Set our listener to capture browser errors from the WebView
+    listener.current.on(PSI_COMMAND_TYPES.BROWSER_ERROR, payload =>
+      console.error(payload)
+    )
 
     return () => {
       listener.current!.removeAllListeners()

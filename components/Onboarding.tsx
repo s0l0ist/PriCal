@@ -7,7 +7,6 @@ import {
   TextInput,
   View
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
 
 import useNotification from '../hooks/useNotification'
@@ -102,10 +101,10 @@ const Onboarding: React.FC = ({ children }) => {
    */
   if (!initialized) {
     return (
-      <SafeAreaView style={styles.loading}>
+      <View style={styles.loading}>
         <Text>Loading...</Text>
         <ActivityIndicator animating={!initialized} />
-      </SafeAreaView>
+      </View>
     )
   }
 
@@ -115,7 +114,7 @@ const Onboarding: React.FC = ({ children }) => {
    */
   if (!user.profile?.name) {
     return (
-      <SafeAreaView style={styles.loading}>
+      <View style={styles.loading}>
         <Text>Enter your name</Text>
         <TextInput
           style={{
@@ -138,7 +137,7 @@ const Onboarding: React.FC = ({ children }) => {
             title="Save"
           />
         </View>
-      </SafeAreaView>
+      </View>
     )
   }
 
@@ -146,9 +145,8 @@ const Onboarding: React.FC = ({ children }) => {
    * Show any permissions that need to be granted
    */
   if (!permissions.hasRequiredPermissions) {
-    console.log('hasRequiredPermissions', permissions.hasRequiredPermissions)
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.column}>
           <Text
             style={styles.helperText}
@@ -167,7 +165,7 @@ const Onboarding: React.FC = ({ children }) => {
             ))}
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     )
   }
 

@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
-import { StyleSheet } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, SafeAreaView } from 'react-native'
 
 import ScheduleDetails from '../components/ScheduleDetails'
 
@@ -16,6 +15,7 @@ export default function ScheduleDetailsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    flexDirection: 'column'
   }
 })

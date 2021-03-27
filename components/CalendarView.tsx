@@ -17,7 +17,6 @@ export default function CalendarView({
   intersection
 }: CalendarViewProps) {
   const [selectedDate, setSelectedDate] = React.useState<string>(() => {
-    console.log('**************** EXPENSIVE')
     const date = new Date(createdAt)
     const offset = date.getTimezoneOffset()
     const today = new Date(date.getTime() - offset * 60 * 1000)
@@ -33,7 +32,7 @@ export default function CalendarView({
       // considered that the date in question is not yet loaded
       items={{
         '2021-03-22': [{ name: 'item 1 - 2021-03-22' }],
-        '2021-03-23': [{ name: 'item 2 - 2021-03-23', height: 80 }],
+        '2021-03-23': [{ name: 'item 2 - 2021-03-23' }],
         '2021-03-24': [],
         '2021-03-25': [
           { name: 'item 3 - 2021-03-25' },
@@ -45,9 +44,7 @@ export default function CalendarView({
       //   console.log('trigger items loading', month)
       // }}
       // Callback that fires when the calendar is opened or closed
-      onCalendarToggled={calendarOpened => {
-        console.log(calendarOpened)
-      }}
+      // onCalendarToggled={calendarOpened => {}}
       // Callback that gets called on day press
       onDayPress={day => {
         setSelectedDate(day.dateString)
@@ -69,7 +66,7 @@ export default function CalendarView({
       // Specify how each item should be rendered in agenda
       renderItem={(item, firstItemInDay) => {
         return (
-          <View>
+          <View style={styles.item}>
             <Text>{item.name}</Text>
           </View>
         )
@@ -94,7 +91,7 @@ export default function CalendarView({
       renderKnob={() => {
         return (
           <View>
-            <Text>Change Range</Text>
+            <Text>__</Text>
           </View>
         )
       }}
@@ -121,16 +118,16 @@ export default function CalendarView({
       // If disabledByDefault={true} dates flagged as not disabled will be enabled. Default = false
       // disabledByDefault={true}
       // If provided, a standard RefreshControl will be added for "Pull to Refresh" functionality. Make sure to also set the refreshing prop correctly.
-      onRefresh={() => console.log('refreshing...')}
+      // onRefresh={() => console.log('refreshing...')}
       // Set this true while waiting for new data from a refresh
-      refreshing={false}
+      // refreshing={false}
       // Add a custom RefreshControl component, used to provide pull-to-refresh functionality for the ScrollView.
-      refreshControl={null}
+      // refreshControl={null}
       // Agenda theme
       theme={{
-        agendaDayTextColor: 'yellow',
-        agendaDayNumColor: 'green',
-        agendaTodayColor: 'red',
+        agendaDayTextColor: 'blue',
+        agendaDayNumColor: 'blue',
+        agendaTodayColor: 'blue',
         agendaKnobColor: 'blue'
       }}
     />
@@ -138,9 +135,17 @@ export default function CalendarView({
 }
 
 const styles = StyleSheet.create({
+  item: {
+    backgroundColor: 'white',
+    flex: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+    marginTop: 17
+  },
   emptyDate: {
-    // height: 15,
-    // flex: 1,
-    // paddingTop: 30
+    height: 15,
+    flex: 1,
+    paddingTop: 30
   }
 })

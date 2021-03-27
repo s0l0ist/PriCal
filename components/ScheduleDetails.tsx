@@ -48,6 +48,8 @@ export default function ScheduleDetails() {
         contextId: request.contextId
       })
       setRequestContext(request)
+      const title = request.requestName
+      navigation.setOptions({ headerTitle: title })
     })()
   }, [])
 
@@ -130,23 +132,20 @@ export default function ScheduleDetails() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {privateResponseApi.response?.requestName ?? requestName}
-      </Text>
+      <Button
+        title="Delete"
+        disabled={privateResponseApi.processing}
+        onPress={() => {
+          deleteRequest({
+            requests: [{ requestId, contextId: requestContext.contextId }]
+          })
+        }}
+      />
       {isPending && (
         <Text>This request is still pending! Check back later</Text>
       )}
       {!isPending && (
-        <View>
-          <Button
-            title="Delete"
-            disabled={privateResponseApi.processing}
-            onPress={() => {
-              deleteRequest({
-                requests: [{ requestId, contextId: requestContext.contextId }]
-              })
-            }}
-          />
+        <View style={styles.calendarContainer}>
           <Text>{`Got intersection: [${intersection.join(',')}]`}</Text>
           <CalendarView
             createdAt={privateResponseApi.response!.createdAt}
@@ -163,12 +162,8 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center'
   },
-  item: {
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16
-  },
-  title: {
-    fontSize: 32
+  calendarContainer: {
+    width: '100%',
+    height: '100%'
   }
 })
