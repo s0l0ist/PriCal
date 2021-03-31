@@ -38,3 +38,9 @@ export const getDaysOut = (days: number, date: Date) => {
   const temp = new Date(date)
   return new Date(temp.setDate(temp.getDate() + days))
 }
+
+export const eventString = (date: Date) => {
+  const offset = date.getTimezoneOffset()
+  const today = new Date(date.getTime() - offset * 60 * 1000)
+  return today.toISOString().split('T')[0]
+}

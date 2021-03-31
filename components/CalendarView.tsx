@@ -1,12 +1,17 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import { Agenda } from 'react-native-calendars'
+import { Agenda, DateObject } from 'react-native-calendars'
+
+import { eventString } from '../utils/date'
+import { CalendarViewEvent, CalendarViewEvents } from './ScheduleDetails'
 
 type CalendarViewProps = {
   createdAt: string
   updatedAt: string
-  intersection: number[]
+  events: Map<string, CalendarViewEvents>
 }
+
+type CalendarEventObject = { [index: string]: CalendarViewEvents }
 
 /**
  * Component to show the calendar intersection of both parties
@@ -14,31 +19,70 @@ type CalendarViewProps = {
 export default function CalendarView({
   createdAt,
   updatedAt,
-  intersection
+  events
 }: CalendarViewProps) {
+  const [
+    calendarEvents,
+    setCalendarEvents
+  ] = React.useState<CalendarEventObject>({})
   const [selectedDate, setSelectedDate] = React.useState<string>(() => {
     const date = new Date(createdAt)
-    const offset = date.getTimezoneOffset()
-    const today = new Date(date.getTime() - offset * 60 * 1000)
-    return today.toISOString().split('T')[0]
+    return eventString(date)
   })
 
-  console.log('selectedDate', selectedDate)
+  /**
+   * Effect: convert to a format the library expects
+   */
+  React.useEffect(() => {
+    const calEvents: CalendarEventObject = {}
+    for (const [key, value] of events) {
+      calEvents[key] = value
+    }
+    setCalendarEvents(calEvents)
+  }, [events])
+
+  const days = [...events.keys()]
+  const startDate = days[0]
+  const endDate = days[days.length - 1]
+
+  const renderItem = React.useCallback(
+    (item: CalendarViewEvent, firstItemInDay: boolean) => {
+      if (item.available) {
+        return (
+          <View style={styles.itemAvailable}>
+            <Text>{item.name}</Text>
+          </View>
+        )
+      }
+      return (
+        <View style={styles.itemUnavailable}>
+          <Text>{item.name}</Text>
+        </View>
+      )
+    },
+    []
+  )
+
+  const renderDay = React.useCallback(
+    (day: DateObject | undefined, item: CalendarViewEvent) => {
+      if (day) {
+        return (
+          <View style={styles.day}>
+            <Text>{day ? day.day : item.name}</Text>
+          </View>
+        )
+      }
+      return <View />
+    },
+    []
+  )
 
   return (
     <Agenda
       // The list of items that have to be displayed in agenda. If you want to render item as empty date
       // the value of date key has to be an empty array []. If there exists no value for date key it is
       // considered that the date in question is not yet loaded
-      items={{
-        '2021-03-22': [{ name: 'item 1 - 2021-03-22' }],
-        '2021-03-23': [{ name: 'item 2 - 2021-03-23' }],
-        '2021-03-24': [],
-        '2021-03-25': [
-          { name: 'item 3 - 2021-03-25' },
-          { name: 'item 4 - 2021-03-25' }
-        ]
-      }}
+      items={calendarEvents}
       // Callback that gets called when items for a certain month should be loaded (month became visible)
       // loadItemsForMonth={month => {
       //   console.log('trigger items loading', month)
@@ -56,34 +100,22 @@ export default function CalendarView({
       // Initially selected day
       selected={selectedDate}
       // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
-      minDate={'2021-01-01'}
+      minDate={startDate}
       // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
-      maxDate={'2022-01-01'}
+      maxDate={endDate}
       // Max amount of months allowed to scroll to the past. Default = 50
       pastScrollRange={50}
       // Max amount of months allowed to scroll to the future. Default = 50
       futureScrollRange={50}
       // Specify how each item should be rendered in agenda
-      renderItem={(item, firstItemInDay) => {
-        return (
-          <View style={styles.item}>
-            <Text>{item.name}</Text>
-          </View>
-        )
-      }}
+      renderItem={renderItem}
       // Specify how each date should be rendered. day can be undefined if the item is not first in that day.
-      // renderDay={(day, item) => {
-      //   return (
-      //     <View>
-      //       <Text>{`Render Day: ${JSON.stringify(item)}`}</Text>
-      //     </View>
-      //   )
-      // }}
+      // renderDay={renderDay}
       // Specify how empty date content with no items should be rendered
       renderEmptyDate={() => {
         return (
           <View style={styles.emptyDate}>
-            <Text>This is empty date!</Text>
+            <Text>No availability</Text>
           </View>
         )
       }}
@@ -105,7 +137,7 @@ export default function CalendarView({
       }}
       // Specify your item comparison function for increased performance
       rowHasChanged={(r1, r2) => {
-        return r1.name !== r2.name
+        return r1.date > r2.date
       }}
       // Hide knob button. Default = false
       hideKnob={false}
@@ -135,13 +167,22 @@ export default function CalendarView({
 }
 
 const styles = StyleSheet.create({
-  item: {
+  day: {
+    backgroundColor: 'blue',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 20
+  },
+  itemAvailable: {
     backgroundColor: 'white',
     flex: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginRight: 10,
-    marginTop: 17
+    justifyContent: 'center'
+  },
+  itemUnavailable: {
+    backgroundColor: 'transparent',
+    flex: 1,
+    justifyContent: 'center'
   },
   emptyDate: {
     height: 15,

@@ -31,21 +31,26 @@ export default function useGrid() {
   }
 
   /**
-   * Returns a time-grid from a list of events
-   *
-   * @param events A list of calendar events
+   * Create an empty time-grid
    */
-  const convertToGrid = (events: Event[], start: Date, end: Date): string[] => {
+  const createGrid = (start: Date, end: Date) => {
     // Determine the granularity of the grid
     const startTime = start.getTime()
     const endTime = end.getTime()
     const differenceMs = endTime - startTime
     const days = Math.ceil(differenceMs / ONE_DAY)
-    // Next, create a grid of time slices
-    const dateGrid: Date[] = Array.from(
+    return Array.from(
       { length: GRID_ELEMENTS_PER_DAY * days },
       (_, i: number) => new Date(startTime + i * TIME_SLICE_MS)
     )
+  }
+
+  /**
+   * Returns a time-grid from a list of events
+   */
+  const convertToGrid = (events: Event[], start: Date, end: Date): string[] => {
+    // Create a grid of time slices
+    const dateGrid: Date[] = createGrid(start, end)
 
     // For each time slice, check to see if any events overlap O(N*M)
     // This is our availability map.
@@ -55,9 +60,7 @@ export default function useGrid() {
         isInsideEventRange(timeIncrement, event)
       )
 
-      // TODO: Flip the conditional. We're using the inverse for easier debugging
-      // If theres an overlap, we mark it!
-      if (eventOverlap) {
+      if (!eventOverlap) {
         return `${timeIncrement.toISOString()} | [true]`
       }
       // else, we append a random string
@@ -70,6 +73,7 @@ export default function useGrid() {
   return React.useMemo(
     () =>
       ({
+        createGrid,
         convertToGrid
       } as const),
     []
