@@ -63,6 +63,8 @@ export default function CalendarView({
     []
   )
 
+  // TODO: understand how the default theme works:
+  // https://github.com/wix/react-native-calendars/blob/66f1eff58cdebd2deebff8a557ad8e7b83af361d/src/agenda/reservation-list/reservation.js#L65
   const renderDay = React.useCallback(
     (day: DateObject | undefined, item: CalendarViewEvent) => {
       if (day) {
