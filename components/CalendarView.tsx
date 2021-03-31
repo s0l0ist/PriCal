@@ -104,9 +104,9 @@ export default function CalendarView({
       // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
       maxDate={endDate}
       // Max amount of months allowed to scroll to the past. Default = 50
-      pastScrollRange={50}
+      pastScrollRange={1}
       // Max amount of months allowed to scroll to the future. Default = 50
-      futureScrollRange={50}
+      futureScrollRange={1}
       // Specify how each item should be rendered in agenda
       renderItem={renderItem}
       // Specify how each date should be rendered. day can be undefined if the item is not first in that day.
