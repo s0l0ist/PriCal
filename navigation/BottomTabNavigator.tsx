@@ -6,6 +6,7 @@ import {
   StackNavigationProp
 } from '@react-navigation/stack'
 import * as React from 'react'
+import { Button } from 'react-native'
 
 import CreateScreen from '../screens/CreateScreen'
 import ScheduleDetailsScreen from '../screens/ScheduleDetailsScreen'
@@ -96,6 +97,14 @@ export default function BottomTabNavigator() {
   )
 }
 
+const SettingsButton = () => (
+  <Button
+    onPress={() => alert('This is a button!')}
+    title="Info"
+    color="#000"
+  />
+)
+
 /**
  * The create tab and its child screens
  */
@@ -105,7 +114,10 @@ function CreateTabNavigator() {
       <CreateTabStack.Screen
         name="CreateScreen"
         component={CreateScreen}
-        options={{ headerTitle: 'Create a Request' }}
+        options={{
+          headerTitle: 'Create a Request',
+          headerRight: SettingsButton
+        }}
       />
     </CreateTabStack.Navigator>
   )
@@ -120,12 +132,18 @@ function SchedulesTabNavigator() {
       <SchedulesTabStack.Screen
         name="SchedulesScreen"
         component={SchedulesScreen}
-        options={{ headerTitle: 'Active Schedule Requests' }}
+        options={{
+          headerTitle: 'Active Schedule Requests',
+          headerRight: SettingsButton
+        }}
       />
       <SchedulesTabStack.Screen
         name="ScheduleDetailsScreen"
         component={ScheduleDetailsScreen}
-        options={{ headerTitle: 'Schedule Details' }}
+        options={{
+          headerTitle: 'Schedule Details',
+          headerRight: SettingsButton
+        }}
       />
     </SchedulesTabStack.Navigator>
   )
