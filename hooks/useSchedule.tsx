@@ -1,3 +1,4 @@
+import { format } from 'prettier'
 import * as React from 'react'
 
 import { PsiContextProps } from '../components/contexts/PsiContext'
@@ -29,12 +30,11 @@ export default function useSchedule({
     const { start, end } = getDateRange(SCHEDULE_DAYS, rightNow)
     const calendarIds = localCalendars.map(x => x.id)
     const events = await listEvents(calendarIds, start, end)
-    const fomattedEvents = events.map(x => ({
+    const formattedEvents = events.map(x => ({
       start: new Date(x.startDate),
       end: new Date(x.endDate)
     }))
-
-    const grid = convertToGrid(fomattedEvents, start, end)
+    const grid = convertToGrid(formattedEvents, start, end)
     const context = await createClientRequest({ grid })
 
     return {

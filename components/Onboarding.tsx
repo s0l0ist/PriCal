@@ -1,3 +1,4 @@
+import { useAssets } from 'expo-asset'
 import React from 'react'
 import {
   ActivityIndicator,
@@ -47,6 +48,15 @@ const Onboarding: React.FC = ({ children }) => {
   const [permissions] = usePermissions()
 
   /*****************
+   *  Assets
+   *****************/
+  /**
+   * We load our static site containing the PSI WASM library that we will load in
+   * a WebView
+   */
+  const [assets, assetsError] = useAssets([require('../assets/www/index.html')])
+
+  /*****************
    *  Expo Push Notification token
    *****************/
   const [token] = useNotification()
@@ -91,10 +101,10 @@ const Onboarding: React.FC = ({ children }) => {
    * Effect: if we're done loading, we are finished initializing!
    */
   React.useEffect(() => {
-    if (user.loaded && permissions.loaded) {
+    if (user.loaded && permissions.loaded && assets && !assetsError) {
       setInitialized(true)
     }
-  }, [user.loaded, permissions.loaded])
+  }, [user.loaded, permissions.loaded, assets, assetsError])
 
   /**
    * Show spinner
@@ -103,6 +113,7 @@ const Onboarding: React.FC = ({ children }) => {
     return (
       <View style={styles.loading}>
         <Text>Loading...</Text>
+        {assetsError && <Text>{`Error loading WebView: ${assetsError}`}</Text>}
         <ActivityIndicator animating={!initialized} />
       </View>
     )
@@ -118,6 +129,7 @@ const Onboarding: React.FC = ({ children }) => {
         <Text>Enter your name</Text>
         <TextInput
           style={{
+            textAlign: 'center',
             height: 40,
             paddingLeft: 10,
             paddingRight: 10,
@@ -177,6 +189,11 @@ const Onboarding: React.FC = ({ children }) => {
    */
   const applicationReady = initialized && psiLoaded
 
+  /**
+   * Exctract the local uri from the index.html asset
+   */
+  const uri = assets![0].localUri!
+
   return (
     <PsiProvider
       onMessage={onMessage}
@@ -184,6 +201,7 @@ const Onboarding: React.FC = ({ children }) => {
       createServerResponse={createServerResponse}
       computeIntersection={computeIntersection}
       webviewRef={webviewRef}
+      uri={uri}
     >
       {!applicationReady && (
         <View style={styles.loading}>

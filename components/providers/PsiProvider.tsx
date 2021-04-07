@@ -22,6 +22,7 @@ type PsiProviderProps = {
     payload: ComputeIntersectionProps
   ) => Promise<Intersection>
   webviewRef: React.RefObject<WebView<object>>
+  uri: string
 }
 /**
  * Create a PSI WebView component that will load a static site exposing
@@ -40,6 +41,7 @@ const PsiProvider: React.FC<PsiProviderProps> = ({
   createServerResponse,
   computeIntersection,
   webviewRef,
+  uri,
   children
 }) => {
   return (
@@ -58,12 +60,10 @@ const PsiProvider: React.FC<PsiProviderProps> = ({
       >
         <WebView
           ref={webviewRef}
-          // TODO: replace with the public url
           originWhitelist={['*']}
-          source={{
-            // TODO: replace with a public url
-            uri: 'http://localhost:19006/'
-          }}
+          // This is needed for Android
+          allowFileAccess={true}
+          source={{ uri }}
           style={{ width: 0, height: 0 }}
           // The first message received should be the initialization
           // command. Afterward, we need to use the other handler.
