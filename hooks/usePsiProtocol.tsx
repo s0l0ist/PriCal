@@ -4,8 +4,6 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview'
 
 import useRandom from './useRandom'
 
-const INITIALIZED_COMAND_ID = 'INITIALIZED'
-
 /**
  * Type alias to 'see' that the string should be base64 encoded
  */
