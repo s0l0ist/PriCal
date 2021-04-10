@@ -4,7 +4,7 @@ import * as React from 'react'
 /**
  * The type can be undefined if the user denies permission
  */
-export type ExpoNotificationContextProps = {
+export interface IExpoNotificationContext {
   token: ExpoPushToken | undefined
 }
 
@@ -17,8 +17,8 @@ export type ExpoNotificationContextProps = {
  *
  * Instead, the requestor will need to poll/refresh the list of events to 'guess'.
  */
-const ExpoNotificationContext = React.createContext<ExpoNotificationContextProps>(
-  { token: undefined }
-)
+const ExpoNotificationContext = React.createContext<IExpoNotificationContext>({
+  token: undefined
+})
 
 export default ExpoNotificationContext

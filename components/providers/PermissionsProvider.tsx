@@ -1,21 +1,15 @@
 import * as React from 'react'
 
-import { PermissionResponse } from '../../hooks/useCalendar'
-import PermissionsContext from '../contexts/PermissionsContext'
+import PermissionsContext, {
+  IPermissionsContext
+} from '../contexts/PermissionsContext'
 
-type PermissionsProviderProps = {
-  hasRequiredPermissions: boolean
-  hasCalendarPermission: boolean
-  hasReminderPermission: boolean
-  hasNotificationsPermission: boolean
-  missingPermissions: PermissionResponse[]
-}
 /**
  * This component renders all children if the
  * required permissions are met. Push notifications
  * are not a required permission
  */
-const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
+const PermissionsProvider: React.FC<IPermissionsContext> = ({
   hasRequiredPermissions,
   hasCalendarPermission,
   hasReminderPermission,

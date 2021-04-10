@@ -29,6 +29,13 @@ export default function useProfile() {
   }
 
   /**
+   * Retrieves a user's profile
+   */
+  const loadProfile = () => {
+    return getProfile()
+  }
+
+  /**
    * Effect: on mount, load the user's profile
    */
   React.useEffect(() => {
@@ -48,8 +55,9 @@ export default function useProfile() {
     })()
   }, [])
 
-  return React.useMemo(() => [state, { saveProfile }] as const, [
+  return React.useMemo(() => [state, { saveProfile, loadProfile }] as const, [
     state,
-    saveProfile
+    saveProfile,
+    loadProfile
   ])
 }

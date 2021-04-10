@@ -22,8 +22,8 @@ import PsiContext from '../contexts/PsiContext'
 export default function ApprovalModal() {
   const [modalVisible, setModalVisible] = useState(true)
   const [approval, setApproval] = useState(false)
-  const [requestApi, getPublicRequest] = useGetPublicRequest()
-  const [responseApi, sendResponse] = useCreateResponse()
+  const [clientRequestApi, getPublicRequest] = useGetPublicRequest()
+  const [serverResponseApi, sendResponse] = useCreateResponse()
   const context = React.useContext(PsiContext)
   const { createResponse } = useSchedule(context)
 
@@ -51,9 +51,9 @@ export default function ApprovalModal() {
    */
   React.useEffect(() => {
     ;(async () => {
-      if (requestApi.response && !requestApi.error && approval) {
+      if (clientRequestApi.response && !clientRequestApi.error && approval) {
         const serverResponse = await createResponse(
-          requestApi.response!.request
+          clientRequestApi.response!.request
         )
         sendResponse({
           requestId,
@@ -63,7 +63,7 @@ export default function ApprovalModal() {
         setApproval(false)
       }
     })()
-  }, [requestApi.response, requestApi.error, approval])
+  }, [clientRequestApi.response, clientRequestApi.error, approval])
 
   /**
    * Effect: Upon a successful server response to the request,
@@ -71,10 +71,10 @@ export default function ApprovalModal() {
    * to go back.
    */
   React.useEffect(() => {
-    if (responseApi.response && !responseApi.error) {
+    if (serverResponseApi.response && !serverResponseApi.error) {
       setModalVisible(false)
     }
-  }, [responseApi.response, responseApi.error])
+  }, [serverResponseApi.response, serverResponseApi.error])
 
   /**
    * Effect: Go back to the root screen when the modal
@@ -101,8 +101,10 @@ export default function ApprovalModal() {
    * requests are in flight
    */
   const isProcessing = React.useMemo(() => {
-    return requestApi.processing || responseApi.processing
-  }, [requestApi.processing, responseApi.processing])
+    return (
+      clientRequestApi.processing || serverResponseApi.processing || approval
+    )
+  }, [clientRequestApi.processing, serverResponseApi.processing, approval])
 
   return (
     <View style={styles.centeredView}>
@@ -114,12 +116,12 @@ export default function ApprovalModal() {
       >
         <View style={styles.mainView}>
           <View style={styles.modalView}>
-            {requestApi.response && (
+            {clientRequestApi.response && (
               <Text style={styles.modalText}>
-                {`Hi there, ${requestApi.response.requestor} wants to request your 2-week availability.`}
+                {`Hi there, ${clientRequestApi.response.requestor} wants to request your 2-week availability.`}
               </Text>
             )}
-            {requestApi.error && (
+            {clientRequestApi.error && (
               <Text style={styles.modalText}>
                 This request has been canceled!
               </Text>
@@ -133,10 +135,10 @@ export default function ApprovalModal() {
               >
                 <Ionicons name="close-outline" size={48} color="gray" />
               </Pressable>
-              {requestApi.response && (
+              {clientRequestApi.response && (
                 <Pressable
                   style={styles.button}
-                  disabled={isProcessing || Boolean(requestApi.error)}
+                  disabled={isProcessing || Boolean(clientRequestApi.error)}
                   onPress={() => setApproval(true)}
                 >
                   <Ionicons name="checkmark" size={48} color="green" />

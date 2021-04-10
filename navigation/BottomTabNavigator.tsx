@@ -6,11 +6,11 @@ import {
   StackNavigationProp
 } from '@react-navigation/stack'
 import * as React from 'react'
-import { Button } from 'react-native'
 
 import CreateScreen from '../screens/CreateScreen'
 import ScheduleDetailsScreen from '../screens/ScheduleDetailsScreen'
 import SchedulesScreen from '../screens/SchedulesScreen'
+import SettingsScreen from '../screens/SettingsScreen'
 
 /**
  * Types for our navigation hierarchy from the root tree (left to right)
@@ -23,8 +23,12 @@ export type RootStackParamList = {
   }
 }
 export type BottomTabParamList = {
+  Settings: undefined
   Create: undefined
   Schedules: undefined
+}
+export type SettingsTabParamList = {
+  SettingsScreen: undefined
 }
 export type CreateTabParamList = {
   CreateScreen: undefined
@@ -68,6 +72,7 @@ export type ScheduleDetailsScreenRouteProp = RouteProp<
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 const BottomTab = createBottomTabNavigator<BottomTabParamList>()
+const SettingsTabStack = createStackNavigator<SettingsTabParamList>()
 const CreateTabStack = createStackNavigator<CreateTabParamList>()
 const SchedulesTabStack = createStackNavigator<SchedulesTabParamList>()
 
@@ -77,6 +82,15 @@ const SchedulesTabStack = createStackNavigator<SchedulesTabParamList>()
 export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator initialRouteName="Create" lazy={true}>
+      <BottomTab.Screen
+        name="Settings"
+        component={SettingsTabNavigator}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="ios-settings" color={color} />
+          )
+        }}
+      />
       <BottomTab.Screen
         name="Create"
         component={CreateTabNavigator}
@@ -97,13 +111,22 @@ export default function BottomTabNavigator() {
   )
 }
 
-const SettingsButton = () => (
-  <Button
-    onPress={() => alert('This is a button!')}
-    title="Info"
-    color="#000"
-  />
-)
+/**
+ * The settings tab and its child screens
+ */
+function SettingsTabNavigator() {
+  return (
+    <SettingsTabStack.Navigator>
+      <SettingsTabStack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{
+          headerTitle: 'Settings'
+        }}
+      />
+    </SettingsTabStack.Navigator>
+  )
+}
 
 /**
  * The create tab and its child screens
@@ -115,8 +138,7 @@ function CreateTabNavigator() {
         name="CreateScreen"
         component={CreateScreen}
         options={{
-          headerTitle: 'Create a Request',
-          headerRight: SettingsButton
+          headerTitle: 'Create a Request'
         }}
       />
     </CreateTabStack.Navigator>
@@ -133,16 +155,14 @@ function SchedulesTabNavigator() {
         name="SchedulesScreen"
         component={SchedulesScreen}
         options={{
-          headerTitle: 'Active Schedule Requests',
-          headerRight: SettingsButton
+          headerTitle: 'Active Schedule Requests'
         }}
       />
       <SchedulesTabStack.Screen
         name="ScheduleDetailsScreen"
         component={ScheduleDetailsScreen}
         options={{
-          headerTitle: 'Schedule Details',
-          headerRight: SettingsButton
+          headerTitle: 'Schedule Details'
         }}
       />
     </SchedulesTabStack.Navigator>

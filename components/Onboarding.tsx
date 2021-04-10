@@ -99,22 +99,34 @@ const Onboarding: React.FC = ({ children }) => {
    *****************/
   /**
    * Effect: if we're done loading, we are finished initializing!
+   * `user` and `permissions` have a `loaded` state, but `assets` will be
+   * null or an array.
    */
   React.useEffect(() => {
-    if (user.loaded && permissions.loaded && assets && !assetsError) {
+    if (user.loaded && permissions.loaded && assets) {
       setInitialized(true)
     }
-  }, [user.loaded, permissions.loaded, assets, assetsError])
+  }, [user.loaded, permissions.loaded, assets])
 
   /**
-   * Show spinner
+   * Show spinner while we're initializing
    */
   if (!initialized) {
     return (
       <View style={styles.loading}>
         <Text>Loading...</Text>
-        {assetsError && <Text>{`Error loading WebView: ${assetsError}`}</Text>}
         <ActivityIndicator animating={!initialized} />
+      </View>
+    )
+  }
+
+  /**
+   * If the assets failed to load, then display the error
+   */
+  if (assetsError) {
+    return (
+      <View style={styles.loading}>
+        <Text>{`Error loading WebView: ${assetsError}`}</Text>
       </View>
     )
   }
@@ -210,7 +222,7 @@ const Onboarding: React.FC = ({ children }) => {
         </View>
       )}
       {applicationReady && (
-        <ProfileProvider profile={user.profile}>
+        <ProfileProvider profile={user.profile} setProfile={saveProfile}>
           <PermissionsProvider
             hasRequiredPermissions={permissions.hasRequiredPermissions}
             hasCalendarPermission={permissions.hasCalendarPermission}

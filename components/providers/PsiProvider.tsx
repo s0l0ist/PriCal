@@ -2,28 +2,13 @@ import * as React from 'react'
 import { View } from 'react-native'
 import { WebView, WebViewMessageEvent } from 'react-native-webview'
 
-import {
-  ClientRequest,
-  ClientRequestProps,
-  ComputeIntersectionProps,
-  Intersection,
-  ServerResponse,
-  ServerResponseProps
-} from '../../hooks/usePsiProtocol'
-import PsiContext from '../contexts/PsiContext'
-
-type PsiProviderProps = {
+import PsiContext, { IPsiContext } from '../contexts/PsiContext'
+interface IPsiContextProvider extends IPsiContext {
   onMessage: (event: WebViewMessageEvent) => void
-  createClientRequest: (payload: ClientRequestProps) => Promise<ClientRequest>
-  createServerResponse: (
-    payload: ServerResponseProps
-  ) => Promise<ServerResponse>
-  computeIntersection: (
-    payload: ComputeIntersectionProps
-  ) => Promise<Intersection>
   webviewRef: React.RefObject<WebView<object>>
   uri: string
 }
+
 /**
  * Create a PSI WebView component that will load a static site exposing
  * a PSI API. This component will be used as a parent component
@@ -35,7 +20,7 @@ type PsiProviderProps = {
  *
  * We use a context to avoid passing the APIs as props to every child
  */
-const PsiProvider: React.FC<PsiProviderProps> = ({
+const PsiProvider: React.FC<IPsiContextProvider> = ({
   onMessage,
   createClientRequest,
   createServerResponse,
@@ -44,6 +29,7 @@ const PsiProvider: React.FC<PsiProviderProps> = ({
   uri,
   children
 }) => {
+  console.log('rendering webview')
   return (
     <PsiContext.Provider
       value={{
@@ -64,6 +50,7 @@ const PsiProvider: React.FC<PsiProviderProps> = ({
           // This is needed for Android
           allowFileAccess={true}
           source={{ uri }}
+          // source={{ uri: 'http://192.168.1.203:19006' }}
           style={{ width: 0, height: 0 }}
           // The first message received should be the initialization
           // command. Afterward, we need to use the other handler.

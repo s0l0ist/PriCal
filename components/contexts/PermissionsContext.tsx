@@ -5,7 +5,7 @@ import { PermissionResponse } from '../../hooks/useCalendar'
 /**
  * The type can be undefined if the user denies permission
  */
-export type PermissionsContextProps = {
+export interface IPermissionsContext {
   hasRequiredPermissions: boolean
   hasCalendarPermission: boolean
   hasReminderPermission: boolean
@@ -17,7 +17,7 @@ export type PermissionsContextProps = {
  * We use a context for the application permissions to share these across all components of
  * the application.
  */
-const PermissionsContext = React.createContext<PermissionsContextProps>({
+const PermissionsContext = React.createContext<IPermissionsContext>({
   hasRequiredPermissions: false,
   hasCalendarPermission: false,
   hasReminderPermission: false,
