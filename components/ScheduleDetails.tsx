@@ -142,7 +142,7 @@ export default function ScheduleDetails() {
           // Ex:
           //   an intersection index could represent a 15-minute window
           //
-          inter.forEach(i => {
+          inter.forEach((i: number) => {
             const dayIndex = Math.floor(i / GRID_ELEMENTS_PER_DAY)
             const days = [...displayedEvents.keys()]
             const day = days[dayIndex]

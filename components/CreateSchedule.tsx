@@ -48,6 +48,12 @@ export default function CreateRequest() {
   const [createRequestApi, makeApiRequest] = useCreateRequest()
   const { addRequest } = useSync()
 
+  const onSubmitEditing = () => {
+    if (!requestName || loading) {
+      return
+    }
+    onCreateRequest()
+  }
   /**
    * Create a client request when the button is pressed
    * and then send it to the cloud
@@ -136,6 +142,7 @@ export default function CreateRequest() {
           style={styles.textInput}
           onChangeText={setRequestName}
           value={requestName}
+          onSubmitEditing={onSubmitEditing}
         />
         <ActivityIndicator style={styles.activity} animating={loading} />
 

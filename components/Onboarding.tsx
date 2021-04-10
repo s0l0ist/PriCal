@@ -1,3 +1,4 @@
+import { useAssets } from 'expo-asset'
 import React from 'react'
 import {
   ActivityIndicator,
@@ -47,6 +48,15 @@ const Onboarding: React.FC = ({ children }) => {
   const [permissions] = usePermissions()
 
   /*****************
+   *  Assets
+   *****************/
+  /**
+   * We load our static site containing the PSI WASM library that we will load in
+   * a WebView
+   */
+  const [assets, assetsError] = useAssets([require('../assets/www/index.html')])
+
+  /*****************
    *  Expo Push Notification token
    *****************/
   const [token] = useNotification()
@@ -89,21 +99,34 @@ const Onboarding: React.FC = ({ children }) => {
    *****************/
   /**
    * Effect: if we're done loading, we are finished initializing!
+   * `user` and `permissions` have a `loaded` state, but `assets` will be
+   * null or an array.
    */
   React.useEffect(() => {
-    if (user.loaded && permissions.loaded) {
+    if (user.loaded && permissions.loaded && assets) {
       setInitialized(true)
     }
-  }, [user.loaded, permissions.loaded])
+  }, [user.loaded, permissions.loaded, assets])
 
   /**
-   * Show spinner
+   * Show spinner while we're initializing
    */
   if (!initialized) {
     return (
       <View style={styles.loading}>
         <Text>Loading...</Text>
         <ActivityIndicator animating={!initialized} />
+      </View>
+    )
+  }
+
+  /**
+   * If the assets failed to load, then display the error
+   */
+  if (assetsError) {
+    return (
+      <View style={styles.loading}>
+        <Text>{`Error loading WebView: ${assetsError}`}</Text>
       </View>
     )
   }
@@ -118,6 +141,7 @@ const Onboarding: React.FC = ({ children }) => {
         <Text>Enter your name</Text>
         <TextInput
           style={{
+            textAlign: 'center',
             height: 40,
             paddingLeft: 10,
             paddingRight: 10,
@@ -177,6 +201,11 @@ const Onboarding: React.FC = ({ children }) => {
    */
   const applicationReady = initialized && psiLoaded
 
+  /**
+   * Exctract the local uri from the index.html asset
+   */
+  const uri = assets![0].localUri!
+
   return (
     <PsiProvider
       onMessage={onMessage}
@@ -184,6 +213,7 @@ const Onboarding: React.FC = ({ children }) => {
       createServerResponse={createServerResponse}
       computeIntersection={computeIntersection}
       webviewRef={webviewRef}
+      uri={uri}
     >
       {!applicationReady && (
         <View style={styles.loading}>
@@ -192,7 +222,7 @@ const Onboarding: React.FC = ({ children }) => {
         </View>
       )}
       {applicationReady && (
-        <ProfileProvider profile={user.profile}>
+        <ProfileProvider profile={user.profile} setProfile={saveProfile}>
           <PermissionsProvider
             hasRequiredPermissions={permissions.hasRequiredPermissions}
             hasCalendarPermission={permissions.hasCalendarPermission}

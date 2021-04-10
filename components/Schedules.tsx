@@ -170,11 +170,9 @@ const styles = StyleSheet.create({
     fontSize: 17
   },
   item: {
-    borderRadius: 10,
     backgroundColor: 'white',
     padding: 20,
-    marginTop: 8,
-    marginHorizontal: 8
+    marginTop: 8
   },
   title: {
     fontSize: 32

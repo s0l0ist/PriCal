@@ -1,24 +1,21 @@
 import * as React from 'react'
 
-import { Profile } from '../../hooks/store/useSync'
-import ProfileContext from '../contexts/ProfileContext'
-
-type ProfileProviderProps = {
-  profile: Profile | undefined
-}
+import ProfileContext, { IProfileContext } from '../contexts/ProfileContext'
 
 /**
  * Create a Profile provider that will provide the
  * users profile to child components
  */
-const ProfileProvider: React.FC<ProfileProviderProps> = ({
+const ProfileProvider: React.FC<IProfileContext> = ({
   profile,
+  setProfile,
   children
 }) => {
   return (
     <ProfileContext.Provider
       value={{
-        profile
+        profile,
+        setProfile
       }}
     >
       {children}
