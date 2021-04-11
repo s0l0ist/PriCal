@@ -68,7 +68,8 @@ export default function useCalendar() {
   const filterAndroidCalendars = (calendars: Calendar.Calendar[]) => {
     const calendarEventTypes = calendars.filter(
       x =>
-        x.entityType === Calendar.EntityTypes.EVENT || x.accessLevel === 'owner'
+        x.entityType === Calendar.EntityTypes.EVENT ||
+        x.accessLevel === Calendar.CalendarAccessLevel.OWNER
     )
     const localCalendars = calendarEventTypes.filter(
       x => x.source.type === 'com.google'
