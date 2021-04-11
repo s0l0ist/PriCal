@@ -48,7 +48,7 @@ export type ApprovalScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   'Root'
 >
-export type NotFoundScreenNavigationProps = StackNavigationProp<
+export type NotFoundScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   'NotFound'
 >

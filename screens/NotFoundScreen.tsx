@@ -3,10 +3,10 @@ import { StatusBar } from 'expo-status-bar'
 import * as React from 'react'
 import { Pressable, StyleSheet, Text, SafeAreaView } from 'react-native'
 
-import { NotFoundScreenNavigationProps } from '../navigation/BottomTabNavigator'
+import { NotFoundScreenNavigationProp } from '../navigation/BottomTabNavigator'
 
 export default function NotFoundScreen() {
-  const navigation = useNavigation<NotFoundScreenNavigationProps>()
+  const navigation = useNavigation<NotFoundScreenNavigationProp>()
 
   return (
     <SafeAreaView style={styles.container}>
