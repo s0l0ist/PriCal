@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import useRequest from './useRequest'
+import useRequest, { HTTP_METHOD } from './useRequest'
 
-export type CreateRequestProps = {
+interface ICreateRequest {
   token?: string // Optional push notification token
   requestor: string // The user who is issuing the request to display when the user clicks the link.
   requestName: string
@@ -35,7 +35,7 @@ export default function useCreateRequest() {
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
-      method: 'post'
+      method: HTTP_METHOD.POST
     },
     {
       onCompleted: payload => {
@@ -61,8 +61,8 @@ export default function useCreateRequest() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: CreateRequestProps) => {
-    apiRequest<CreateRequestProps>(payload)
+  const makeApiRequest = (payload: ICreateRequest) => {
+    apiRequest<ICreateRequest>(payload)
     setState(prev => ({
       ...prev,
       processing: true

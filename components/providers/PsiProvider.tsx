@@ -28,43 +28,40 @@ const PsiProvider: React.FC<IPsiContextProvider> = ({
   webviewRef,
   uri,
   children
-}) => {
-  console.log('rendering webview')
-  return (
-    <PsiContext.Provider
-      value={{
-        createClientRequest,
-        createServerResponse,
-        computeIntersection
+}) => (
+  <PsiContext.Provider
+    value={{
+      createClientRequest,
+      createServerResponse,
+      computeIntersection
+    }}
+  >
+    <View
+      style={{
+        width: 0,
+        height: 0
       }}
     >
-      <View
-        style={{
-          width: 0,
-          height: 0
+      <WebView
+        ref={webviewRef}
+        originWhitelist={['*']}
+        // This is needed for Android
+        allowFileAccess={true}
+        source={{ uri }}
+        // source={{ uri: 'http://192.168.1.203:19006' }}
+        style={{ width: 0, height: 0 }}
+        // The first message received should be the initialization
+        // command. Afterward, we need to use the other handler.
+        onMessage={onMessage}
+        onError={() => console.error('error loading page')}
+        onLoadStart={() => console.log('started loading page')}
+        onLoad={() => {
+          console.log('finished loading page')
         }}
-      >
-        <WebView
-          ref={webviewRef}
-          originWhitelist={['*']}
-          // This is needed for Android
-          allowFileAccess={true}
-          source={{ uri }}
-          // source={{ uri: 'http://192.168.1.203:19006' }}
-          style={{ width: 0, height: 0 }}
-          // The first message received should be the initialization
-          // command. Afterward, we need to use the other handler.
-          onMessage={onMessage}
-          onError={() => console.error('error loading page')}
-          onLoadStart={() => console.log('started loading page')}
-          onLoad={() => {
-            console.log('finished loading page')
-          }}
-        />
-      </View>
-      {children}
-    </PsiContext.Provider>
-  )
-}
+      />
+    </View>
+    {children}
+  </PsiContext.Provider>
+)
 
 export default PsiProvider

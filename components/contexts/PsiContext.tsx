@@ -4,17 +4,15 @@ import {
   ClientRequest,
   ServerResponse,
   Intersection,
-  ClientRequestProps,
-  ComputeIntersectionProps,
-  ServerResponseProps
+  IClientRequest,
+  IComputeIntersection,
+  IServerResponse
 } from '../../hooks/usePsiProtocol'
 
 export interface IPsiContext {
-  createClientRequest: (props: ClientRequestProps) => Promise<ClientRequest>
-  createServerResponse: (props: ServerResponseProps) => Promise<ServerResponse>
-  computeIntersection: (
-    props: ComputeIntersectionProps
-  ) => Promise<Intersection>
+  createClientRequest: (props: IClientRequest) => Promise<ClientRequest>
+  createServerResponse: (props: IServerResponse) => Promise<ServerResponse>
+  computeIntersection: (props: IComputeIntersection) => Promise<Intersection>
 }
 
 // We cannot set a default value until the WebView has been loaded. Unfortunately,

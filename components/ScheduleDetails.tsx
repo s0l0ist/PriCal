@@ -2,7 +2,6 @@ import { useRoute, useNavigation } from '@react-navigation/native'
 import React from 'react'
 import { View, StyleSheet, Text, Button, ActivityIndicator } from 'react-native'
 
-import { GRID_ELEMENTS_PER_DAY, SCHEDULE_DAYS } from '../constants/Grid'
 import useDeleteRequest from '../hooks/api/useDeleteRequest'
 import useGetPrivateResponse from '../hooks/api/useGetPrivateResponse'
 import useSync, { Request } from '../hooks/store/useSync'
@@ -12,6 +11,7 @@ import {
   ScheduleDetailsScreenRouteProp,
   SchedulesScreenNavigationProp
 } from '../navigation/BottomTabNavigator'
+import { GRID_ELEMENTS_PER_DAY, SCHEDULE_DAYS } from '../utils/constants'
 import { eventString, getDateRange } from '../utils/date'
 import CalendarView from './CalendarView'
 import PsiContext from './contexts/PsiContext'

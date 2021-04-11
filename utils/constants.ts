@@ -8,3 +8,12 @@ export const GRID_ELEMENTS_PER_DAY = ONE_DAY / TIME_SLICE_MS
 
 // Change only this variable
 export const SCHEDULE_DAYS = 14
+
+export const IOS = 'ios'
+export const ANDROID = 'android'
+
+export const KEYCHAIN_SERVICE = 'PRI_CAL'
+export const MAX_KEYS_TO_STORE = 10
+export const EXPO_NOTIFICATION_TOKEN = 'EXPO_NOTIFICATION_TOKEN'
+export const REQUEST_MAP = 'REQUEST_MAP'
+export const PROFILE = 'PROFILE'

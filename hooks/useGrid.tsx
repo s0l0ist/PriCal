@@ -4,7 +4,7 @@ import {
   TIME_SLICE_MS,
   GRID_ELEMENTS_PER_DAY,
   ONE_DAY
-} from '../constants/Grid'
+} from '../utils/constants'
 import useRandom from './useRandom'
 
 type Event = {

@@ -10,22 +10,22 @@ import useRandom from './useRandom'
 type base64 = string
 
 /**
- * Prop types for our APIs
+ * Prop interfaces for our APIs
  */
-export type InitializedProps = {
+export interface IInitialized {
   initialized: boolean
 }
 
-export type ClientRequestProps = {
+export interface IClientRequest {
   grid: string[]
 }
 
-export type ServerResponseProps = {
+export interface IServerResponse {
   request: base64
   grid: string[]
 }
 
-export type ComputeIntersectionProps = {
+export interface IComputeIntersection {
   key: base64
   response: base64
   setup: base64
@@ -60,25 +60,25 @@ export enum PSI_COMMAND_TYPES {
 export type PSI_INITIALIZED_COMMAND = {
   id: string
   type: PSI_COMMAND_TYPES.INITIALIZED
-  payload: InitializedProps
+  payload: IInitialized
 }
 
 type PSI_CREATE_REQUEST_COMMAND = {
   id: string
   type: PSI_COMMAND_TYPES.CREATE_REQUEST
-  payload: ClientRequestProps
+  payload: IClientRequest
 }
 
 type PSI_CREATE_RESPONSE_COMMAND = {
   id: string
   type: PSI_COMMAND_TYPES.CREATE_RESPONSE
-  payload: ServerResponseProps
+  payload: IServerResponse
 }
 
 type PSI_COMPUTE_INTERSECTION_COMMAND = {
   id: string
   type: PSI_COMMAND_TYPES.COMPUTE_INTERSECTION
-  payload: ComputeIntersectionProps
+  payload: IComputeIntersection
 }
 
 type COMMAND =
@@ -152,7 +152,7 @@ export default function usePsiProtocol({
    * Create and expose the 3 PSI APIs that we want to bridge.
    */
   const createClientRequest = (
-    payload: ClientRequestProps
+    payload: IClientRequest
   ): Promise<ClientRequest> => {
     const message = {
       id: getRandomString(4),
@@ -164,7 +164,7 @@ export default function usePsiProtocol({
   }
 
   const createServerResponse = async (
-    payload: ServerResponseProps
+    payload: IServerResponse
   ): Promise<ServerResponse> => {
     const message = {
       id: getRandomString(4),
@@ -176,7 +176,7 @@ export default function usePsiProtocol({
   }
 
   const computeIntersection = async (
-    payload: ComputeIntersectionProps
+    payload: IComputeIntersection
   ): Promise<Intersection> => {
     const message = {
       id: getRandomString(4),

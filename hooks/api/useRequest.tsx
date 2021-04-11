@@ -1,13 +1,18 @@
 import * as React from 'react'
 
-type FetchHandlerProps<T> = {
+export enum HTTP_METHOD {
+  POST = 'post',
+  GET = 'get',
+  DELETE = 'delete'
+}
+interface IFetchHandler<T> {
   onCompleted: (data: T) => void
   onError: (err: Error) => void
 }
 
-type FetchProps = {
+interface IFetch {
   url: string
-  method: 'post' | 'get' | 'delete'
+  method: HTTP_METHOD
 }
 
 type RequestState = {
@@ -26,8 +31,8 @@ export default function useRequest() {
    * @param fetchHandlerProps Optional Handlers to call
    */
   const buildRequest = React.useCallback(function buildRequest<R>(
-    fetchProps: FetchProps,
-    fetchHandlerProps: FetchHandlerProps<R>
+    fetchProps: IFetch,
+    fetchHandlerProps: IFetchHandler<R>
   ) {
     const [state, setState] = React.useState<RequestState>({
       requesting: false,

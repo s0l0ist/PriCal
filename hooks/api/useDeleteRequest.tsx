@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import useRequest from './useRequest'
+import useRequest, { HTTP_METHOD } from './useRequest'
 
-export type DeleteRequestProps = {
+interface IDeleteRequest {
   requests: {
     requestId: string
     contextId: string
@@ -34,7 +34,7 @@ export default function useDeleteRequest() {
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
-      method: 'delete'
+      method: HTTP_METHOD.DELETE
     },
     {
       onCompleted: payload => {
@@ -60,8 +60,8 @@ export default function useDeleteRequest() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: DeleteRequestProps) => {
-    apiRequest<DeleteRequestProps>(payload)
+  const makeApiRequest = (payload: IDeleteRequest) => {
+    apiRequest<IDeleteRequest>(payload)
     setState(prev => ({
       ...prev,
       processing: true

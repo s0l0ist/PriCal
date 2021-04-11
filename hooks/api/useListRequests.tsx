@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import useRequest from './useRequest'
+import useRequest, { HTTP_METHOD } from './useRequest'
 
-export type ListRequestsProps = {
+interface IListRequests {
   requestIds: string[]
 }
 export type ListRequestResponse = {
@@ -34,7 +34,7 @@ export default function useListRequests() {
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/listClientRequests',
-      method: 'post'
+      method: HTTP_METHOD.POST
     },
     {
       onCompleted: payload => {
@@ -60,8 +60,8 @@ export default function useListRequests() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: ListRequestsProps) => {
-    apiRequest<ListRequestsProps>(payload)
+  const makeApiRequest = (payload: IListRequests) => {
+    apiRequest<IListRequests>(payload)
     setState(prev => ({
       ...prev,
       processing: true

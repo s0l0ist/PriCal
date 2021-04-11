@@ -5,7 +5,7 @@ import { Agenda, DateObject } from 'react-native-calendars'
 import { eventString } from '../utils/date'
 import { CalendarViewEvent, CalendarViewEvents } from './ScheduleDetails'
 
-type CalendarViewProps = {
+interface ICalendarView {
   createdAt: string
   updatedAt: string
   events: Map<string, CalendarViewEvents>
@@ -20,7 +20,7 @@ export default function CalendarView({
   createdAt,
   updatedAt,
   events
-}: CalendarViewProps) {
+}: ICalendarView) {
   const [
     calendarEvents,
     setCalendarEvents

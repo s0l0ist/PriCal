@@ -2,6 +2,7 @@ import * as Calendar from 'expo-calendar'
 import * as React from 'react'
 import { Platform } from 'react-native'
 
+import { IOS, ANDROID } from '../utils/constants'
 export enum PERMISSIONS_ENUM {
   CALENDAR = 'CALENDAR',
   REMINDERS = 'REMINDERS',
@@ -33,7 +34,7 @@ export default function useCalendar() {
   /**
    * Returns a list of calendars
    */
-  const getCalendars = React.useCallback((): Promise<Calendar.Calendar[]> => {
+  const listCalendars = React.useCallback((): Promise<Calendar.Calendar[]> => {
     return Calendar.getCalendarsAsync()
   }, [])
 
@@ -79,9 +80,9 @@ export default function useCalendar() {
 
   const filterCalendars = (calendars: Calendar.Calendar[]) => {
     switch (Platform.OS) {
-      case 'ios':
+      case IOS:
         return filterIosCalendars(calendars)
-      case 'android':
+      case ANDROID:
         return filterAndroidCalendars(calendars)
       default:
         throw new Error('Unsupported OS!')
@@ -94,7 +95,7 @@ export default function useCalendar() {
    */
   React.useEffect(() => {
     ;(async () => {
-      const calendars = await getCalendars()
+      const calendars = await listCalendars()
       const localCalendars = filterCalendars(calendars)
 
       setState({
@@ -104,5 +105,9 @@ export default function useCalendar() {
     })()
   }, [])
 
-  return React.useMemo(() => [state, { listEvents }] as const, [state])
+  return React.useMemo(() => [state, { listEvents, listCalendars }] as const, [
+    state,
+    listEvents,
+    listCalendars
+  ])
 }

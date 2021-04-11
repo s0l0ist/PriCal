@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { PROFILE, REQUEST_MAP } from '../../constants/Storage'
+import { PROFILE, REQUEST_MAP } from '../../utils/constants'
 import useStorage from './useStorage'
 
 export type Request = {

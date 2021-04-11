@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import useRequest from './useRequest'
+import useRequest, { HTTP_METHOD } from './useRequest'
 
-export type CreateResponseProps = {
+interface ICreateResponse {
   requestId: string
   response: string
   setup: string
@@ -31,7 +31,7 @@ export default function useCreateResponse() {
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/serverResponse',
-      method: 'post'
+      method: HTTP_METHOD.POST
     },
     {
       onCompleted: payload => {
@@ -57,8 +57,8 @@ export default function useCreateResponse() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: CreateResponseProps) => {
-    apiRequest<CreateResponseProps>(payload)
+  const makeApiRequest = (payload: ICreateResponse) => {
+    apiRequest<ICreateResponse>(payload)
     setState(prev => ({
       ...prev,
       processing: true

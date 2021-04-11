@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import useRequest from './useRequest'
+import useRequest, { HTTP_METHOD } from './useRequest'
 
-export type GetPublicRequestProps = {
+interface IGetPublicRequest {
   requestId: string
 }
 export type GetPublicRequestResponse = {
@@ -31,7 +31,7 @@ export default function useGetPublicRequest() {
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/clientRequest',
-      method: 'get'
+      method: HTTP_METHOD.GET
     },
     {
       onCompleted: payload => {
@@ -57,8 +57,8 @@ export default function useGetPublicRequest() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: GetPublicRequestProps) => {
-    apiRequest<GetPublicRequestProps>(payload)
+  const makeApiRequest = (payload: IGetPublicRequest) => {
+    apiRequest<IGetPublicRequest>(payload)
     setState(prev => ({
       ...prev,
       processing: true

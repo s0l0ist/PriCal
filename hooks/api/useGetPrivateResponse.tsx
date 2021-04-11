@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import useRequest from './useRequest'
+import useRequest, { HTTP_METHOD } from './useRequest'
 
-export type GetPrivateResponseProps = {
+interface IGetPrivateResponse {
   requestId: string
   contextId: string
 }
@@ -36,7 +36,7 @@ export default function useGetPrivateResponse() {
     {
       url:
         'https://us-central1-boreal-ellipse-303722.cloudfunctions.net/serverResponse',
-      method: 'get'
+      method: HTTP_METHOD.GET
     },
     {
       onCompleted: payload => {
@@ -62,8 +62,8 @@ export default function useGetPrivateResponse() {
   /**
    * Manual refresh of requests
    */
-  const makeApiRequest = (payload: GetPrivateResponseProps) => {
-    apiRequest<GetPrivateResponseProps>(payload)
+  const makeApiRequest = (payload: IGetPrivateResponse) => {
+    apiRequest<IGetPrivateResponse>(payload)
     setState(prev => ({
       ...prev,
       processing: true

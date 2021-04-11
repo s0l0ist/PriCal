@@ -1,8 +1,7 @@
-import { format } from 'prettier'
 import * as React from 'react'
 
-import { PsiContextProps } from '../components/contexts/PsiContext'
-import { SCHEDULE_DAYS } from '../constants/Grid'
+import { IPsiContext } from '../components/contexts/PsiContext'
+import { SCHEDULE_DAYS } from '../utils/constants'
 import { getDateRange } from '../utils/date'
 import useCalendar from './useCalendar'
 import useGrid from './useGrid'
@@ -14,7 +13,7 @@ export default function useSchedule({
   createClientRequest,
   createServerResponse,
   computeIntersection
-}: PsiContextProps) {
+}: IPsiContext) {
   const [{ localCalendars }, { listEvents }] = useCalendar()
   const { convertToGrid } = useGrid()
 
