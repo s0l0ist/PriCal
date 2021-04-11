@@ -50,8 +50,6 @@ const PsiProvider: React.FC<IPsiContextProvider> = ({
         source={{ uri }}
         // source={{ uri: 'http://192.168.1.203:19006' }}
         style={{ width: 0, height: 0 }}
-        // The first message received should be the initialization
-        // command. Afterward, we need to use the other handler.
         onMessage={onMessage}
         onError={() => console.error('error loading page')}
         onLoadStart={() => console.log('started loading page')}
